@@ -9,8 +9,12 @@ void main() {
 // haloo saya nur
 // haloo saya nurhidayah
 // haloo saya nur1
+<<<<<<< HEAD
 // haloo soff
 // haloooo
+=======
+//halo fika
+>>>>>>> 790265482cfa26cfcb81f275ae51b9ec7170f1dc
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
