@@ -5,6 +5,7 @@ void main() {
   runApp(const MyApp());
 }
 
+// haloo saya yunika
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
