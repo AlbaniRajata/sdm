@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/admin/homeadmin_page.dart';
+import 'package:sdm/admin/loginadmin_page.dart';
 
 class ProfileadminPage extends StatelessWidget {
   const ProfileadminPage({super.key});
@@ -91,7 +92,14 @@ class ProfileadminPage extends StatelessWidget {
               style: GoogleFonts.poppins(fontSize: 16),
             ),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.black),
-            onTap: () {},
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginadminPage(),
+                  ),
+                );
+            },
           ),
         ],
       ),

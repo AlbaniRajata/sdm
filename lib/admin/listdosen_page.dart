@@ -60,6 +60,7 @@ class ListDosenPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ValueNotifier<String> searchQuery = ValueNotifier<String>('');
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -91,11 +92,11 @@ class ListDosenPage extends StatelessWidget {
                       prefixIcon: const Icon(Icons.search),
                       hintText: 'Cari Dosen...',
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(12.0),
+                        borderSide: const BorderSide(color: Colors.grey),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: Colors.white,
                     ),
                   ),
                 ),
@@ -133,94 +134,103 @@ class ListDosenPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         elevation: 4,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 103, 119, 239),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 103, 119, 239),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(10),
+                                    topRight: Radius.circular(10),
+                                  ),
+                                ),
+                                child: Text(
+                                  dosen['name']!,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                dosen['name']!,
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 14,
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 4),
+                                    RichText(
+                                      text: TextSpan(
+                                        text: 'NIP\n',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: dosen['nip'],
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.normal,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(),
+                                    RichText(
+                                      text: TextSpan(
+                                        text: 'Email\n',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: dosen['email'],
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.normal,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Divider(),
+                                    RichText(
+                                      text: TextSpan(
+                                        text: 'Poin Saat Ini\n',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                        children: [
+                                          TextSpan(
+                                            text: dosen['poin'],
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.normal,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 8),
-                                  RichText(
-                                    text: TextSpan(
-                                      text: 'NIP\n',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: dosen['nip'],
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  RichText(
-                                    text: TextSpan(
-                                      text: 'Email\n',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: dosen['email'],
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  RichText(
-                                    text: TextSpan(
-                                      text: 'Poin Saat Ini\n',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      children: [
-                                        TextSpan(
-                                          text: dosen['poin'],
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
