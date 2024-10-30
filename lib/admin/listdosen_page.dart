@@ -119,119 +119,124 @@ class ListDosenPage extends StatelessWidget {
                     return name.contains(query.toLowerCase());
                   }).toList();
 
-                  return GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.9,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemCount: filteredDosenData.length,
-                    itemBuilder: (context, index) {
-                      final dosen = filteredDosenData[index];
-                      return Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      int crossAxisCount = constraints.maxWidth < 600 ? 1 : 2;
+                      return GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          childAspectRatio: 0.9,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
                         ),
-                        elevation: 4,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(8.0),
-                                decoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 103, 119, 239),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(10),
-                                    topRight: Radius.circular(10),
-                                  ),
-                                ),
-                                child: Text(
-                                  dosen['name']!,
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                        itemCount: filteredDosenData.length,
+                        itemBuilder: (context, index) {
+                          final dosen = filteredDosenData[index];
+                          return Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 4,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(height: 4),
-                                    RichText(
-                                      text: TextSpan(
-                                        text: 'NIP\n',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: dosen['nip'],
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.normal,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.all(8.0),
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 103, 119, 239),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(10),
+                                        topRight: Radius.circular(10),
                                       ),
                                     ),
-                                    const Divider(),
-                                    RichText(
-                                      text: TextSpan(
-                                        text: 'Email\n',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: dosen['email'],
-                                            style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.normal,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
+                                    child: Text(
+                                      dosen['name']!,
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        fontSize: 14,
                                       ),
                                     ),
-                                    const Divider(),
-                                    RichText(
-                                      text: TextSpan(
-                                        text: 'Poin Saat Ini\n',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
-                                        ),
-                                        children: [
-                                          TextSpan(
-                                            text: dosen['poin'],
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 4),
+                                        RichText(
+                                          text: TextSpan(
+                                            text: 'NIP\n',
                                             style: GoogleFonts.poppins(
-                                              fontWeight: FontWeight.normal,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
                                               color: Colors.black,
                                             ),
+                                            children: [
+                                              TextSpan(
+                                                text: dosen['nip'],
+                                                style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.normal,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        const Divider(),
+                                        RichText(
+                                          text: TextSpan(
+                                            text: 'Email\n',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: dosen['email'],
+                                                style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.normal,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const Divider(),
+                                        RichText(
+                                          text: TextSpan(
+                                            text: 'Poin Saat Ini\n',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: dosen['poin'],
+                                                style: GoogleFonts.poppins(
+                                                  fontWeight: FontWeight.normal,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
+                            ),
+                          );
+                        },
                       );
                     },
                   );
@@ -277,28 +282,38 @@ class ListDosenPage extends StatelessWidget {
         child: Row(
           children: <Widget>[
             const Spacer(flex: 2),
-            IconButton(
-              icon: const Icon(Icons.home_rounded, size: 40),
-              color: Colors.grey.shade400,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomeadminPage(),
-                  ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double iconSize = constraints.maxWidth * 0.1;
+                return IconButton(
+                  icon: Icon(Icons.home_rounded, size: iconSize),
+                  color: Colors.grey.shade400,
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeadminPage(),
+                      ),
+                    );
+                  },
                 );
               },
             ),
             const Spacer(flex: 5),
-            IconButton(
-              icon: const Icon(Icons.person, size: 40),
-              color: Colors.grey.shade400,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileadminPage(),
-                  ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double iconSize = constraints.maxWidth * 0.1;
+                return IconButton(
+                  icon: Icon(Icons.person, size: iconSize),
+                  color: Colors.grey.shade400,
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileadminPage(),
+                      ),
+                    );
+                  },
                 );
               },
             ),

@@ -65,24 +65,29 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
           const SizedBox(height: 20),
           _buildSearchBar(),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: filteredKegiatanList.map((kegiatan) {
-                  return Column(
-                    children: [
-                      _buildKegiatanCard(
-                        context,
-                        title: kegiatan['title']!,
-                        status: kegiatan['status']!,
-                        ketua: kegiatan['ketua']!,
-                        tanggal: kegiatan['tanggal']!,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                }).toList(),
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16.0),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: constraints.maxWidth < 600 ? 1 : 2,
+                    childAspectRatio: 3,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                  ),
+                  itemCount: filteredKegiatanList.length,
+                  itemBuilder: (context, index) {
+                    final kegiatan = filteredKegiatanList[index];
+                    return _buildKegiatanCard(
+                      context,
+                      title: kegiatan['title']!,
+                      status: kegiatan['status']!,
+                      ketua: kegiatan['ketua']!,
+                      tanggal: kegiatan['tanggal']!,
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],
@@ -123,28 +128,38 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
         child: Row(
           children: <Widget>[
             const Spacer(flex: 2),
-            IconButton(
-              icon: const Icon(Icons.home_rounded, size: 40),
-              color: Colors.grey.shade400,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomeadminPage(),
-                  ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double iconSize = constraints.maxWidth * 0.1;
+                return IconButton(
+                  icon: Icon(Icons.home_rounded, size: iconSize),
+                  color: Colors.grey.shade400,
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeadminPage(),
+                      ),
+                    );
+                  },
                 );
               },
             ),
             const Spacer(flex: 5),
-            IconButton(
-              icon: const Icon(Icons.person, size: 40),
-              color: Colors.grey.shade400,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileadminPage(),
-                  ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double iconSize = constraints.maxWidth * 0.1;
+                return IconButton(
+                  icon: Icon(Icons.person, size: iconSize),
+                  color: Colors.grey.shade400,
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileadminPage(),
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -209,7 +224,6 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
@@ -240,7 +254,6 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
               ],
             ),
           ),
-          // Isi Card
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
@@ -292,7 +305,7 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Divider(), // Garis pembatas
+                const Divider(),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(

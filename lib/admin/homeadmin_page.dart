@@ -322,95 +322,99 @@ class HomeadminPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  SizedBox(
-                    height: 150,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 6,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 10.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  width: 120,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(12),
-                                    color: Colors.grey.shade200,
-                                  ),
-                                  child: Stack(
-                                    children: [
-                                      Container(
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SizedBox(
+                        height: 150,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: 6,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 10.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      width: 120,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: Colors.grey.shade200,
+                                      ),
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              gradient: const LinearGradient(
+                                                colors: [Color(0xFFF44708),Color(0xFF6777EF),],
+                                                begin: Alignment.topLeft,
+                                                end: Alignment.bottomRight,
+                                              ),
+                                            ),
+                                          ),
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(12),
+                                            child: Image.asset(
+                                              'assets/images/img-min.png',
+                                              fit: BoxFit.cover,
+                                              width: 120,
+                                              height: 150,
+                                              color: Colors.black.withOpacity(0.2),
+                                              colorBlendMode: BlendMode.dstATop,
+                                            ),
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(12),
+                                              color: Colors.black.withOpacity(0.2),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: 10,
+                                      left: 10,
+                                      child: Text(
+                                        'Albani Rajata',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 10,
+                                      right: 10,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
                                         decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
-                                          gradient: const LinearGradient(
-                                            colors: [Color(0xFFF44708),Color(0xFF6777EF),],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
+                                          color: Colors.white.withOpacity(0.4),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: Colors.white, width: 1),
+                                        ),
+                                        child: Text(
+                                          '2 Poin',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(12),
-                                        child: Image.asset(
-                                          'assets/images/img-min.png',
-                                          fit: BoxFit.cover,
-                                          width: 120,
-                                          height: 150,
-                                          color: Colors.black.withOpacity(0.2),
-                                          colorBlendMode: BlendMode.dstATop,
-                                        ),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
-                                          color: Colors.black.withOpacity(0.2),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 10,
-                                  left: 10,
-                                  child: Text(
-                                    'Albani Rajata',
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
                                     ),
-                                  ),
+                                  ],
                                 ),
-                                Positioned(
-                                  top: 10,
-                                  right: 10,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.4),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.white, width: 1),
-                                    ),
-                                    child: Text(
-                                      '2 Poin',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
