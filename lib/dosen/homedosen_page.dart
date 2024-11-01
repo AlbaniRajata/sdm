@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/detailkegiatan_page.dart';
-import 'package:sdm/admin/profileadmin_page.dart';
-import 'package:sdm/admin/repositoryadmin_page.dart';
-import 'package:sdm/admin/kegiatanadmin_page.dart';
-import 'package:sdm/admin/listdosen_page.dart';
+import 'package:sdm/dosen/detailpoin_page.dart';
+import 'package:sdm/dosen/profiledosen_page.dart';
+import 'package:sdm/dosen/repositorydosen_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class HomeadminPage extends StatelessWidget {
-  const HomeadminPage({super.key});
+class HomedosenPage extends StatelessWidget {
+  const HomedosenPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -132,16 +130,16 @@ class HomeadminPage extends StatelessWidget {
                               children: [
                                 Image.asset(
                                   'assets/images/home.png',
-                                  height: screenWidth * 0.6, // Adjust height based on screen width
+                                  height: screenWidth * 0.6,
                                 ),
                                 Positioned(
-                                  top: screenWidth * 0.04,
+                                  top: screenWidth * 0.07,
                                   left: screenWidth * 0.25,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Total Kegiatan Selesai',
+                                        'Total Poin Kamu',
                                         style: GoogleFonts.poppins(
                                           fontSize: screenWidth * 0.035,
                                           fontWeight: FontWeight.w400,
@@ -151,27 +149,27 @@ class HomeadminPage extends StatelessWidget {
                                       Row(
                                         children: [
                                           Text(
-                                            '21 Kegiatan',
+                                            '14 Poin',
                                             style: GoogleFonts.poppins(
                                               fontSize: screenWidth * 0.05,
                                               fontWeight: FontWeight.bold,
                                               color: Colors.black,
                                             ),
                                           ),
-                                          SizedBox(width: screenWidth * 0.02),
+                                          SizedBox(width: screenWidth * 0.17),
                                           TextButton(
                                             onPressed: () {
                                               Navigator.pushReplacement(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => const KegiatanadminPage(),
+                                                  builder: (context) => const DetailpoinPage(),
                                                 ),
                                               );
                                             },
                                             child: Row(
                                               children: [
                                                 Text(
-                                                  'Lihat Daftar Kegiatan',
+                                                  'Lihat Detail Poinku',
                                                   style: GoogleFonts.poppins(
                                                     fontSize: screenWidth * 0.025,
                                                     color: const Color.fromRGBO(244, 71, 8, 1),
@@ -195,15 +193,13 @@ class HomeadminPage extends StatelessWidget {
                                           child: LinearProgressIndicator(
                                             value: 0.5, // Persentase penyelesaian (5 persen)
                                             backgroundColor: Colors.grey.shade300,
-                                            valueColor:
-                                              const AlwaysStoppedAnimation<Color>(Colors.orange,
-                                            ),
+                                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.orange),
                                           ),
                                         ),
                                       ),
                                       const SizedBox(height: 5),
                                       Text(
-                                        '10 Kegiatan Selesai',
+                                        '5 Kegiatan Selesai',
                                         style: GoogleFonts.poppins(
                                           fontSize: screenWidth * 0.03,
                                           fontStyle: FontStyle.italic,
@@ -242,7 +238,7 @@ class HomeadminPage extends StatelessWidget {
                                               Navigator.pushReplacement(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => const DetailKegiatanPage(),
+                                                  builder: (context) => const DetailpoinPage(),
                                                 ),
                                               );
                                             },
@@ -296,7 +292,7 @@ class HomeadminPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Dosen',
+                        'Kegiatan Selesai',
                         style: GoogleFonts.poppins(
                           fontSize: screenWidth * 0.04,
                           fontWeight: FontWeight.bold,
@@ -305,12 +301,7 @@ class HomeadminPage extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ListDosenPage(),
-                            ),
-                          );
+                          
                         },
                         child: Text(
                           'Lihat Semua',
@@ -379,7 +370,7 @@ class HomeadminPage extends StatelessWidget {
                                       bottom: 10,
                                       left: 10,
                                       child: Text(
-                                        'Albani Rajata',
+                                        'Seminar\nNasional',
                                         style: GoogleFonts.poppins(
                                           fontSize: screenWidth * 0.035,
                                           fontWeight: FontWeight.w600,
@@ -441,7 +432,7 @@ class HomeadminPage extends StatelessWidget {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const RepositoryadminPage(),
+                              builder: (context) => const RepositorydosenPage(),
                             ),
                           );
                         },
@@ -740,7 +731,7 @@ class HomeadminPage extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ProfileadminPage(),
+                    builder: (context) => const ProfiledosenPage(),
                   ),
                 );
               },

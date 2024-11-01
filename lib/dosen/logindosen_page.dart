@@ -1,6 +1,7 @@
-import 'dart:ui'; // Import untuk ImageFilter
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/dosen/homedosen_page.dart';
 
 class LogindosenPage extends StatefulWidget {
   const LogindosenPage({super.key});
@@ -241,7 +242,12 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Implement login functionality
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const HomedosenPage(),
+                                    ),
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF9500),

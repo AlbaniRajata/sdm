@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/homeadmin_page.dart';
-import 'package:sdm/admin/loginadmin_page.dart';
+import 'package:sdm/dosen/homedosen_page.dart';
+import 'package:sdm/dosen/logindosen_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class ProfileadminPage extends StatelessWidget {
-  const ProfileadminPage({super.key});
+class ProfiledosenPage extends StatelessWidget {
+  const ProfiledosenPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +100,7 @@ class ProfileadminPage extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginadminPage(),
+                  builder: (context) => const LogindosenPage(),
                 ),
               );
             },
@@ -123,7 +123,7 @@ class ProfileadminPage extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const HomeadminPage(),
+                    builder: (context) => const HomedosenPage(),
                   ),
                 );
               },

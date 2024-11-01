@@ -247,7 +247,7 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                                     MaterialPageRoute(
                                       builder: (context) => const HomeadminPage(),
                                     ),
-                                  ); // Navigasi ke halaman HomeadminPage
+                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color.fromRGBO(255, 175, 3, 1),

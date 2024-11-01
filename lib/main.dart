@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:sdm/welcome_page.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {

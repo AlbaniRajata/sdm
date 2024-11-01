@@ -1,26 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/homeadmin_page.dart';
-import 'package:sdm/admin/loginadmin_page.dart';
+import 'package:sdm/dosen/profiledosen_page.dart';
+import 'package:sdm/dosen/homedosen_page.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-class ProfileadminPage extends StatelessWidget {
-  const ProfileadminPage({super.key});
+class DetailpoinPage extends StatefulWidget {
+  const DetailpoinPage({super.key});
+
+  @override
+  DetailpoinPageState createState() => DetailpoinPageState();
+}
+
+class DetailpoinPageState extends State<DetailpoinPage> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Map<String, String>> kegiatanList = [
+    {'title': 'Seminar Nasional', 'jabatan': 'Ketua', 'poin': '10', 'tanggalMulai': '1 Maret 2022', 'tanggalSelesai': '3 Maret 2022'},
+    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua', 'poin': '8', 'tanggalMulai': '1 Maret 2022', 'tanggalSelesai': '3 Maret 2022'},
+    {'title': 'Workshop Teknologi', 'jabatan': 'Anggota', 'poin': '5', 'tanggalMulai': '10 April 2022', 'tanggalSelesai': '12 April 2022'},
+    {'title': 'Lokakarya Nasional', 'jabatan': 'Anggota', 'poin': '3', 'tanggalMulai': '18 Mei 2022', 'tanggalSelesai': '20 Mei 2022'},
+  ];
+  List<Map<String, String>> filteredKegiatanList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredKegiatanList = kegiatanList;
+    _searchController.addListener(_searchKegiatan);
+  }
+
+  void _searchKegiatan() {
+    setState(() {
+      filteredKegiatanList = kegiatanList.where((kegiatan) {
+        final searchLower = _searchController.text.toLowerCase();
+        final titleLower = kegiatan['title']!.toLowerCase();
+        return titleLower.contains(searchLower);
+      }).toList();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Profil',
+          'Detail Poinku',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            fontSize: screenWidth * 0.05,
           ),
           textAlign: TextAlign.center,
         ),
@@ -29,81 +63,29 @@ class ProfileadminPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 30),
-          const CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage('assets/images/pp.png'),
-          ),
-          const SizedBox(height: 15),
-          Text(
-            'Albani Rajata Malik',
-            style: GoogleFonts.poppins(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            'albanirajata@polinema.ac.id',
-            style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: screenWidth * 0.035),
-          ),
-          const SizedBox(height: 15),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            ),
-            child: Text(
-              'Edit Profil',
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: screenWidth * 0.04),
-            ),
-          ),
           const SizedBox(height: 20),
-          Divider(
-            thickness: 0.5,
-            color: Colors.grey[300],
-            indent: 20,
-            endIndent: 20,
-          ),
-          const SizedBox(height: 10),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              child: Icon(Icons.timer, color: Colors.white, size: screenWidth * 0.05),
+          _buildSearchBar(),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: filteredKegiatanList.map((kegiatan) {
+                  return Column(
+                    children: [
+                      _buildKegiatanCard(
+                        context,
+                        title: kegiatan['title']!,
+                        jabatan: kegiatan['jabatan']!,
+                        poin: kegiatan['poin']!,
+                        tanggalMulai: kegiatan['tanggalMulai']!,
+                        tanggalSelesai: kegiatan['tanggalSelesai']!,
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  );
+                }).toList(),
+              ),
             ),
-            title: Text(
-              'Lihat Progress Kegiatan',
-              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-            ),
-            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-            onTap: () {},
-          ),
-          const SizedBox(height: 10),
-          Divider(
-            thickness: 0.5,
-            color: Colors.grey[300],
-            indent: 20,
-            endIndent: 20,
-          ),
-          const SizedBox(height: 10),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              child: Icon(Icons.logout, color: Colors.white, size: screenWidth * 0.05),
-            ),
-            title: Text(
-              'Logout',
-              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-            ),
-            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginadminPage(),
-                ),
-              );
-            },
           ),
         ],
       ),
@@ -123,7 +105,7 @@ class ProfileadminPage extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const HomeadminPage(),
+                    builder: (context) => const HomedosenPage(),
                   ),
                 );
               },
@@ -131,12 +113,177 @@ class ProfileadminPage extends StatelessWidget {
             const Spacer(flex: 5),
             IconButton(
               icon: const Icon(Icons.person, size: 40),
-              color: Colors.white,
-              onPressed: () {},
+              color: Colors.grey.shade400,
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProfiledosenPage(),
+                  ),
+                );
+              },
             ),
             const Spacer(flex: 2),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari Kegiatan...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                prefixIcon: const Icon(Icons.search),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
+            onPressed: () {
+              // Tambahkan aksi untuk filter
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKegiatanCard(
+    BuildContext context, {
+    required String title,
+    required String jabatan,
+    required String poin,
+    required String tanggalMulai,
+    required String tanggalSelesai,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Card
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 5, 167, 170),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      jabatan,
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  '$poin Poin',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Isi Card
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tanggal Mulai',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        Text(
+                          tanggalMulai,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tanggal Selesai',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        Text(
+                          tanggalSelesai,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

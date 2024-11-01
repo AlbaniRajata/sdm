@@ -60,117 +60,159 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   }
 
   void _navigateToLoginPage() {
-    if (_selectedRole == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginadminPage()),
-      );
-    } else if (_selectedRole == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LogindosenPage()),
-      );
-    } else if (_selectedRole == 2) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginpimpinanPage()),
-      );
+    if (_selectedRole == -1) {
+      _showErrorNotification();
+    } else {
+      if (_selectedRole == 0) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginadminPage()),
+        );
+      } else if (_selectedRole == 1) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LogindosenPage()),
+        );
+      } else if (_selectedRole == 2) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginpimpinanPage()),
+        );
+      }
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/images/img-min.png'),
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    final slideAnimation = Tween<Offset>(
-                      begin: const Offset(1.0, 0.0),
-                      end: Offset.zero,
-                    ).animate(animation);
-                    return SlideTransition(
-                      position: slideAnimation,
-                      child: child,
-                    );
-                  },
-                  child: _showFirstPage
-                      ? _buildWelcomeContent1()
-                      : _showSecondPage
-                          ? _buildWelcomeContent2()
-                          : _buildWelcomeContent3(),
+  void _showErrorNotification() {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            color: Colors.red,
+            padding: const EdgeInsets.all(12),
+            child: SafeArea(
+              child: Text(
+                'Anda harus memilih peran terlebih dahulu',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
                 ),
-                const SizedBox(height: 30),
-                if (_showThirdPage) _buildRoleSelector(),
-                const SizedBox(height: 20),
-                _buildPageIndicator(),
-                const SizedBox(height: 15),
-                SizedBox(
-                  width: 300,
-                  height: 60,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (_showFirstPage || _showSecondPage) {
-                        _goForward();
-                      } else if (_showThirdPage && _selectedRole != -1) {
-                        _navigateToLoginPage();
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 255, 175, 3),
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      _showFirstPage || _showSecondPage ? 'Lanjutkan' : 'Mari Kita Mulai',
-                      style: GoogleFonts.poppins(
-                        color: const Color.fromARGB(255, 255, 255, 255),
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-                if (!_showFirstPage)
-                  TextButton(
-                    onPressed: () {
-                      _goBackward();
-                    },
-                    child: Text(
-                      'Kembali',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-              ],
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
         ),
       ),
     );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/img-min.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(height: 10),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      transitionBuilder: (Widget child, Animation<double> animation) {
+                        final slideAnimation = Tween<Offset>(
+                          begin: const Offset(1.0, 0.0),
+                          end: Offset.zero,
+                        ).animate(animation);
+                        return SlideTransition(
+                          position: slideAnimation,
+                          child: child,
+                        );
+                      },
+                      child: _showFirstPage
+                          ? _buildWelcomeContent1()
+                          : _showSecondPage
+                              ? _buildWelcomeContent2()
+                              : _buildWelcomeContent3(),
+                    ),
+                    const SizedBox(height: 30),
+                    if (_showThirdPage) _buildRoleSelector(),
+                    const SizedBox(height: 20),
+                    _buildPageIndicator(),
+                    const SizedBox(height: 15),
+                    SizedBox(
+                      width: 300,
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_showFirstPage || _showSecondPage) {
+                            _goForward();
+                          } else if (_showThirdPage) {
+                            _navigateToLoginPage();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 255, 175, 3),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          _showFirstPage || _showSecondPage ? 'Lanjutkan' : 'Mari Kita Mulai',
+                          style: GoogleFonts.poppins(
+                            color: const Color.fromARGB(255, 255, 255, 255),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (!_showFirstPage)
+                      TextButton(
+                        onPressed: () {
+                          _goBackward();
+                        },
+                        child: Text(
+                          'Kembali',
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    Widget _buildWelcomeContent1() {
+  Widget _buildWelcomeContent1() {
     return Column(
       key: const ValueKey(1),
       mainAxisAlignment: MainAxisAlignment.center,
@@ -199,8 +241,8 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
         ),
         const SizedBox(height: 10),
         Text(
-          'Ciptakan solusi inovatif dan kelola sumber daya manusia '
-          'secara efisien dalam satu platform.',
+          'Ciptakan solusi inovatif dan kelola sumber \n'
+          'daya manusia secara efisien dalam satu platform.',
           style: GoogleFonts.poppins(
             fontSize: 14,
             fontWeight: FontWeight.w400,
@@ -241,7 +283,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
         ),
         const SizedBox(height: 10),
         Text(
-          'Mengelola kegiatan anda kini lebih mudah.        '
+          'Mengelola kegiatan anda kini lebih mudah.\n'
           'Bersiaplah untuk mencapai target lebih tinggi.',
           style: GoogleFonts.poppins(
             fontSize: 14,
