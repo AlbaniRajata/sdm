@@ -65,6 +65,18 @@ class ProfiledosenPage extends StatelessWidget {
               style: GoogleFonts.poppins(color: Colors.white, fontSize: screenWidth * 0.04),
             ),
           ),
+          const SizedBox(height: 15),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.emoji_events, color: const Color.fromRGBO(255, 175, 3, 1), size: screenWidth * 0.05),
+              const SizedBox(width: 8),
+              Text(
+                '14 Poin',
+                style: GoogleFonts.poppins(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
           const SizedBox(height: 20),
           Divider(
             thickness: 0.5,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sdm/admin/homeadmin_page.dart';
 import 'package:sdm/admin/profileadmin_page.dart';
+import 'package:sdm/admin/tambahkegiatan_page.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final String currentPage;
@@ -53,7 +54,14 @@ class CustomBottomAppBar extends StatelessWidget {
 
   Widget buildFloatingActionButton(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const TambahKegiatanPage(),
+          ),
+        );
+      },
       backgroundColor: Colors.transparent,
       elevation: 0,
       shape: const CircleBorder(),
@@ -77,7 +85,7 @@ class CustomBottomAppBar extends StatelessWidget {
             ),
           ],
         ),
-        child: const Icon(Icons.calendar_today_rounded, color: Colors.white, size: 30),
+        child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
       ),
     );
   }

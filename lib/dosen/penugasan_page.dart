@@ -5,14 +5,14 @@ import 'package:sdm/dosen/sarandosen_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
 
-class DetailKegiatanPage extends StatefulWidget {
-  const DetailKegiatanPage({Key? key}) : super(key: key);
+class PenugasanPage extends StatefulWidget {
+  const PenugasanPage({Key? key}) : super(key: key);
 
   @override
-  DetailKegiatanPageState createState() => DetailKegiatanPageState();
+  PenugasanPageState createState() => PenugasanPageState();
 }
 
-class DetailKegiatanPageState extends State<DetailKegiatanPage> {
+class PenugasanPageState extends State<PenugasanPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
 
@@ -90,15 +90,15 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                               _buildDetailField('Jenis Kegiatan', 'Kegiatan JTI', titleColor: Colors.black),
                               _buildDetailField('Nama Ketua Pelaksana', 'Albani Rajata Malik', titleColor: Colors.black),
                               _buildDetailField('Nama Anggota 1', 'Almira S.Pd', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 1', 'Menyusun materi', titleColor: Colors.black),
+                              _buildDetailField('Tugas Anggota 1', '', titleColor: Colors.black, isEditable: true),
                               _buildDetailField('Nama Anggota 2', 'Anita S.T.Tr'),
-                              _buildDetailField('Tugas Anggota 2', 'Menyiapkan alat dan bahan', titleColor: Colors.black),
+                              _buildDetailField('Tugas Anggota 2', '', titleColor: Colors.black, isEditable: true),
                               _buildDetailField('Nama Anggota 3', 'Sofyan Andani S.T.Tr M.Ti', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 3', 'Mengatur jadwal', titleColor: Colors.black),
+                              _buildDetailField('Tugas Anggota 3', '', titleColor: Colors.black, isEditable: true),
                               _buildDetailField('Nama Anggota 4', 'Tasya Cantika Ristiyana', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 4', 'Menghubungi narasumber', titleColor: Colors.black),
+                              _buildDetailField('Tugas Anggota 4', '', titleColor: Colors.black, isEditable: true),
                               _buildDetailField('Nama Anggota 5', 'ALya Rafani Mikaila', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 5', 'Membuat laporan', titleColor: Colors.black),
+                              _buildDetailField('Tugas Anggota 5', '', titleColor: Colors.black, isEditable: true),
                               _buildDetailField('Deskripsi Kegiatan', 'Seminar Nasional yang diadakan oleh Dishub', isDescription: true, titleColor: Colors.black),
                               _buildDetailField('Dokumen', 'Draft_surat_tugas_SemNas.pdf'),
                               const SizedBox(height: 16),
@@ -137,7 +137,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                                         ),
                                       ),
                                       child: const Text(
-                                        'Selesai',
+                                        'Simpan',
                                         style: TextStyle(color: Colors.white),
                                       ),
                                     ),
@@ -168,7 +168,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi'),
-          content: const Text('Apakah kegiatan anda sudah selesai?'),
+          content: const Text('Apakah anda ingin menyimpan perubahan?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -192,7 +192,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
     );
   }
 
-  Widget _buildDetailField(String title, String content, {bool isDescription = false, Color titleColor = Colors.black54}) {
+  Widget _buildDetailField(String title, String content, {bool isDescription = false, Color titleColor = Colors.black54, bool isEditable = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -208,7 +208,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
           const SizedBox(height: 4),
           TextFormField(
             initialValue: content,
-            readOnly: !isDescription,
+            readOnly: !isEditable && !isDescription,
             maxLines: isDescription ? 5 : 1, // Increase maxLines for description
             decoration: const InputDecoration(
               border: OutlineInputBorder(),

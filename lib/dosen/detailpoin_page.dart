@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/widget/dosen/sort_option.dart';
 
 class DetailpoinPage extends StatefulWidget {
   const DetailpoinPage({super.key});
@@ -18,6 +19,7 @@ class DetailpoinPageState extends State<DetailpoinPage> {
     {'title': 'Lokakarya Nasional', 'jabatan': 'Anggota', 'poin': '3', 'tanggalMulai': '18 Mei 2022', 'tanggalSelesai': '20 Mei 2022'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
+  SortOption selectedSortOption = SortOption.abjadAZ;
 
   @override
   void initState() {
@@ -33,6 +35,33 @@ class DetailpoinPageState extends State<DetailpoinPage> {
         final titleLower = kegiatan['title']!.toLowerCase();
         return titleLower.contains(searchLower);
       }).toList();
+    });
+  }
+
+  void _sortKegiatanList() {
+    setState(() {
+      switch (selectedSortOption) {
+        case SortOption.abjadAZ:
+          filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          break;
+        case SortOption.abjadZA:
+          filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          break;
+        case SortOption.tanggalTerdekat:
+          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggalMulai']!).compareTo(DateTime.parse(b['tanggalMulai']!)));
+          break;
+        case SortOption.tanggalTerjauh:
+          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggalMulai']!).compareTo(DateTime.parse(a['tanggalMulai']!)));
+          break;
+        case SortOption.poinTerbanyak:
+          filteredKegiatanList.sort((a, b) => int.parse(b['poin']!).compareTo(int.parse(a['poin']!)));
+          break;
+        case SortOption.poinTersedikit:
+          filteredKegiatanList.sort((a, b) => int.parse(a['poin']!).compareTo(int.parse(b['poin']!)));
+          break;
+        default:
+          break;
+      }
     });
   }
 
@@ -115,12 +144,59 @@ class DetailpoinPageState extends State<DetailpoinPage> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
-              // Tambahkan aksi untuk filter
+              _showSortOptionsDialog(context);
             },
           ),
         ],
       ),
     );
+  }
+
+  void _showSortOptionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Urutkan berdasarkan'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: SortOption.values.map((SortOption option) {
+              return RadioListTile<SortOption>(
+                title: Text(_getSortOptionText(option)),
+                value: option,
+                groupValue: selectedSortOption,
+                onChanged: (SortOption? value) {
+                  setState(() {
+                    selectedSortOption = value!;
+                    _sortKegiatanList();
+                  });
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getSortOptionText(SortOption option) {
+    switch (option) {
+      case SortOption.abjadAZ:
+        return 'Abjad A ke Z';
+      case SortOption.abjadZA:
+        return 'Abjad Z ke A';
+      case SortOption.tanggalTerdekat:
+        return 'Tanggal Terdekat';
+      case SortOption.tanggalTerjauh:
+        return 'Tanggal Terjauh';
+      case SortOption.poinTerbanyak:
+        return 'Poin Terbanyak';
+      case SortOption.poinTersedikit:
+        return 'Poin Tersedikit';
+      default:
+        return '';
+    }
   }
 
   Widget _buildKegiatanCard(

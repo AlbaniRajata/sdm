@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/widget/dosen/repository_sortoption.dart'; // Update with your actual project path
 
 class RepositorydosenPage extends StatefulWidget {
   const RepositorydosenPage({super.key});
@@ -18,6 +19,7 @@ class RepositorydosenPageState extends State<RepositorydosenPage> {
     {'title': 'Dies Natalis', 'status': 'Selesai'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
+  RepositorySortOption selectedSortOption = RepositorySortOption.abjadAZ;
 
   @override
   void initState() {
@@ -33,6 +35,21 @@ class RepositorydosenPageState extends State<RepositorydosenPage> {
         final titleLower = kegiatan['title']!.toLowerCase();
         return titleLower.contains(searchLower);
       }).toList();
+    });
+  }
+
+  void _sortKegiatanList() {
+    setState(() {
+      switch (selectedSortOption) {
+        case RepositorySortOption.abjadAZ:
+          filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          break;
+        case RepositorySortOption.abjadZA:
+          filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          break;
+        default:
+          break;
+      }
     });
   }
 
@@ -88,7 +105,7 @@ class RepositorydosenPageState extends State<RepositorydosenPage> {
           ),
         ],
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
@@ -117,12 +134,51 @@ class RepositorydosenPageState extends State<RepositorydosenPage> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
-              // Tambahkan aksi untuk filter
+              _showSortOptionsDialog(context);
             },
           ),
         ],
       ),
     );
+  }
+
+  void _showSortOptionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Urutkan berdasarkan'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: RepositorySortOption.values.map((RepositorySortOption option) {
+              return RadioListTile<RepositorySortOption>(
+                title: Text(_getSortOptionText(option)),
+                value: option,
+                groupValue: selectedSortOption,
+                onChanged: (RepositorySortOption? value) {
+                  setState(() {
+                    selectedSortOption = value!;
+                    _sortKegiatanList();
+                  });
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getSortOptionText(RepositorySortOption option) {
+    switch (option) {
+      case RepositorySortOption.abjadAZ:
+        return 'Abjad A ke Z';
+      case RepositorySortOption.abjadZA:
+        return 'Abjad Z ke A';
+      default:
+        return '';
+    }
   }
 
   Widget _buildKegiatanCard(

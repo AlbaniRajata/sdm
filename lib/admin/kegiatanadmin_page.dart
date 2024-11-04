@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/admin/detailkegiatan_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:intl/intl.dart';
+import 'package:sdm/widget/admin/kegiatan_sortoption.dart';
 
 class KegiatanadminPage extends StatefulWidget {
   const KegiatanadminPage({super.key});
@@ -12,12 +15,13 @@ class KegiatanadminPage extends StatefulWidget {
 class KegiatanadminPageState extends State<KegiatanadminPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '3 Maret 2022'},
-    {'title': 'Kuliah Tamu', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '3 Maret 2022'},
-    {'title': 'Workshop Teknologi', 'status': 'Menunggu', 'ketua': 'Siti Fadhilah', 'tanggal': '12 April 2022'},
-    {'title': 'Lokakarya Nasional', 'status': 'Ditolak', 'ketua': 'Rizki Pratama', 'tanggal': '20 Mei 2022'},
+    {'title': 'Seminar Nasional', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
+    {'title': 'Kuliah Tamu', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
+    {'title': 'Workshop Teknologi', 'status': 'Menunggu', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
+    {'title': 'Lokakarya Nasional', 'status': 'Ditolak', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
+  KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
 
   @override
   void initState() {
@@ -34,6 +38,33 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
         return titleLower.contains(searchLower);
       }).toList();
     });
+  }
+
+  void _sortKegiatanList() {
+    setState(() {
+      switch (selectedSortOption) {
+        case KegiatanSortOption.abjadAZ:
+          filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          break;
+        case KegiatanSortOption.abjadZA:
+          filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          break;
+        case KegiatanSortOption.tanggalTerdekat:
+          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
+          break;
+        case KegiatanSortOption.tanggalTerjauh:
+          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  String _formatDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
+    return formatter.format(parsedDate);
   }
 
   @override
@@ -78,7 +109,7 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                         title: kegiatan['title']!,
                         status: kegiatan['status']!,
                         ketua: kegiatan['ketua']!,
-                        tanggal: kegiatan['tanggal']!,
+                        tanggal: _formatDate(kegiatan['tanggal']!),
                         screenWidth: screenWidth,
                       ),
                       const SizedBox(height: 16),
@@ -119,12 +150,55 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
           IconButton(
             icon: const Icon(Icons.filter_list),
             onPressed: () {
-              // Tambahkan aksi untuk filter
+              _showSortOptionsDialog(context);
             },
           ),
         ],
       ),
     );
+  }
+
+  void _showSortOptionsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Urutkan berdasarkan'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: KegiatanSortOption.values.map((KegiatanSortOption option) {
+              return RadioListTile<KegiatanSortOption>(
+                title: Text(_getSortOptionText(option)),
+                value: option,
+                groupValue: selectedSortOption,
+                onChanged: (KegiatanSortOption? value) {
+                  setState(() {
+                    selectedSortOption = value!;
+                    _sortKegiatanList();
+                  });
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  String _getSortOptionText(KegiatanSortOption option) {
+    switch (option) {
+      case KegiatanSortOption.abjadAZ:
+        return 'Abjad A ke Z';
+      case KegiatanSortOption.abjadZA:
+        return 'Abjad Z ke A';
+      case KegiatanSortOption.tanggalTerdekat:
+        return 'Tanggal Terdekat';
+      case KegiatanSortOption.tanggalTerjauh:
+        return 'Tanggal Terjauh';
+      default:
+        return '';
+    }
   }
 
   Widget _buildKegiatanCard(
@@ -242,7 +316,10 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // Tambahkan aksi untuk melihat detail kegiatan
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
+                      );
                     },
                     child: Text(
                       'Lihat Detail',

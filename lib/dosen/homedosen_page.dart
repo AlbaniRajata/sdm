@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/dosen/detailpoin_page.dart';
 import 'package:sdm/dosen/repositorydosen_page.dart';
 import 'package:sdm/dosen/detailkegiatan_page.dart';
+import 'package:sdm/dosen/notifikasi_page.dart';
+import 'package:sdm/dosen/penugasan_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 
 class HomedosenPage extends StatelessWidget {
@@ -45,7 +47,12 @@ class HomedosenPage extends StatelessWidget {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        // Action untuk ke notifikasi
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotifikasiPage(),
+                          ),
+                        );
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -292,7 +299,7 @@ class HomedosenPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Kegiatan Selesai',
+                        'Daftar Kegiatan',
                         style: GoogleFonts.poppins(
                           fontSize: screenWidth * 0.04,
                           fontWeight: FontWeight.bold,
@@ -301,7 +308,12 @@ class HomedosenPage extends StatelessWidget {
                       ),
                       TextButton(
                         onPressed: () {
-                          
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PenugasanPage(),
+                            ),
+                          );
                         },
                         child: Text(
                           'Lihat Semua',

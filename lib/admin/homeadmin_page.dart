@@ -4,6 +4,7 @@ import 'package:sdm/admin/detailkegiatan_page.dart';
 import 'package:sdm/admin/repositoryadmin_page.dart';
 import 'package:sdm/admin/kegiatanadmin_page.dart';
 import 'package:sdm/admin/listdosen_page.dart';
+import 'package:sdm/admin/notifikasi_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 
 class HomeadminPage extends StatelessWidget {
@@ -46,7 +47,12 @@ class HomeadminPage extends StatelessWidget {
                     ),
                     child: TextButton(
                       onPressed: () {
-                        // Action untuk ke notifikasi
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NotifikasiPage(),
+                          ),
+                        );
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -321,7 +327,7 @@ class HomeadminPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       return SizedBox(
