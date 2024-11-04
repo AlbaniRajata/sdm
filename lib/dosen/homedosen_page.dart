@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/dosen/detailpoin_page.dart';
-import 'package:sdm/dosen/profiledosen_page.dart';
 import 'package:sdm/dosen/repositorydosen_page.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:sdm/dosen/detailkegiatan_page.dart';
+import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 
 class HomedosenPage extends StatelessWidget {
   const HomedosenPage({super.key});
@@ -133,8 +133,8 @@ class HomedosenPage extends StatelessWidget {
                                   height: screenWidth * 0.6,
                                 ),
                                 Positioned(
-                                  top: screenWidth * 0.07,
-                                  left: screenWidth * 0.25,
+                                  top: screenWidth * 0.06,
+                                  left: screenWidth * 0.24,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -156,7 +156,7 @@ class HomedosenPage extends StatelessWidget {
                                               color: Colors.black,
                                             ),
                                           ),
-                                          SizedBox(width: screenWidth * 0.17),
+                                          SizedBox(width: screenWidth * 0.16),
                                           TextButton(
                                             onPressed: () {
                                               Navigator.pushReplacement(
@@ -211,7 +211,7 @@ class HomedosenPage extends StatelessWidget {
                                 ),
                                 Positioned(
                                   top: screenWidth * 0.36,
-                                  left: screenWidth * 0.25,
+                                  left: screenWidth * 0.24,
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -238,7 +238,7 @@ class HomedosenPage extends StatelessWidget {
                                               Navigator.pushReplacement(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => const DetailpoinPage(),
+                                                  builder: (context) => const DetailKegiatanPage(),
                                                 ),
                                               );
                                             },
@@ -410,7 +410,7 @@ class HomedosenPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Column(
@@ -538,207 +538,10 @@ class HomedosenPage extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              DateTime selectedDate = DateTime.now();
-              // List bulan dan tahun
-              List<String> bulan = [
-                'Januari',
-                'Februari',
-                'Maret',
-                'April',
-                'Mei',
-                'Juni',
-                'Juli',
-                'Agustus',
-                'September',
-                'Oktober',
-                'November',
-                'Desember'
-              ];
-              List<int> tahun = [2021, 2022, 2023, 2024, 2025, 2026];
-
-              String selectedMonth = bulan[selectedDate.month - 1];
-              int selectedYear = selectedDate.year;
-
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    content: SizedBox(
-                      width: 300,
-                      height: 450,
-                      child: Column(
-                        children: [
-                          const Text(
-                            'Pilih Tanggal Kegiatan',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          // Dropdown untuk bulan dan tahun
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              DropdownButton<String>(
-                                value: selectedMonth,
-                                items: bulan.map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedMonth = newValue!;
-                                    selectedDate = DateTime(
-                                      selectedYear,
-                                      bulan.indexOf(selectedMonth) + 1,
-                                      selectedDate.day,
-                                    );
-                                  });
-                                },
-                              ),
-                              DropdownButton<int>(
-                                value: selectedYear,
-                                items: tahun.map((int value) {
-                                  return DropdownMenuItem<int>(
-                                    value: value,
-                                    child: Text(value.toString()),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    selectedYear = newValue!;
-                                    selectedDate = DateTime(
-                                      selectedYear,
-                                      bulan.indexOf(selectedMonth) + 1,
-                                      selectedDate.day,
-                                    );
-                                  });
-                                },
-                              ),
-                            ],
-                          ),
-                          TableCalendar(
-                            locale: 'id_ID', // Set hari dan buan ke Indonesia
-                            firstDay: DateTime.utc(2020, 1, 1),
-                            lastDay: DateTime.utc(2030, 12, 31),
-                            focusedDay: selectedDate,
-                            selectedDayPredicate: (day) {
-                              return isSameDay(selectedDate, day); // Menentukan hari yang dipilih
-                            },
-                            calendarFormat: CalendarFormat.month,
-                            availableCalendarFormats: const {
-                              CalendarFormat.month: 'Month',
-                            },
-                            headerStyle: const HeaderStyle(
-                              formatButtonVisible: false,
-                              titleCentered: true,
-                              leftChevronVisible: false,
-                              rightChevronVisible: false,
-                            ),
-                            onPageChanged: (focusedDay) {
-                              setState(() {
-                                selectedMonth = bulan[focusedDay.month - 1];
-                                selectedYear = focusedDay.year;
-                              });
-                            },
-                            onDaySelected: (selectedDay, focusedDay) {
-                              setState(() {
-                                selectedDate =
-                                    selectedDay; // Update tanggal yang dipilih
-                              });
-                            },
-                            calendarBuilders: CalendarBuilders(
-                              selectedBuilder: (context, date, _) {
-                                return Container(
-                                  margin: const EdgeInsets.all(4.0),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.blueAccent,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${date.day}',
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        shape: const CircleBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: Container(
-          width: 75,
-          height: 75,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: const LinearGradient(
-              colors: [Color(0xFF00CBF1), Color(0xFF6777EF)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 3,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: const Icon(Icons.calendar_today_rounded,
-              color: Colors.white, size: 30),
-        ),
-      ),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        color: const Color.fromARGB(255, 103, 119, 239),
-        child: Row(
-          children: <Widget>[
-            const Spacer(flex: 2),
-            IconButton(
-              icon: const Icon(Icons.home_rounded, size: 40),
-              color: Colors.white,
-              onPressed: () {},
-            ),
-            const Spacer(flex: 5),
-            IconButton(
-              icon: const Icon(Icons.person, size: 40),
-              color: Colors.grey.shade400,
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfiledosenPage(),
-                  ),
-                );
-              },
-            ),
-            const Spacer(flex: 2),
-          ],
-        ),
+      bottomNavigationBar: const CustomBottomAppBar(
+        currentPage: 'home',
       ),
     );
   }

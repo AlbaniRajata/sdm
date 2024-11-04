@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_horizontalcalendar.dart';
-import 'package:sdm/admin/homeadmin_page.dart';
 
-class DetailKegiatanPage extends StatefulWidget {
-  const DetailKegiatanPage({Key? key}) : super(key: key);
+class TambahKegiatanPage extends StatefulWidget {
+  const TambahKegiatanPage({Key? key}) : super(key: key);
 
   @override
-  DetailKegiatanPageState createState() => DetailKegiatanPageState();
+  _TambahKegiatanPageState createState() => _TambahKegiatanPageState();
 }
 
-class DetailKegiatanPageState extends State<DetailKegiatanPage> {
+class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
+  String? _selectedJenisKegiatan;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         title: Text(
-          'Detail Kegiatan',
+          'Tambah Kegiatan',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -85,41 +85,33 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildDetailField('Nama Kegiatan', 'Seminar Nasional', titleColor: Colors.black),
-                              _buildDetailField('Jenis Kegiatan', 'Kegiatan JTI', titleColor: Colors.black),
-                              _buildDetailField('Nama Ketua Pelaksana', 'Albani Rajata Malik', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 1', 'Almira S.Pd', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 2', 'Anita S.T.Tr', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 3', 'Sofyan Andani S.T.Tr M.Ti', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 4', 'Tasya Cantika Ristiyana', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 5', 'ALya Rafani Mikaila', titleColor: Colors.black),
-                              _buildDetailField('Deskripsi Kegiatan', 'Seminar Nasional yang diadakan oleh Dishub', isDescription: true, titleColor: Colors.black),
-                              _buildDetailField('Dokumen', 'Draft_surat_tugas_SemNas.pdf', titleColor: Colors.black),
+                              _buildDetailField('Nama Kegiatan', ''),
+                              _buildJenisKegiatanField(),
+                              _buildDetailField('Nama Ketua Pelaksana', ''),
+                              _buildDetailField('Nama Anggota 1', ''),
+                              _buildDetailField('Nama Anggota 2', ''),
+                              _buildDetailField('Nama Anggota 3', ''),
+                              _buildDetailField('Nama Anggota 4', ''),
+                              _buildDetailField('Nama Anggota 5', ''),
+                              _buildDetailField('Deskripsi Kegiatan', '', isDescription: true),
+                              _buildDetailField('Dokumen', ''),
                               const SizedBox(height: 16),
                               Align(
                                 alignment: Alignment.centerRight,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const HomeadminPage()),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.orange,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4.0),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Kembali',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Implement save functionality here
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4.0),
                                     ),
-                                  ],
+                                  ),
+                                  child: const Text(
+                                    'Simpan',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ),
                             ],
@@ -156,8 +148,46 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
           const SizedBox(height: 4),
           TextFormField(
             initialValue: content,
-            readOnly: !isDescription,
             maxLines: isDescription ? 5 : 1, // Increase maxLines for description
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              isDense: true,
+              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildJenisKegiatanField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Jenis Kegiatan',
+            style: GoogleFonts.poppins(
+              color: Colors.black,
+              fontSize: 12,
+            ),
+          ),
+          const SizedBox(height: 4),
+          DropdownButtonFormField<String>(
+            value: _selectedJenisKegiatan,
+            items: <String>['Kegiatan JTI', 'Kegiatan Non-JTI']
+                .map((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+            onChanged: (newValue) {
+              setState(() {
+                _selectedJenisKegiatan = newValue;
+              });
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,

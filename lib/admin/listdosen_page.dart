@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/profileadmin_page.dart';
-import 'package:sdm/admin/homeadmin_page.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 
 class ListDosenPage extends StatelessWidget {
   const ListDosenPage({super.key});
@@ -41,13 +39,13 @@ class ListDosenPage extends StatelessWidget {
           children: [
             _buildSearchBar(searchQuery),
             const SizedBox(height: 20),
-            _buildDosenGrid(searchQuery),
+            _buildDosenList(searchQuery),
           ],
         ),
       ),
-      floatingActionButton: _buildFloatingActionButton(context),
+      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _buildBottomNavigationBar(context),
+      bottomNavigationBar: const CustomBottomAppBar(),
     );
   }
 
@@ -80,7 +78,7 @@ class ListDosenPage extends StatelessWidget {
     );
   }
 
-  Widget _buildDosenGrid(ValueNotifier<String> searchQuery) {
+  Widget _buildDosenList(ValueNotifier<String> searchQuery) {
     return Expanded(
       child: ValueListenableBuilder<String>(
         valueListenable: searchQuery,
@@ -90,13 +88,7 @@ class ListDosenPage extends StatelessWidget {
             return name.contains(query.toLowerCase());
           }).toList();
 
-          return GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 0.9,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
+          return ListView.builder(
             itemCount: filteredDosenData.length,
             itemBuilder: (context, index) => _buildDosenCard(context, filteredDosenData[index]),
           );
@@ -107,15 +99,28 @@ class ListDosenPage extends StatelessWidget {
 
   Widget _buildDosenCard(BuildContext context, Map<String, String> dosen) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final cardHeight = screenWidth < 500 ? 450.0 : 400.0;
-    final fontSize = screenWidth < 500 ? 12.0 : 14.0;
+    final fontSize = screenWidth / 25;
 
-    return SizedBox(
-      height: cardHeight,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+        border: Border.all(color: Colors.grey.withOpacity(0.2)),
+      ),
       child: Card(
-        color: Colors.white, // Set card background color to white
+        color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         elevation: 4,
+        margin: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -123,16 +128,19 @@ class ListDosenPage extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(8.0),
               decoration: const BoxDecoration(
-                color: Color.fromARGB(255, 103, 119, 239),
+                color: Color.fromARGB(255, 5, 167, 170),
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
               ),
-              child: Text(
-                dosen['name']!,
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: fontSize),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 12.0),
+                child: Text(
+                  dosen['name']!,
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white, fontSize: fontSize),
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.fromLTRB(24.0, 14.0, 24.0, 8.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -141,6 +149,22 @@ class ListDosenPage extends StatelessWidget {
                   _buildRichText('Email', dosen['email'], fontSize),
                   const Divider(),
                   _buildRichText('Poin Saat Ini', dosen['poin'], fontSize),
+                  const Divider(),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 6.0),
+                      child: TextButton(
+                        onPressed: () {
+                          // Action for "Lihat Detail" button
+                        },
+                        child: Text(
+                          'Lihat Detail',
+                          style: GoogleFonts.poppins(fontSize: fontSize, color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -160,212 +184,6 @@ class ListDosenPage extends StatelessWidget {
             text: value,
             style: GoogleFonts.poppins(fontWeight: FontWeight.normal, color: Colors.black),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            DateTime selectedDate = DateTime.now();
-            // List bulan dan tahun
-            List<String> bulan = [
-              'Januari',
-              'Februari',
-              'Maret',
-              'April',
-              'Mei',
-              'Juni',
-              'Juli',
-              'Agustus',
-              'September',
-              'Oktober',
-              'November',
-              'Desember'
-            ];
-            List<int> tahun = [2021, 2022, 2023, 2024, 2025, 2026];
-
-            String selectedMonth = bulan[selectedDate.month - 1];
-            int selectedYear = selectedDate.year;
-
-            return StatefulBuilder(
-              builder: (context, setState) {
-                return AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  content: SizedBox(
-                    width: 300,
-                    height: 450,
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Pilih Tanggal Kegiatan',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        // Dropdown untuk bulan dan tahun
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            DropdownButton<String>(
-                              value: selectedMonth,
-                              items: bulan.map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  selectedMonth = newValue!;
-                                  selectedDate = DateTime(
-                                    selectedYear,
-                                    bulan.indexOf(selectedMonth) + 1,
-                                    selectedDate.day,
-                                  );
-                                });
-                              },
-                            ),
-                            DropdownButton<int>(
-                              value: selectedYear,
-                              items: tahun.map((int value) {
-                                return DropdownMenuItem<int>(
-                                  value: value,
-                                  child: Text(value.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (newValue) {
-                                setState(() {
-                                  selectedYear = newValue!;
-                                  selectedDate = DateTime(
-                                    selectedYear,
-                                    bulan.indexOf(selectedMonth) + 1,
-                                    selectedDate.day,
-                                  );
-                                });
-                              },
-                            ),
-                          ],
-                        ),
-                        TableCalendar(
-                          locale: 'id_ID', // Set hari dan buan ke Indonesia
-                          firstDay: DateTime.utc(2020, 1, 1),
-                          lastDay: DateTime.utc(2030, 12, 31),
-                          focusedDay: selectedDate,
-                          selectedDayPredicate: (day) {
-                            return isSameDay(selectedDate, day); // Menentukan hari yang dipilih
-                          },
-                          calendarFormat: CalendarFormat.month,
-                          availableCalendarFormats: const {
-                            CalendarFormat.month: 'Month',
-                          },
-                          headerStyle: const HeaderStyle(
-                            formatButtonVisible: false,
-                            titleCentered: true,
-                            leftChevronVisible: false,
-                            rightChevronVisible: false,
-                          ),
-                          onPageChanged: (focusedDay) {
-                            setState(() {
-                              selectedMonth = bulan[focusedDay.month - 1];
-                              selectedYear = focusedDay.year;
-                            });
-                          },
-                          onDaySelected: (selectedDay, focusedDay) {
-                            setState(() {
-                              selectedDate =
-                                  selectedDay; // Update tanggal yang dipilih
-                            });
-                          },
-                          calendarBuilders: CalendarBuilders(
-                            selectedBuilder: (context, date, _) {
-                              return Container(
-                                margin: const EdgeInsets.all(4.0),
-                                decoration: const BoxDecoration(
-                                  color: Colors.blueAccent,
-                                  shape: BoxShape.circle,
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '${date.day}',
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        width: 75,
-        height: 75,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: const LinearGradient(
-            colors: [Color(0xFF00CBF1), Color(0xFF6777EF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 3,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: const Icon(Icons.calendar_today_rounded,
-            color: Colors.white, size: 30),
-      ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 8.0,
-      color: const Color.fromARGB(255, 103, 119, 239),
-      child: Row(
-        children: <Widget>[
-          const Spacer(flex: 2),
-          IconButton(
-            icon: const Icon(Icons.home_rounded, size: 40),
-            color: Colors.grey.shade400,
-            onPressed: () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const HomeadminPage()),
-            ),
-          ),
-          const Spacer(flex: 5),
-          IconButton(
-            icon: const Icon(Icons.person, size: 40),
-            color: Colors.grey.shade400,
-            onPressed: () => Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const ProfileadminPage()),
-            ),
-          ),
-          const Spacer(flex: 2),
         ],
       ),
     );

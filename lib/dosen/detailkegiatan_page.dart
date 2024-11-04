@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/widget/admin/custom_bottomappbar.dart';
-import 'package:sdm/widget/admin/custom_horizontalcalendar.dart';
-import 'package:sdm/admin/homeadmin_page.dart';
+import 'package:sdm/dosen/daftarkegiatan_page.dart';
+import 'package:sdm/dosen/sarandosen_page.dart';
+import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
 
 class DetailKegiatanPage extends StatefulWidget {
   const DetailKegiatanPage({Key? key}) : super(key: key);
@@ -89,12 +90,12 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                               _buildDetailField('Jenis Kegiatan', 'Kegiatan JTI', titleColor: Colors.black),
                               _buildDetailField('Nama Ketua Pelaksana', 'Albani Rajata Malik', titleColor: Colors.black),
                               _buildDetailField('Nama Anggota 1', 'Almira S.Pd', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 2', 'Anita S.T.Tr', titleColor: Colors.black),
+                              _buildDetailField('Nama Anggota 2', 'Anita S.T.Tr'),
                               _buildDetailField('Nama Anggota 3', 'Sofyan Andani S.T.Tr M.Ti', titleColor: Colors.black),
                               _buildDetailField('Nama Anggota 4', 'Tasya Cantika Ristiyana', titleColor: Colors.black),
                               _buildDetailField('Nama Anggota 5', 'ALya Rafani Mikaila', titleColor: Colors.black),
                               _buildDetailField('Deskripsi Kegiatan', 'Seminar Nasional yang diadakan oleh Dishub', isDescription: true, titleColor: Colors.black),
-                              _buildDetailField('Dokumen', 'Draft_surat_tugas_SemNas.pdf', titleColor: Colors.black),
+                              _buildDetailField('Dokumen', 'Draft_surat_tugas_SemNas.pdf'),
                               const SizedBox(height: 16),
                               Align(
                                 alignment: Alignment.centerRight,
@@ -105,7 +106,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                                       onPressed: () {
                                         Navigator.pushReplacement(
                                           context,
-                                          MaterialPageRoute(builder: (context) => const HomeadminPage()),
+                                          MaterialPageRoute(builder: (context) => const DaftarKegiatanPage()),
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -116,6 +117,22 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                                       ),
                                       child: const Text(
                                         'Kembali',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _showConfirmationDialog(context);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color.fromARGB(255, 5, 167, 170),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4.0),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Selesai',
                                         style: TextStyle(color: Colors.white),
                                       ),
                                     ),
@@ -140,7 +157,37 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
     );
   }
 
-  Widget _buildDetailField(String title, String content, {bool isDescription = false, Color titleColor = Colors.black}) {
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi'),
+          content: const Text('Apakah kegiatan anda sudah selesai?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SaranDosenPage()),
+                );
+              },
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailField(String title, String content, {bool isDescription = false, Color titleColor = Colors.black54}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
