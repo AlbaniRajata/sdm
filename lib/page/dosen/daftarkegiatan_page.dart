@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/detailkegiatan_page.dart';
-import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/page/dosen/detailkegiatan_page.dart';
+import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
-import 'package:sdm/widget/admin/kegiatan_sortoption.dart';
+import 'package:sdm/widget/dosen/kegiatan_sortoption.dart';
+import 'dart:math';
 
-class KegiatanadminPage extends StatefulWidget {
-  const KegiatanadminPage({super.key});
+class DaftarKegiatanPage extends StatefulWidget {
+  const DaftarKegiatanPage({super.key});
 
   @override
-  KegiatanadminPageState createState() => KegiatanadminPageState();
+  DaftarKegiatanPageState createState() => DaftarKegiatanPageState();
 }
 
-class KegiatanadminPageState extends State<KegiatanadminPage> {
+class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'status': 'Menunggu', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'status': 'Ditolak', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
+    {'title': 'Seminar Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
+    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
+    {'title': 'Workshop Teknologi', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-04-12'},
+    {'title': 'Lokakarya Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-05-20'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
   KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
@@ -26,8 +27,16 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
   @override
   void initState() {
     super.initState();
+    _assignRandomJenis();
     filteredKegiatanList = kegiatanList;
     _searchController.addListener(_searchKegiatan);
+  }
+
+  void _assignRandomJenis() {
+    final random = Random();
+    for (var kegiatan in kegiatanList) {
+      kegiatan['jenis'] = random.nextBool() ? 'JTI' : 'Non JTI';
+    }
   }
 
   void _searchKegiatan() {
@@ -54,6 +63,12 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
           break;
         case KegiatanSortOption.tanggalTerjauh:
           filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
+          break;
+        case KegiatanSortOption.kegiatanJTI:
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'JTI').toList();
+          break;
+        case KegiatanSortOption.kegiatanNonJTI:
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'Non JTI').toList();
           break;
         default:
           break;
@@ -107,9 +122,9 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                       _buildKegiatanCard(
                         context,
                         title: kegiatan['title']!,
-                        status: kegiatan['status']!,
-                        ketua: kegiatan['ketua']!,
+                        jabatan: kegiatan['jabatan']!,
                         tanggal: _formatDate(kegiatan['tanggal']!),
+                        jenis: kegiatan['jenis']!,
                         screenWidth: screenWidth,
                       ),
                       const SizedBox(height: 16),
@@ -196,6 +211,10 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
         return 'Tanggal Terdekat';
       case KegiatanSortOption.tanggalTerjauh:
         return 'Tanggal Terjauh';
+      case KegiatanSortOption.kegiatanJTI:
+        return 'Kegiatan JTI';
+      case KegiatanSortOption.kegiatanNonJTI:
+        return 'Kegiatan Non JTI';
       default:
         return '';
     }
@@ -204,9 +223,9 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
   Widget _buildKegiatanCard(
     BuildContext context, {
     required String title,
-    required String status,
-    required String ketua,
+    required String jabatan,
     required String tanggal,
+    required String jenis,
     required double screenWidth,
   }) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
@@ -230,6 +249,7 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
         children: [
           // Header Card
           Container(
+            width: double.infinity, // Make the header full width
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
@@ -238,25 +258,13 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
-                  ),
-                ),
-                Text(
-                  status,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: fontSize,
-                  ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: fontSize,
+              ),
             ),
           ),
           // Isi Card
@@ -273,14 +281,14 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Ketua Pelaksana',
+                          'Jabatan',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          ketua,
+                          jabatan,
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontWeight: FontWeight.bold,
@@ -311,23 +319,39 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Divider(), // Garis pembatas
+                const Divider(),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
-                      );
-                    },
-                    child: Text(
-                      'Lihat Detail',
-                      style: GoogleFonts.poppins(
-                        color: const Color(0xFF00796B),
-                        fontSize: fontSize,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: jenis == 'JTI' ? Colors.blue : Colors.orange,
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: Text(
+                          jenis,
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
-                    ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
+                          );
+                        },
+                        child: Text(
+                          'Lihat Detail',
+                          style: GoogleFonts.poppins(
+                            color: const Color(0xFF00796B),
+                            fontSize: fontSize,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

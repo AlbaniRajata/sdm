@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sdm/dosen/homedosen_page.dart';
-import 'package:sdm/dosen/profiledosen_page.dart';
-import 'package:sdm/dosen/daftarkegiatan_page.dart';
+import 'package:sdm/page/dosen/homedosen_page.dart';
+import 'package:sdm/page/dosen/profiledosen_page.dart';
+import 'package:sdm/page/dosen/daftarkegiatan_page.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final String currentPage;

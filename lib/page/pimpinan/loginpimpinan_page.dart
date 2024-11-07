@@ -1,16 +1,15 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/dosen/homedosen_page.dart';
 
-class LogindosenPage extends StatefulWidget {
-  const LogindosenPage({super.key});
+class LoginpimpinanPage extends StatefulWidget {
+  const LoginpimpinanPage({super.key});
 
   @override
-  LogindosenPageState createState() => LogindosenPageState();
+  LoginpimpinanPageState createState() => LoginpimpinanPageState();
 }
 
-class LogindosenPageState extends State<LogindosenPage> with SingleTickerProviderStateMixin {
+class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerProviderStateMixin {
   bool _isObscured = true; // Variabel untuk mengontrol visibilitas password
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
@@ -72,7 +71,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                     child: Column(
                       children: [
                         Text(
-                          'Selamat datang Dosen',
+                          'Selamat datang Pimpinan',
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 24,
@@ -84,7 +83,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'di ',
+                                text: 'di ', // Bagian kata "di" dengan font tipis
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -92,7 +91,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                                 ),
                               ),
                               TextSpan(
-                                text: 'Sistem Manajemen SDM',
+                                text: 'Sistem Manajemen SDM', // Bagian teks tebal dan italic
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -143,7 +142,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'Login Dosen',
+                              'Login Pimpinan',
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -242,12 +241,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const HomedosenPage(),
-                                    ),
-                                  );
+                                  // Implement login functionality
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF9500),

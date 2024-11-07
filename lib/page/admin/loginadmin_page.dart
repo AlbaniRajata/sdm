@@ -1,19 +1,27 @@
-import 'dart:ui'; // Import untuk ImageFilter
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; // Import Google Fonts
+import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/page/admin/homeadmin_page.dart';
+import 'package:sdm/services/api_service.dart';
+import 'package:sdm/models/user.dart';
 
-class LoginpimpinanPage extends StatefulWidget {
-  const LoginpimpinanPage({super.key});
+class LoginadminPage extends StatefulWidget {
+  const LoginadminPage({super.key});
 
   @override
-  LoginpimpinanPageState createState() => LoginpimpinanPageState();
+  LoginadminPageState createState() => LoginadminPageState();
 }
 
-class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerProviderStateMixin {
-  bool _isObscured = true; // Variabel untuk mengontrol visibilitas password
+class LoginadminPageState extends State<LoginadminPage> with SingleTickerProviderStateMixin {
+  bool _isObscured = true;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _opacityAnimation;
+
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final ApiService _apiService = ApiService();
+  String errorMessage = '';
 
   @override
   void initState() {
@@ -24,7 +32,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.1, 0.0), // Start from left
+      begin: const Offset(0.1, 0.0),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
@@ -39,13 +47,84 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
       curve: Curves.easeInOut,
     ));
 
-    _controller.forward(); // Mulai animasi saat halaman ditampilkan
+    _controller.forward();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _showNotification(String message, Color backgroundColor) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            color: backgroundColor,
+            padding: const EdgeInsets.all(12),
+            child: SafeArea(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void _login() async {
+    if (_usernameController.text.isEmpty) {
+      _showNotification('Field username tidak boleh kosong', Colors.red);
+      return;
+    }
+    if (_passwordController.text.isEmpty) {
+      _showNotification('Field password tidak boleh kosong', Colors.red);
+      return;
+    }
+
+    User user = User(
+      username: _usernameController.text,
+      password: _passwordController.text,
+    );
+
+    try {
+      String result = await _apiService.login(user);
+      if (result == 'Login successful') {
+        _showNotification('Login berhasil', Colors.green);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomeadminPage(),
+          ),
+        );
+      } else if (result == 'Invalid username') {
+        _showNotification('Username salah', Colors.red);
+      } else if (result == 'Invalid password') {
+        _showNotification('Password salah', Colors.red);
+      } else {
+        _showNotification(result, Colors.red);
+      }
+    } catch (e) {
+      _showNotification('Login failed: $e', Colors.red);
+    }
   }
 
   @override
@@ -71,7 +150,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                     child: Column(
                       children: [
                         Text(
-                          'Selamat datang Pimpinan',
+                          'Selamat datang Admin',
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 24,
@@ -83,7 +162,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'di ', // Bagian kata "di" dengan font tipis
+                                text: 'di ',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -91,7 +170,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                                 ),
                               ),
                               TextSpan(
-                                text: 'Sistem Manajemen SDM', // Bagian teks tebal dan italic
+                                text: 'Sistem Manajemen SDM',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontSize: 24,
@@ -142,7 +221,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'Login Pimpinan',
+                              'Login Admin',
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -153,7 +232,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'Email Anda',
+                                'Username Anda',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                 ),
@@ -166,10 +245,11 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                                 color: Colors.white,
                               ),
                               child: TextField(
+                                controller: _usernameController,
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
-                                  hintText: 'Isi Email Anda',
+                                  hintText: 'Isi Username Anda',
                                   hintStyle: GoogleFonts.poppins(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -196,6 +276,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                                 color: Colors.white,
                               ),
                               child: TextField(
+                                controller: _passwordController,
                                 obscureText: _isObscured,
                                 decoration: InputDecoration(
                                   filled: true,
@@ -240,11 +321,9 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // Implement login functionality
-                                },
+                                onPressed: _login,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF9500),
+                                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
                                   padding: const EdgeInsets.symmetric(vertical: 15),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),

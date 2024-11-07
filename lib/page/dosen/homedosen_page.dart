@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/dosen/detailpoin_page.dart';
-import 'package:sdm/dosen/repositorydosen_page.dart';
-import 'package:sdm/dosen/detailkegiatan_page.dart';
-import 'package:sdm/dosen/notifikasi_page.dart';
-import 'package:sdm/dosen/penugasan_page.dart';
+import 'package:sdm/page/dosen/detailpoin_page.dart';
+import 'package:sdm/page/dosen/repositorydosen_page.dart';
+import 'package:sdm/page/dosen/detailkegiatan_page.dart';
+import 'package:sdm/page/dosen/notifikasi_page.dart';
+import 'package:sdm/page/dosen/penugasan_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 
 class HomedosenPage extends StatelessWidget {

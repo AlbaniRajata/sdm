@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/detailkegiatan_page.dart';
+import 'package:sdm/page/admin/detailkegiatan_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/widget/admin/kegiatan_sortoption.dart';

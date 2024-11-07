@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/detailkegiatan_page.dart';
-import 'package:sdm/admin/repositoryadmin_page.dart';
-import 'package:sdm/admin/kegiatanadmin_page.dart';
-import 'package:sdm/admin/listdosen_page.dart';
-import 'package:sdm/admin/notifikasi_page.dart';
+import 'package:sdm/page/admin/detailkegiatan_page.dart';
+import 'package:sdm/page/admin/repositoryadmin_page.dart';
+import 'package:sdm/page/admin/kegiatanadmin_page.dart';
+import 'package:sdm/page/admin/listdosen_page.dart';
+import 'package:sdm/page/admin/notifikasi_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 
 class HomeadminPage extends StatelessWidget {

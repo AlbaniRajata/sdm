@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/loginadmin_page.dart';
-import 'package:sdm/admin/editprofile_page.dart';
+import 'package:sdm/page/admin/loginadmin_page.dart';
+import 'package:sdm/page/admin/editprofile_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 
 class ProfileadminPage extends StatelessWidget {

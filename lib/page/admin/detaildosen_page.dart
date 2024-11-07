@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
-import 'package:sdm/admin/listdosen_page.dart';
+import 'package:sdm/page/admin/listdosen_page.dart';
 
 class DetailDosenPage extends StatelessWidget {
   const DetailDosenPage({super.key});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/dosen/logindosen_page.dart';
-import 'package:sdm/dosen/editprofile_page.dart';
+import 'package:sdm/page/dosen/logindosen_page.dart';
+import 'package:sdm/page/dosen/editprofile_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 
 class ProfiledosenPage extends StatelessWidget {

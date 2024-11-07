@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/loginadmin_page.dart';
-import 'package:sdm/dosen/logindosen_page.dart';
-import 'package:sdm/pimpinan/loginpimpinan_page.dart';
+import 'package:sdm/page/admin/loginadmin_page.dart';
+import 'package:sdm/page/dosen/logindosen_page.dart';
+import 'package:sdm/page/pimpinan/loginpimpinan_page.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});

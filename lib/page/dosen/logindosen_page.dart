@@ -1,16 +1,16 @@
-import 'dart:ui'; 
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/admin/homeadmin_page.dart';
+import 'package:sdm/page/dosen/homedosen_page.dart';
 
-class LoginadminPage extends StatefulWidget {
-  const LoginadminPage({super.key});
+class LogindosenPage extends StatefulWidget {
+  const LogindosenPage({super.key});
 
   @override
-  LoginadminPageState createState() => LoginadminPageState();
+  LogindosenPageState createState() => LogindosenPageState();
 }
 
-class LoginadminPageState extends State<LoginadminPage> with SingleTickerProviderStateMixin {
+class LogindosenPageState extends State<LogindosenPage> with SingleTickerProviderStateMixin {
   bool _isObscured = true; // Variabel untuk mengontrol visibilitas password
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
@@ -72,7 +72,7 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                     child: Column(
                       children: [
                         Text(
-                          'Selamat datang Admin',
+                          'Selamat datang Dosen',
                           style: GoogleFonts.poppins(
                             color: Colors.white,
                             fontSize: 24,
@@ -143,7 +143,7 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'Login Admin',
+                              'Login Dosen',
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -245,12 +245,12 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const HomeadminPage(),
+                                      builder: (context) => const HomedosenPage(),
                                     ),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+                                  backgroundColor: const Color(0xFFFF9500),
                                   padding: const EdgeInsets.symmetric(vertical: 15),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),

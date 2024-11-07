@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/dosen/daftarkegiatan_page.dart';
-import 'package:sdm/dosen/sarandosen_page.dart';
+import 'package:sdm/page/dosen/daftarkegiatan_page.dart';
+import 'package:sdm/page/dosen/sarandosen_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
 
