@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
-import 'package:sdm/page/dosen/sarandosen_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
+import 'package:sdm/page/anggota/daftarkegiatan_page.dart';
+import 'package:sdm/page/anggota/sarananggota_page.dart';
+import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
+import 'package:sdm/widget/anggota/custom_horizontalcalendar.dart';
 
 class PenugasanPage extends StatefulWidget {
   const PenugasanPage({Key? key}) : super(key: key);
@@ -111,7 +111,7 @@ class PenugasanPageState extends State<PenugasanPage> {
                                       onPressed: () {
                                         Navigator.pushReplacement(
                                           context,
-                                          MaterialPageRoute(builder: (context) => const DaftarKegiatanJTIPage()),
+                                          MaterialPageRoute(builder: (context) => const DaftarKegiatanPage()),
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -131,7 +131,7 @@ class PenugasanPageState extends State<PenugasanPage> {
                                         _showConfirmationDialog(context);
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromARGB(255, 5, 167, 170),
+                                        backgroundColor: const Color.fromARGB(255, 5, 167, 170),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(4.0),
                                         ),
@@ -156,7 +156,7 @@ class PenugasanPageState extends State<PenugasanPage> {
           ],
         ),
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );

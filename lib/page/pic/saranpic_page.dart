@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/homedosen_page.dart';
-import 'package:sdm/page/dosen/detailkegiatanjti_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
+import 'package:sdm/page/pic/homepic_page.dart';
+import 'package:sdm/page/pic/detailkegiatan_page.dart';
+import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:sdm/widget/pic/custom_horizontalcalendar.dart';
 
-class SaranDosenPage extends StatefulWidget {
-  const SaranDosenPage({Key? key}) : super(key: key);
+class SaranpicPage extends StatefulWidget {
+  const SaranpicPage({Key? key}) : super(key: key);
 
   @override
-  _SaranDosenPageState createState() => _SaranDosenPageState();
+  _SaranpicPageState createState() => _SaranpicPageState();
 }
 
-class _SaranDosenPageState extends State<SaranDosenPage> {
+class _SaranpicPageState extends State<SaranpicPage> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
 
@@ -110,7 +110,7 @@ class _SaranDosenPageState extends State<SaranDosenPage> {
                                   onPressed: () {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const DetailKegiatanJTIPage()),
+                                      MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -129,7 +129,7 @@ class _SaranDosenPageState extends State<SaranDosenPage> {
                                   onPressed: () {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const HomedosenPage()),
+                                      MaterialPageRoute(builder: (context) => const HomepicPage()),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(

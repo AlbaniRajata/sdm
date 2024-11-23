@@ -1,0 +1,4 @@
+enum RepositorySortOption {
+  abjadAZ,
+  abjadZA,
+}

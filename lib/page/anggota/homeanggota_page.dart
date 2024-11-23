@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
-import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
-import 'package:sdm/page/dosen/statistik_page.dart';
-import 'package:sdm/page/dosen/notifikasi_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/page/anggota/daftarkegiatan_page.dart';
+import 'package:sdm/page/anggota/statistik_page.dart';
+import 'package:sdm/page/anggota/notifikasi_page.dart';
+import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
 
-class HomedosenPage extends StatelessWidget {
-  const HomedosenPage({super.key});
+class HomeanggotaPage extends StatelessWidget {
+  const HomeanggotaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -153,8 +152,8 @@ class HomedosenPage extends StatelessWidget {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      _buildMenuButton(context, 'Kegiatan JTI', Icons.event, const DaftarKegiatanJTIPage(), screenWidth),
-                                      _buildMenuButton(context, 'Kegiatan Non-JTI', Icons.event, const DaftarKegiatanNonJTIPage(), screenWidth),
+                                      _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
+                                      _buildMenuButton(context, 'Agenda Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
                                       _buildMenuButton(context, 'Statistik', Icons.bar_chart, const DetailpoinPage(), screenWidth),
                                     ],
                                   ),
@@ -194,7 +193,7 @@ class HomedosenPage extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const DaftarKegiatanJTIPage(),
+                                builder: (context) => const DaftarKegiatanPage(),
                               ),
                             );
                           },
@@ -313,7 +312,7 @@ class HomedosenPage extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const DaftarKegiatanNonJTIPage(),
+                                builder: (context) => const DaftarKegiatanPage(),
                               ),
                             );
                           },

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/homedosen_page.dart';
-import 'package:sdm/page/dosen/detailkegiatanjti_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
+import 'package:sdm/page/anggota/homeanggota_page.dart';
+import 'package:sdm/page/anggota/detailkegiatan_page.dart';
+import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
+import 'package:sdm/widget/anggota/custom_horizontalcalendar.dart';
 
 class SaranDosenPage extends StatefulWidget {
   const SaranDosenPage({Key? key}) : super(key: key);
@@ -110,7 +110,7 @@ class _SaranDosenPageState extends State<SaranDosenPage> {
                                   onPressed: () {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const DetailKegiatanJTIPage()),
+                                      MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(
@@ -129,7 +129,7 @@ class _SaranDosenPageState extends State<SaranDosenPage> {
                                   onPressed: () {
                                     Navigator.pushReplacement(
                                       context,
-                                      MaterialPageRoute(builder: (context) => const HomedosenPage()),
+                                      MaterialPageRoute(builder: (context) => const HomeanggotaPage()),
                                     );
                                   },
                                   style: ElevatedButton.styleFrom(

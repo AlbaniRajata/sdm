@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sdm/page/dosen/homedosen_page.dart';
-import 'package:sdm/page/dosen/profiledosen_page.dart';
-import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
+import 'package:sdm/page/pic/homepic_page.dart';
+import 'package:sdm/page/pic/profilepic_page.dart';
+import 'package:sdm/page/pic/daftarkegiatan_page.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final String currentPage;
@@ -25,7 +25,7 @@ class CustomBottomAppBar extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const HomedosenPage(),
+                    builder: (context) => const HomepicPage(),
                   ),
                 );
               }
@@ -40,7 +40,7 @@ class CustomBottomAppBar extends StatelessWidget {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ProfiledosenPage(),
+                    builder: (context) => const ProfilepicPage(),
                   ),
                 );
               }
@@ -58,7 +58,7 @@ class CustomBottomAppBar extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const DaftarKegiatanJTIPage(),
+            builder: (context) => const DaftarKegiatanPage(),
           ),
         );
       },

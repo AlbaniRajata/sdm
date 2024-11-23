@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/daftarkegiatan_page.dart';
-import 'package:sdm/page/dosen/sarandosen_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
+import 'package:sdm/page/anggota/daftarkegiatan_page.dart';
+import 'package:sdm/page/anggota/sarananggota_page.dart';
+import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
+import 'package:sdm/widget/anggota/custom_horizontalcalendar.dart';
 
 class DetailKegiatanPage extends StatefulWidget {
   const DetailKegiatanPage({Key? key}) : super(key: key);
@@ -131,7 +131,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                                         _showConfirmationDialog(context);
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: Color.fromARGB(255, 5, 167, 170),
+                                        backgroundColor: const Color.fromARGB(255, 5, 167, 170),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(4.0),
                                         ),
@@ -156,7 +156,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
           ],
         ),
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );

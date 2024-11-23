@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sdm/widget/dosen/sort_option.dart';
+import 'package:sdm/widget/pic/sort_option.dart';
 
 class CustomFilter extends StatefulWidget {
   final TextEditingController controller;

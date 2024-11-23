@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/admin/detailkegiatan_page.dart';
+import 'package:sdm/page/admin/detaildosen_page.dart';
 import 'package:sdm/page/admin/repositoryadmin_page.dart';
-import 'package:sdm/page/admin/kegiatanadmin_page.dart';
-import 'package:sdm/page/admin/listdosen_page.dart';
+import 'package:sdm/page/admin/detailkegiatan_page.dart';
 import 'package:sdm/page/admin/notifikasi_page.dart';
+// import 'package:sdm/page/admin/pengguna_page.dart';
+import 'package:sdm/page/admin/daftarkegiatan_page.dart';
+// import 'package:sdm/page/admin/jabatan_page.dart';
+// import 'package:sdm/page/admin/statistik_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 
 class HomeadminPage extends StatelessWidget {
@@ -122,7 +125,7 @@ class HomeadminPage extends StatelessWidget {
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: 40),
+                            const SizedBox(height: 45),
                             Text(
                               'Hai, Albani Rajata',
                               style: GoogleFonts.poppins(
@@ -133,155 +136,41 @@ class HomeadminPage extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 5),
-                            Stack(
-                              children: [
-                                Image.asset(
-                                  'assets/images/home.png',
-                                  height: screenWidth * 0.6, // Adjust height based on screen width
-                                ),
-                                Positioned(
-                                  top: screenWidth * 0.07,
-                                  left: screenWidth * 0.25,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Total Kegiatan Selesai',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: screenWidth * 0.035,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            '21 Kegiatan',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: screenWidth * 0.05,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          SizedBox(width: screenWidth * 0.02),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => const KegiatanadminPage(),
-                                                ),
-                                              );
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  'Lihat Daftar Kegiatan',
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: screenWidth * 0.025,
-                                                    color: const Color.fromRGBO(244, 71, 8, 1),
-                                                  ),
-                                                ),
-                                                const Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  size: 10,
-                                                  color: Color.fromRGBO(244, 71, 8, 1),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: SizedBox(
-                                          height: screenWidth * 0.04,
-                                          width: screenWidth * 0.6,
-                                          child: LinearProgressIndicator(
-                                            value: 0.5, // Persentase penyelesaian (5 persen)
-                                            backgroundColor: Colors.grey.shade300,
-                                            valueColor:
-                                              const AlwaysStoppedAnimation<Color>(Colors.orange,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        '10 Kegiatan Selesai',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: screenWidth * 0.03,
-                                          fontStyle: FontStyle.italic,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
+                            Container(
+                              height: screenWidth * 0.48,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
                                   ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        _buildMenuButton(context, 'Pengguna', Icons.person, const DetailKegiatanPage(), screenWidth),
+                                        _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarkegiatanPage(), screenWidth),
+                                        _buildMenuButton(context, 'Jabatan', Icons.work, const DetailDosenPage(), screenWidth),
+                                      ],
+                                    ),
+                                    SizedBox(height: screenWidth * 0.04),
+                                    Align(
+                                      alignment: Alignment.bottomLeft,
+                                      child: _buildMenuButton(context, 'Statistik', Icons.bar_chart, const RepositoryadminPage(), screenWidth),
+                                    ),
+                                  ],
                                 ),
-                                Positioned(
-                                  top: screenWidth * 0.36,
-                                  left: screenWidth * 0.25,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Kegiatan yang Akan Datang',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: screenWidth * 0.035,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Kuliah Tamu',
-                                            style: GoogleFonts.poppins(
-                                              fontSize: screenWidth * 0.05,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pushReplacement(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => const DetailKegiatanPage(),
-                                                ),
-                                              );
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Text(
-                                                  'Lihat Detail Kegiatan',
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: screenWidth * 0.025,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                                const Icon(
-                                                  Icons.arrow_forward_ios,
-                                                  size: 10,
-                                                  color: Colors.white,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Text(
-                                        '24 September 2024',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: screenWidth * 0.03,
-                                          fontStyle: FontStyle.italic,
-                                          color: Colors.black,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
@@ -291,7 +180,7 @@ class HomeadminPage extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Column(
@@ -301,7 +190,7 @@ class HomeadminPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Dosen',
+                        'Daftar Kegiatan',
                         style: GoogleFonts.poppins(
                           fontSize: screenWidth * 0.04,
                           fontWeight: FontWeight.bold,
@@ -313,7 +202,7 @@ class HomeadminPage extends StatelessWidget {
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const ListDosenPage(),
+                              builder: (context) => const DetailDosenPage(),
                             ),
                           );
                         },
@@ -327,7 +216,7 @@ class HomeadminPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 10),
                   LayoutBuilder(
                     builder: (context, constraints) {
                       return SizedBox(
@@ -384,7 +273,7 @@ class HomeadminPage extends StatelessWidget {
                                       bottom: 10,
                                       left: 10,
                                       child: Text(
-                                        'Albani Rajata',
+                                        'Seminar\nNasional',
                                         style: GoogleFonts.poppins(
                                           fontSize: screenWidth * 0.035,
                                           fontWeight: FontWeight.w600,
@@ -424,7 +313,7 @@ class HomeadminPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15.0),
               child: Column(
@@ -461,90 +350,6 @@ class HomeadminPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 5,
-                    itemBuilder: (context, index) {
-                      final titles = [
-                        'Surat Tugas',
-                        'Proposal',
-                        'Bukti Pencairan Dana',
-                        'Dokumentasi',
-                        'Laporan Pertanggung Jawaban'
-                      ];
-                      final documentCounts = [
-                        '10 Dokumen',
-                        '5 Dokumen',
-                        '3 Dokumen',
-                        '8 Dokumen',
-                        '2 Dokumen'
-                      ];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 10.0),
-                        child: Container(
-                          height: screenWidth * 0.2,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.asset(
-                                  'assets/images/img2.png',
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: screenWidth * 0.2,
-                                  colorBlendMode: BlendMode.dstATop,
-                                ),
-                              ),
-                              Positioned(
-                                left: 10,
-                                top: 0,
-                                bottom: 0,
-                                child: Center(
-                                  child: Icon(
-                                    Icons.folder,
-                                    color: Colors.white,
-                                    size: screenWidth * 0.1,
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                left: screenWidth * 0.15,
-                                top: 0,
-                                bottom: 0,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        titles[index],
-                                        style: GoogleFonts.poppins(
-                                          fontSize: screenWidth * 0.04,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      Text(
-                                        documentCounts[index],
-                                        style: GoogleFonts.poppins(
-                                          fontSize: screenWidth * 0.03,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                 ],
               ),
             ),
@@ -556,6 +361,43 @@ class HomeadminPage extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(
         currentPage: 'home',
+      ),
+    );
+  }
+
+  Widget _buildMenuButton(BuildContext context, String title, IconData icon, Widget page, double screenWidth) {
+    return Container(
+      width: screenWidth * 0.22,
+      height: screenWidth * 0.18,
+      margin: const EdgeInsets.symmetric(horizontal: 5.0),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => page),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: screenWidth * 0.06),
+            const SizedBox(height: 3),
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: screenWidth * 0.025,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

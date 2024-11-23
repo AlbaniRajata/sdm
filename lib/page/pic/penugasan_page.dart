@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
-import 'package:sdm/page/dosen/sarandosen_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
+import 'package:sdm/page/pic/daftarkegiatan_page.dart';
+import 'package:sdm/page/pic/saranpic_page.dart';
+import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:sdm/widget/pic/custom_horizontalcalendar.dart';
 
 class PenugasanPage extends StatefulWidget {
   const PenugasanPage({Key? key}) : super(key: key);
@@ -111,7 +111,7 @@ class PenugasanPageState extends State<PenugasanPage> {
                                       onPressed: () {
                                         Navigator.pushReplacement(
                                           context,
-                                          MaterialPageRoute(builder: (context) => const DaftarKegiatanJTIPage()),
+                                          MaterialPageRoute(builder: (context) => const DaftarKegiatanPage()),
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -181,7 +181,7 @@ class PenugasanPageState extends State<PenugasanPage> {
                 Navigator.of(context).pop();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => const SaranDosenPage()),
+                  MaterialPageRoute(builder: (context) => const SaranpicPage()),
                 );
               },
               child: const Text('Ya'),

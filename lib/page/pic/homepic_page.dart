@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
-import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
-import 'package:sdm/page/dosen/statistik_page.dart';
-import 'package:sdm/page/dosen/notifikasi_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/page/pic/daftarkegiatan_page.dart';
+import 'package:sdm/page/pic/statistik_page.dart';
+import 'package:sdm/page/pic/notifikasi_page.dart';
+import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 
-class HomedosenPage extends StatelessWidget {
-  const HomedosenPage({super.key});
+class HomepicPage extends StatelessWidget {
+  const HomepicPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +131,7 @@ class HomedosenPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            height: screenWidth * 0.31,
+                            height: screenWidth * 0.58,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10.0),
@@ -153,10 +152,15 @@ class HomedosenPage extends StatelessWidget {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      _buildMenuButton(context, 'Kegiatan JTI', Icons.event, const DaftarKegiatanJTIPage(), screenWidth),
-                                      _buildMenuButton(context, 'Kegiatan Non-JTI', Icons.event, const DaftarKegiatanNonJTIPage(), screenWidth),
-                                      _buildMenuButton(context, 'Statistik', Icons.bar_chart, const DetailpoinPage(), screenWidth),
+                                      _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
+                                      _buildMenuButton(context, 'Progres Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
+                                      _buildMenuButton(context, 'Agenda Anggota', Icons.bar_chart, const StatistikPage(), screenWidth),
                                     ],
+                                  ),
+                                  SizedBox(height: screenWidth * 0.04),
+                                  Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: _buildMenuButton(context, 'Statistik', Icons.bar_chart, const StatistikPage(), screenWidth),
                                   ),
                                 ],
                               ),
@@ -194,7 +198,7 @@ class HomedosenPage extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const DaftarKegiatanJTIPage(),
+                                builder: (context) => const DaftarKegiatanPage(),
                               ),
                             );
                           },
@@ -313,7 +317,7 @@ class HomedosenPage extends StatelessWidget {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const DaftarKegiatanNonJTIPage(),
+                                builder: (context) => const DaftarKegiatanPage(),
                               ),
                             );
                           },

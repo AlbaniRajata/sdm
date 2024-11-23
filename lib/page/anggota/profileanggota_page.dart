@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/dosen/logindosen_page.dart';
-import 'package:sdm/page/dosen/editprofile_page.dart';
+import 'package:sdm/page/anggota/editprofile_page.dart';
 import 'package:sdm/page/pic/homepic_page.dart';
-import 'package:sdm/page/anggota/homeanggota_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 
-class ProfiledosenPage extends StatelessWidget {
-  const ProfiledosenPage({super.key});
+class ProfileanggotaPage extends StatelessWidget {
+  const ProfileanggotaPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -117,11 +116,31 @@ class ProfiledosenPage extends StatelessWidget {
               style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
             ),
             trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
+            onTap: () {},
+          ),
+          const SizedBox(height: 10),
+          Divider(
+            thickness: 0.5,
+            color: Colors.grey[300],
+            indent: 20,
+            endIndent: 20,
+          ),
+          const SizedBox(height: 10),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+              child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
+            ),
+            title: Text(
+              'Kembali sebagai Dosen',
+              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
+            ),
+            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
             onTap: () {
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const HomeanggotaPage(),
+                  builder: (context) => const LogindosenPage(),
                 ),
               );
             },

@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/admin/detailkegiatan_page.dart';
-import 'package:sdm/widget/admin/custom_bottomappbar.dart';
-import 'package:intl/intl.dart';
-import 'package:sdm/widget/admin/kegiatan_sortoption.dart';
+import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:sdm/widget/pic/repository_sortoption.dart';
 
-class KegiatanadminPage extends StatefulWidget {
-  const KegiatanadminPage({super.key});
+class RepositorypicPage extends StatefulWidget {
+  const RepositorypicPage({super.key});
 
   @override
-  KegiatanadminPageState createState() => KegiatanadminPageState();
+  RepositorypicPageState createState() => RepositorypicPageState();
 }
 
-class KegiatanadminPageState extends State<KegiatanadminPage> {
+class RepositorypicPageState extends State<RepositorypicPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'status': 'Menunggu', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'status': 'Ditolak', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
+    {'title': 'Seminar Nasional', 'status': 'Selesai'},
+    {'title': 'Kuliah Tamu', 'status': 'Selesai'},
+    {'title': 'Ospek', 'status': 'Selesai'},
+    {'title': 'Dies Natalis', 'status': 'Selesai'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
-  KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
+  RepositorySortOption selectedSortOption = RepositorySortOption.abjadAZ;
 
   @override
   void initState() {
@@ -43,28 +41,16 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
   void _sortKegiatanList() {
     setState(() {
       switch (selectedSortOption) {
-        case KegiatanSortOption.abjadAZ:
+        case RepositorySortOption.abjadAZ:
           filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
           break;
-        case KegiatanSortOption.abjadZA:
+        case RepositorySortOption.abjadZA:
           filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
-          break;
-        case KegiatanSortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
-          break;
-        case KegiatanSortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
           break;
         default:
           break;
       }
     });
-  }
-
-  String _formatDate(String date) {
-    final DateTime parsedDate = DateTime.parse(date);
-    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
-    return formatter.format(parsedDate);
   }
 
   @override
@@ -82,7 +68,7 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Daftar Kegiatan',
+          'Repository',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -108,8 +94,6 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                         context,
                         title: kegiatan['title']!,
                         status: kegiatan['status']!,
-                        ketua: kegiatan['ketua']!,
-                        tanggal: _formatDate(kegiatan['tanggal']!),
                         screenWidth: screenWidth,
                       ),
                       const SizedBox(height: 16),
@@ -121,7 +105,7 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
           ),
         ],
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
@@ -136,7 +120,7 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Cari Kegiatan...',
+                hintText: 'Cari kegiatan...',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                   borderSide: const BorderSide(color: Colors.grey),
@@ -166,12 +150,12 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
           title: const Text('Urutkan berdasarkan'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: KegiatanSortOption.values.map((KegiatanSortOption option) {
-              return RadioListTile<KegiatanSortOption>(
+            children: RepositorySortOption.values.map((RepositorySortOption option) {
+              return RadioListTile<RepositorySortOption>(
                 title: Text(_getSortOptionText(option)),
                 value: option,
                 groupValue: selectedSortOption,
-                onChanged: (KegiatanSortOption? value) {
+                onChanged: (RepositorySortOption? value) {
                   setState(() {
                     selectedSortOption = value!;
                     _sortKegiatanList();
@@ -186,16 +170,12 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
     );
   }
 
-  String _getSortOptionText(KegiatanSortOption option) {
+  String _getSortOptionText(RepositorySortOption option) {
     switch (option) {
-      case KegiatanSortOption.abjadAZ:
+      case RepositorySortOption.abjadAZ:
         return 'Abjad A ke Z';
-      case KegiatanSortOption.abjadZA:
+      case RepositorySortOption.abjadZA:
         return 'Abjad Z ke A';
-      case KegiatanSortOption.tanggalTerdekat:
-        return 'Tanggal Terdekat';
-      case KegiatanSortOption.tanggalTerjauh:
-        return 'Tanggal Terjauh';
       default:
         return '';
     }
@@ -205,8 +185,6 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
     BuildContext context, {
     required String title,
     required String status,
-    required String ketua,
-    required String tanggal,
     required double screenWidth,
   }) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
@@ -228,9 +206,8 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
               borderRadius: BorderRadius.only(
@@ -253,7 +230,8 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
                   status,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontSize: fontSize,
+                    fontSize: fontSize - 2,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
               ],
@@ -261,74 +239,63 @@ class KegiatanadminPageState extends State<KegiatanadminPage> {
           ),
           // Isi Card
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Ketua Pelaksana',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          ketua,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'Surat Tugas',
+                      style: GoogleFonts.poppins(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tanggal Selesai',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
+                    TextButton(
+                      onPressed: () {
+                        // Tambahkan aksi untuk download dokumen
+                      },
+                      child: Text(
+                        'Download Dokumen',
+                        style: GoogleFonts.poppins(
+                          fontSize: fontSize - 2,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.black,
                         ),
-                        Text(
-                          tanggal,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                const Divider(), // Garis pembatas
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
-                      );
-                    },
-                    child: Text(
-                      'Lihat Detail',
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Dokumentasi',
                       style: GoogleFonts.poppins(
-                        color: const Color(0xFF00796B),
                         fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
-                  ),
+                    TextButton(
+                      onPressed: () {
+                        // Tambahkan aksi untuk download dokumen
+                      },
+                      child: Text(
+                        'Download Dokumen',
+                        style: GoogleFonts.poppins(
+                          fontSize: fontSize - 2,
+                          fontStyle: FontStyle.italic,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

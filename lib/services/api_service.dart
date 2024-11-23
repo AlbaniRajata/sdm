@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sdm/models/user.dart';
 
 class ApiService {
-  final String _baseUrl = 'http://192.168.1.231:8000/api';
+  final String _baseUrl = 'http://192.168.65.123:8000/api';
 
   Future<String> login(User user) async {
     final String apiUrl = '$_baseUrl/login';

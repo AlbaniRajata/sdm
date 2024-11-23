@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/widget/dosen/sort_option.dart';
+import 'package:sdm/page/admin/detailkegiatan_page.dart';
+import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:intl/intl.dart';
+import 'package:sdm/widget/admin/kegiatan_sortoption.dart';
 
-class DetailpoinPage extends StatefulWidget {
-  const DetailpoinPage({super.key});
+class DaftarkegiatanPage extends StatefulWidget {
+  const DaftarkegiatanPage({super.key});
 
   @override
-  DetailpoinPageState createState() => DetailpoinPageState();
+  DaftarkegiatanPageState createState() => DaftarkegiatanPageState();
 }
 
-class DetailpoinPageState extends State<DetailpoinPage> {
+class DaftarkegiatanPageState extends State<DaftarkegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'jabatan': 'Ketua', 'poin': '10', 'tanggalMulai': '1 Maret 2022', 'tanggalSelesai': '3 Maret 2022'},
-    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua', 'poin': '8', 'tanggalMulai': '1 Maret 2022', 'tanggalSelesai': '3 Maret 2022'},
-    {'title': 'Workshop Teknologi', 'jabatan': 'Anggota', 'poin': '5', 'tanggalMulai': '10 April 2022', 'tanggalSelesai': '12 April 2022'},
-    {'title': 'Lokakarya Nasional', 'jabatan': 'Anggota', 'poin': '3', 'tanggalMulai': '18 Mei 2022', 'tanggalSelesai': '20 Mei 2022'},
+    {'title': 'Seminar Nasional', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
+    {'title': 'Kuliah Tamu', 'status': 'Disetujui', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
+    {'title': 'Workshop Teknologi', 'status': 'Menunggu', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
+    {'title': 'Lokakarya Nasional', 'status': 'Ditolak', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
-  SortOption selectedSortOption = SortOption.abjadAZ;
+  KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
 
   @override
   void initState() {
@@ -41,28 +43,28 @@ class DetailpoinPageState extends State<DetailpoinPage> {
   void _sortKegiatanList() {
     setState(() {
       switch (selectedSortOption) {
-        case SortOption.abjadAZ:
+        case KegiatanSortOption.abjadAZ:
           filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
           break;
-        case SortOption.abjadZA:
+        case KegiatanSortOption.abjadZA:
           filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
           break;
-        case SortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggalMulai']!).compareTo(DateTime.parse(b['tanggalMulai']!)));
+        case KegiatanSortOption.tanggalTerdekat:
+          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
           break;
-        case SortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggalMulai']!).compareTo(DateTime.parse(a['tanggalMulai']!)));
-          break;
-        case SortOption.poinTerbanyak:
-          filteredKegiatanList.sort((a, b) => int.parse(b['poin']!).compareTo(int.parse(a['poin']!)));
-          break;
-        case SortOption.poinTersedikit:
-          filteredKegiatanList.sort((a, b) => int.parse(a['poin']!).compareTo(int.parse(b['poin']!)));
+        case KegiatanSortOption.tanggalTerjauh:
+          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
           break;
         default:
           break;
       }
     });
+  }
+
+  String _formatDate(String date) {
+    final DateTime parsedDate = DateTime.parse(date);
+    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
+    return formatter.format(parsedDate);
   }
 
   @override
@@ -73,15 +75,18 @@ class DetailpoinPageState extends State<DetailpoinPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Detail Poinku',
+          'Daftar Kegiatan',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
+            fontSize: screenWidth * 0.05,
           ),
           textAlign: TextAlign.center,
         ),
@@ -91,7 +96,7 @@ class DetailpoinPageState extends State<DetailpoinPage> {
       body: Column(
         children: [
           const SizedBox(height: 20),
-          _buildSearchBar(),
+          _buildSearchBar(screenWidth),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -102,10 +107,10 @@ class DetailpoinPageState extends State<DetailpoinPage> {
                       _buildKegiatanCard(
                         context,
                         title: kegiatan['title']!,
-                        jabatan: kegiatan['jabatan']!,
-                        poin: kegiatan['poin']!,
-                        tanggalMulai: kegiatan['tanggalMulai']!,
-                        tanggalSelesai: kegiatan['tanggalSelesai']!,
+                        status: kegiatan['status']!,
+                        ketua: kegiatan['ketua']!,
+                        tanggal: _formatDate(kegiatan['tanggal']!),
+                        screenWidth: screenWidth,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -122,7 +127,7 @@ class DetailpoinPageState extends State<DetailpoinPage> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(double screenWidth) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -138,6 +143,7 @@ class DetailpoinPageState extends State<DetailpoinPage> {
                 ),
                 prefixIcon: const Icon(Icons.search),
               ),
+              style: TextStyle(fontSize: screenWidth * 0.04),
             ),
           ),
           const SizedBox(width: 8),
@@ -160,12 +166,12 @@ class DetailpoinPageState extends State<DetailpoinPage> {
           title: const Text('Urutkan berdasarkan'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
-            children: SortOption.values.map((SortOption option) {
-              return RadioListTile<SortOption>(
+            children: KegiatanSortOption.values.map((KegiatanSortOption option) {
+              return RadioListTile<KegiatanSortOption>(
                 title: Text(_getSortOptionText(option)),
                 value: option,
                 groupValue: selectedSortOption,
-                onChanged: (SortOption? value) {
+                onChanged: (KegiatanSortOption? value) {
                   setState(() {
                     selectedSortOption = value!;
                     _sortKegiatanList();
@@ -180,20 +186,16 @@ class DetailpoinPageState extends State<DetailpoinPage> {
     );
   }
 
-  String _getSortOptionText(SortOption option) {
+  String _getSortOptionText(KegiatanSortOption option) {
     switch (option) {
-      case SortOption.abjadAZ:
+      case KegiatanSortOption.abjadAZ:
         return 'Abjad A ke Z';
-      case SortOption.abjadZA:
+      case KegiatanSortOption.abjadZA:
         return 'Abjad Z ke A';
-      case SortOption.tanggalTerdekat:
+      case KegiatanSortOption.tanggalTerdekat:
         return 'Tanggal Terdekat';
-      case SortOption.tanggalTerjauh:
+      case KegiatanSortOption.tanggalTerjauh:
         return 'Tanggal Terjauh';
-      case SortOption.poinTerbanyak:
-        return 'Poin Terbanyak';
-      case SortOption.poinTersedikit:
-        return 'Poin Tersedikit';
       default:
         return '';
     }
@@ -202,11 +204,13 @@ class DetailpoinPageState extends State<DetailpoinPage> {
   Widget _buildKegiatanCard(
     BuildContext context, {
     required String title,
-    required String jabatan,
-    required String poin,
-    required String tanggalMulai,
-    required String tanggalSelesai,
+    required String status,
+    required String ketua,
+    required String tanggal,
+    required double screenWidth,
   }) {
+    final fontSize = screenWidth < 500 ? 14.0 : 16.0;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -237,31 +241,19 @@ class DetailpoinPageState extends State<DetailpoinPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      jabatan,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
                 Text(
-                  '$poin Poin',
+                  title,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
-                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+                Text(
+                  status,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: fontSize,
                   ),
                 ),
               ],
@@ -281,17 +273,17 @@ class DetailpoinPageState extends State<DetailpoinPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tanggal Mulai',
+                          'Ketua Pelaksana',
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: fontSize,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          tanggalMulai,
+                          ketua,
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
@@ -303,14 +295,14 @@ class DetailpoinPageState extends State<DetailpoinPage> {
                         Text(
                           'Tanggal Selesai',
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: fontSize,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          tanggalSelesai,
+                          tanggal,
                           style: GoogleFonts.poppins(
-                            fontSize: 14,
+                            fontSize: fontSize,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -319,6 +311,25 @@ class DetailpoinPageState extends State<DetailpoinPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
+                const Divider(), // Garis pembatas
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
+                      );
+                    },
+                    child: Text(
+                      'Lihat Detail',
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xFF00796B),
+                        fontSize: fontSize,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),

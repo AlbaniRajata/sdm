@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/detailkegiatan_page.dart';
-import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/page/pic/detailkegiatan_page.dart';
+import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
-import 'package:sdm/widget/dosen/kegiatan_sortoption.dart';
+import 'package:sdm/widget/pic/kegiatan_sortoption.dart';
 import 'dart:math';
 
 class DaftarKegiatanPage extends StatefulWidget {
