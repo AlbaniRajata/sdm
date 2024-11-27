@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/widget/pic/custom_bottomappbar.dart';
-import 'package:sdm/widget/pic/sort_option.dart';
-import 'package:sdm/widget/pic/custom_filter.dart';
+import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/admin/sort_option.dart';
+import 'package:sdm/widget/admin/custom_filter.dart';
 
 class StatistikPage extends StatefulWidget {
   const StatistikPage({super.key});

@@ -2,8 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/homeadmin_page.dart';
-import 'package:sdm/services/api_service.dart';
-import 'package:sdm/models/user.dart';
 
 class LoginadminPage extends StatefulWidget {
   const LoginadminPage({super.key});
@@ -17,11 +15,6 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _opacityAnimation;
-
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final ApiService _apiService = ApiService();
-  String errorMessage = '';
 
   @override
   void initState() {
@@ -54,77 +47,6 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  void _showNotification(String message, Color backgroundColor) {
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            color: backgroundColor,
-            padding: const EdgeInsets.all(12),
-            child: SafeArea(
-              child: Text(
-                message,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    overlay.insert(overlayEntry);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
-  }
-
-  void _login() async {
-    if (_usernameController.text.isEmpty) {
-      _showNotification('Field username tidak boleh kosong', Colors.red);
-      return;
-    }
-    if (_passwordController.text.isEmpty) {
-      _showNotification('Field password tidak boleh kosong', Colors.red);
-      return;
-    }
-
-    User user = User(
-      username: _usernameController.text,
-      password: _passwordController.text,
-    );
-
-    try {
-      String result = await _apiService.login(user);
-      if (result == 'Login successful') {
-        _showNotification('Login berhasil', Colors.green);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomeadminPage(),
-          ),
-        );
-      } else if (result == 'Invalid username') {
-        _showNotification('Username salah', Colors.red);
-      } else if (result == 'Invalid password') {
-        _showNotification('Password salah', Colors.red);
-      } else {
-        _showNotification(result, Colors.red);
-      }
-    } catch (e) {
-      _showNotification('Login failed: $e', Colors.red);
-    }
   }
 
   @override
@@ -245,7 +167,6 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                                 color: Colors.white,
                               ),
                               child: TextField(
-                                controller: _usernameController,
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
@@ -276,7 +197,6 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                                 color: Colors.white,
                               ),
                               child: TextField(
-                                controller: _passwordController,
                                 obscureText: _isObscured,
                                 decoration: InputDecoration(
                                   filled: true,
@@ -321,7 +241,9 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: _login,
+                                onPressed: () {
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeadminPage()));
+                                },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
                                   padding: const EdgeInsets.symmetric(vertical: 15),

@@ -112,7 +112,7 @@ class HomedosenPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Sistem Manajemen SDM',
+                            'Anda masuk sebagai Dosen',
                             style: GoogleFonts.poppins(
                               fontSize: screenWidth * 0.03,
                               fontStyle: FontStyle.italic,
@@ -155,7 +155,7 @@ class HomedosenPage extends StatelessWidget {
                                     children: [
                                       _buildMenuButton(context, 'Kegiatan JTI', Icons.event, const DaftarKegiatanJTIPage(), screenWidth),
                                       _buildMenuButton(context, 'Kegiatan Non-JTI', Icons.event, const DaftarKegiatanNonJTIPage(), screenWidth),
-                                      _buildMenuButton(context, 'Statistik', Icons.bar_chart, const DetailpoinPage(), screenWidth),
+                                      _buildMenuButton(context, 'Statistik', Icons.bar_chart, const StatistikPage(), screenWidth),
                                     ],
                                   ),
                                 ],

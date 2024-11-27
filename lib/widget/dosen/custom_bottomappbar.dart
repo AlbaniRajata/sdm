@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sdm/page/dosen/homedosen_page.dart';
 import 'package:sdm/page/dosen/profiledosen_page.dart';
-import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
+import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final String currentPage;
@@ -58,7 +58,7 @@ class CustomBottomAppBar extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => const DaftarKegiatanJTIPage(),
+            builder: (context) => const DaftarKegiatanNonJTIPage(),
           ),
         );
       },
@@ -85,7 +85,7 @@ class CustomBottomAppBar extends StatelessWidget {
             ),
           ],
         ),
-        child: const Icon(Icons.calendar_today_rounded,
+        child: const Icon(Icons.add_rounded,
           color: Colors.white, size: 30),
       ),
     );

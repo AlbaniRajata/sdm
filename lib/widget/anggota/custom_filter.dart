@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:sdm/widget/anggota/sort_option.dart';
+import 'package:sdm/widget/anggota/kegiatan_sortoption.dart';
 
-class CustomFilter extends StatefulWidget {
+class CustomFilter<T> extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final String hintText;
-  final SortOption selectedSortOption;
-  final ValueChanged<SortOption?> onSortOptionChanged;
-  final List<SortOption> sortOptions;
+  final T selectedSortOption;
+  final ValueChanged<T?> onSortOptionChanged;
+  final List<T> sortOptions;
 
   const CustomFilter({
     Key? key,
@@ -20,11 +21,11 @@ class CustomFilter extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CustomFilterState createState() => _CustomFilterState();
+  _CustomFilterState<T> createState() => _CustomFilterState<T>();
 }
 
-class _CustomFilterState extends State<CustomFilter> {
-  SortOption? _selectedOption;
+class _CustomFilterState<T> extends State<CustomFilter<T>> {
+  T? _selectedOption;
 
   @override
   void initState() {
@@ -63,7 +64,7 @@ class _CustomFilterState extends State<CustomFilter> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: widget.sortOptions.map((SortOption option) {
+              children: widget.sortOptions.map((T option) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: ChoiceChip(
@@ -95,22 +96,43 @@ class _CustomFilterState extends State<CustomFilter> {
     );
   }
 
-  String _getSortOptionText(SortOption option) {
-    switch (option) {
-      case SortOption.abjadAZ:
-        return 'Abjad A ke Z';
-      case SortOption.abjadZA:
-        return 'Abjad Z ke A';
-      case SortOption.tanggalTerdekat:
-        return 'Tanggal Terdekat';
-      case SortOption.tanggalTerjauh:
-        return 'Tanggal Terjauh';
-      case SortOption.poinTerbanyak:
-        return 'Poin Terbanyak';
-      case SortOption.poinTersedikit:
-        return 'Poin Tersedikit';
-      default:
-        return '';
+  String _getSortOptionText(T option) {
+    if (option is SortOption) {
+      switch (option) {
+        case SortOption.abjadAZ:
+          return 'Abjad A ke Z';
+        case SortOption.abjadZA:
+          return 'Abjad Z ke A';
+        case SortOption.tanggalTerdekat:
+          return 'Tanggal Terdekat';
+        case SortOption.tanggalTerjauh:
+          return 'Tanggal Terjauh';
+        case SortOption.poinTerbanyak:
+          return 'Poin Terbanyak';
+        case SortOption.poinTersedikit:
+          return 'Poin Tersedikit';
+        default:
+          return '';
+      }
+    } else if (option is KegiatanSortOption) {
+      switch (option) {
+        case KegiatanSortOption.abjadAZ:
+          return 'Abjad A ke Z';
+        case KegiatanSortOption.abjadZA:
+          return 'Abjad Z ke A';
+        case KegiatanSortOption.tanggalTerdekat:
+          return 'Tanggal Terdekat';
+        case KegiatanSortOption.tanggalTerjauh:
+          return 'Tanggal Terjauh';
+        case KegiatanSortOption.jti:
+          return 'JTI';
+        case KegiatanSortOption.nonJTI:
+          return 'Non JTI';
+        default:
+          return '';
+      }
+    } else {
+      return '';
     }
   }
 }

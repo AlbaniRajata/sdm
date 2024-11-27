@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/anggota/detailkegiatan_page.dart';
 import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
+import 'package:sdm/widget/anggota/custom_filter.dart';
 import 'package:sdm/widget/anggota/kegiatan_sortoption.dart';
 import 'dart:math';
 
@@ -16,11 +17,12 @@ class DaftarKegiatanPage extends StatefulWidget {
 class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-05-20'},
+    {'title': 'Seminar Nasional', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
+    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
+    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
+    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
   ];
+
   List<Map<String, String>> filteredKegiatanList = [];
   KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
 
@@ -49,8 +51,9 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     });
   }
 
-  void _sortKegiatanList() {
+  void _sortKegiatanList(KegiatanSortOption? option) {
     setState(() {
+      selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case KegiatanSortOption.abjadAZ:
           filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
@@ -64,10 +67,10 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
         case KegiatanSortOption.tanggalTerjauh:
           filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
           break;
-        case KegiatanSortOption.kegiatanJTI:
+        case KegiatanSortOption.jti:
           filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'JTI').toList();
           break;
-        case KegiatanSortOption.kegiatanNonJTI:
+        case KegiatanSortOption.nonJTI:
           filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'Non JTI').toList();
           break;
         default:
@@ -111,7 +114,15 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
       body: Column(
         children: [
           const SizedBox(height: 20),
-          _buildSearchBar(screenWidth),
+          CustomFilter<KegiatanSortOption>(
+            controller: _searchController,
+            onChanged: (value) => _searchKegiatan(),
+            selectedSortOption: selectedSortOption,
+            onSortOptionChanged: (KegiatanSortOption? value) {
+              _sortKegiatanList(value);
+            },
+            sortOptions: KegiatanSortOption.values.toList(),
+          ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -122,7 +133,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       _buildKegiatanCard(
                         context,
                         title: kegiatan['title']!,
-                        jabatan: kegiatan['jabatan']!,
+                        ketua: kegiatan['ketua']!,
                         tanggal: _formatDate(kegiatan['tanggal']!),
                         jenis: kegiatan['jenis']!,
                         screenWidth: screenWidth,
@@ -136,94 +147,16 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           ),
         ],
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
   }
 
-  Widget _buildSearchBar(double screenWidth) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Cari Kegiatan...',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: const BorderSide(color: Colors.grey),
-                ),
-                prefixIcon: const Icon(Icons.search),
-              ),
-              style: TextStyle(fontSize: screenWidth * 0.04),
-            ),
-          ),
-          const SizedBox(width: 8),
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {
-              _showSortOptionsDialog(context);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showSortOptionsDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Urutkan berdasarkan'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: KegiatanSortOption.values.map((KegiatanSortOption option) {
-              return RadioListTile<KegiatanSortOption>(
-                title: Text(_getSortOptionText(option)),
-                value: option,
-                groupValue: selectedSortOption,
-                onChanged: (KegiatanSortOption? value) {
-                  setState(() {
-                    selectedSortOption = value!;
-                    _sortKegiatanList();
-                  });
-                  Navigator.of(context).pop();
-                },
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
-  }
-
-  String _getSortOptionText(KegiatanSortOption option) {
-    switch (option) {
-      case KegiatanSortOption.abjadAZ:
-        return 'Abjad A ke Z';
-      case KegiatanSortOption.abjadZA:
-        return 'Abjad Z ke A';
-      case KegiatanSortOption.tanggalTerdekat:
-        return 'Tanggal Terdekat';
-      case KegiatanSortOption.tanggalTerjauh:
-        return 'Tanggal Terjauh';
-      case KegiatanSortOption.kegiatanJTI:
-        return 'Kegiatan JTI';
-      case KegiatanSortOption.kegiatanNonJTI:
-        return 'Kegiatan Non JTI';
-      default:
-        return '';
-    }
-  }
-
   Widget _buildKegiatanCard(
     BuildContext context, {
     required String title,
-    required String jabatan,
+    required String ketua,
     required String tanggal,
     required String jenis,
     required double screenWidth,
@@ -249,7 +182,6 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
         children: [
           // Header Card
           Container(
-            width: double.infinity, // Make the header full width
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
@@ -258,13 +190,18 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+              ],
             ),
           ),
           // Isi Card
@@ -281,14 +218,14 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Jabatan',
+                          'Ketua Pelaksana',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          jabatan,
+                          ketua,
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontWeight: FontWeight.bold,
@@ -319,7 +256,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Divider(),
+                const Divider(), // Garis pembatas
                 Align(
                   alignment: Alignment.centerRight,
                   child: Row(

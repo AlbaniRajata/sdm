@@ -4,14 +4,14 @@ import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:sdm/widget/dosen/sort_option.dart';
 import 'package:sdm/widget/dosen/custom_filter.dart';
 
-class DetailpoinPage extends StatefulWidget {
-  const DetailpoinPage({super.key});
+class StatistikPage extends StatefulWidget {
+  const StatistikPage({super.key});
 
   @override
-  DetailpoinPageState createState() => DetailpoinPageState();
+  StatistikPageState createState() => StatistikPageState();
 }
 
-class DetailpoinPageState extends State<DetailpoinPage> {
+class StatistikPageState extends State<StatistikPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
     {'title': 'Seminar Nasional', 'jabatan': 'Ketua', 'poin': '10', 'tanggalMulai': '2022-03-01', 'tanggalSelesai': '2022-03-03'},

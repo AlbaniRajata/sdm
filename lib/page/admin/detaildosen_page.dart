@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
-import 'package:sdm/page/admin/listdosen_page.dart';
+import 'package:sdm/page/admin/daftardosen_page.dart';
 
 class DetailDosenPage extends StatelessWidget {
   const DetailDosenPage({super.key});
@@ -97,7 +97,7 @@ class DetailDosenPage extends StatelessWidget {
                                     onPressed: () {
                                       Navigator.pushReplacement(
                                         context,
-                                        MaterialPageRoute(builder: (context) => const ListDosenPage()),
+                                        MaterialPageRoute(builder: (context) => const DaftarDosenPage()),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(

@@ -209,7 +209,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
           TextFormField(
             initialValue: content,
             readOnly: !isDescription,
-            maxLines: isDescription ? 5 : 1, // Increase maxLines for description
+            maxLines: isDescription ? 5 : 1,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,

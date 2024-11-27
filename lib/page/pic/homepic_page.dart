@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/pic/daftarkegiatan_page.dart';
-import 'package:sdm/page/pic/statistik_page.dart';
 import 'package:sdm/page/pic/notifikasi_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 
@@ -111,7 +110,7 @@ class HomepicPage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Sistem Manajemen SDM',
+                            'Anda masuk sebagai PIC',
                             style: GoogleFonts.poppins(
                               fontSize: screenWidth * 0.03,
                               fontStyle: FontStyle.italic,
@@ -154,13 +153,8 @@ class HomepicPage extends StatelessWidget {
                                     children: [
                                       _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
                                       _buildMenuButton(context, 'Progres Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
-                                      _buildMenuButton(context, 'Agenda Anggota', Icons.bar_chart, const StatistikPage(), screenWidth),
+                                      _buildMenuButton(context, 'Agenda Anggota', Icons.bar_chart, const DaftarKegiatanPage(), screenWidth),
                                     ],
-                                  ),
-                                  SizedBox(height: screenWidth * 0.04),
-                                  Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: _buildMenuButton(context, 'Statistik', Icons.bar_chart, const StatistikPage(), screenWidth),
                                   ),
                                 ],
                               ),
@@ -186,7 +180,7 @@ class HomepicPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Jumlah Kegiatan JTI',
+                          'Jumlah Kegiatan',
                           style: GoogleFonts.poppins(
                             fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.bold,
@@ -215,7 +209,7 @@ class HomepicPage extends StatelessWidget {
                     const SizedBox(height: 10),
                     Container(
                       width: screenWidth * 0.96,
-                      height: screenWidth * 0.4,
+                      height: screenWidth * 0.31,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.grey.shade200,
@@ -299,37 +293,6 @@ class HomepicPage extends StatelessWidget {
                           ),
                         ],
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Jumlah Kegiatan Non-JTI',
-                          style: GoogleFonts.poppins(
-                            fontSize: screenWidth * 0.04,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DaftarKegiatanPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Lihat Semua',
-                            style: GoogleFonts.poppins(
-                              fontSize: screenWidth * 0.03,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                     const SizedBox(height: 10),
                     Container(

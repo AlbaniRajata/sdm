@@ -3,6 +3,6 @@ enum KegiatanSortOption {
   abjadZA,
   tanggalTerdekat,
   tanggalTerjauh,
-  kegiatanJTI,
-  kegiatanNonJTI,
+  jti,
+  nonJTI,
 }
