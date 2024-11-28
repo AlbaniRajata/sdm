@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sdm/widget/admin/sort_option.dart';
 import 'package:sdm/widget/admin/kegiatan_sortoption.dart';
 import 'package:sdm/widget/admin/dosen_sortoption.dart';
+import 'package:sdm/widget/admin/pengguna_sortoption.dart';
 
 class CustomFilter<T> extends StatefulWidget {
   final TextEditingController controller;
@@ -142,6 +143,21 @@ class _CustomFilterState<T> extends State<CustomFilter<T>> {
           return 'Poin Terbanyak';
         case DosenSortOption.poinTersedikit:
           return 'Poin Tersedikit';
+        default:
+          return '';
+      }
+    } else if (option is PenggunaSortOption) {
+      switch (option) {
+        case PenggunaSortOption.abjadAZ:
+          return 'Abjad A ke Z';
+        case PenggunaSortOption.abjadZA:
+          return 'Abjad Z ke A';
+        case PenggunaSortOption.admin:
+          return 'Admin';
+        case PenggunaSortOption.dosen:
+          return 'Dosen';
+        case PenggunaSortOption.pimpinan:
+          return 'Pimpinan';
         default:
           return '';
       }

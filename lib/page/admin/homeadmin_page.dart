@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/daftardosen_page.dart';
 import 'package:sdm/page/admin/daftarkegiatan_page.dart';
 import 'package:sdm/page/admin/notifikasi_page.dart';
-// import 'package:sdm/page/admin/daftarpengguna_page.dart';
-// import 'package:sdm/page/admin/jabatan_page.dart';
+import 'package:sdm/page/admin/daftarpengguna_page.dart';
+import 'package:sdm/page/admin/jabatan_page.dart';
 import 'package:sdm/page/admin/statistik_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 
@@ -155,9 +155,9 @@ class HomeadminPage extends StatelessWidget {
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        _buildMenuButton(context, 'Pengguna', Icons.people_alt, const DaftarKegiatanPage(), screenWidth),
+                                        _buildMenuButton(context, 'Pengguna', Icons.people_alt, const DaftarPenggunaPage(), screenWidth),
                                         _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
-                                        _buildMenuButton(context, 'Jabatan', Icons.event_note, const DaftarKegiatanPage(), screenWidth),
+                                        _buildMenuButton(context, 'Jabatan', Icons.event_note, const DaftarJabatanPage(), screenWidth),
                                       ],
                                     ),
                                     SizedBox(height: screenWidth * 0.04),

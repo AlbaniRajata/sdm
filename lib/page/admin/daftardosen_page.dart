@@ -31,7 +31,7 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
   @override
   void initState() {
     super.initState();
-    filteredDosenList = List.from(dosenData); // Create a modifiable copy
+    filteredDosenList = List.from(dosenData);
     _searchController.addListener(_searchDosen);
   }
 
@@ -48,7 +48,7 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
   void _sortDosenList(DosenSortOption? option) {
     setState(() {
       selectedSortOption = option ?? selectedSortOption;
-      filteredDosenList = _sortDosenData(List.from(filteredDosenList)); // Create a modifiable copy before sorting
+      filteredDosenList = _sortDosenData(List.from(filteredDosenList));
     });
   }
 
