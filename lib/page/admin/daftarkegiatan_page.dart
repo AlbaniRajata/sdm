@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/detailkegiatan_page.dart';
+import 'package:sdm/page/admin/editkegiatan_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
@@ -17,10 +18,10 @@ class DaftarKegiatanPage extends StatefulWidget {
 class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional','ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
+    {'title': 'Seminar Nasional', 'ketua': 'Albani Rajata Malik', 'tanggal_mulai': '2022-03-01', 'tanggal_selesai': '2022-03-03'},
+    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'tanggal_mulai': '2022-03-01', 'tanggal_selesai': '2022-03-03'},
+    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'tanggal_mulai': '2022-04-10', 'tanggal_selesai': '2022-04-12'},
+    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'tanggal_mulai': '2022-05-18', 'tanggal_selesai': '2022-05-20'},
   ];
 
   List<Map<String, String>> filteredKegiatanList = [];
@@ -62,10 +63,10 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
           break;
         case KegiatanSortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal_mulai']!).compareTo(DateTime.parse(b['tanggal_mulai']!)));
           break;
         case KegiatanSortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal_mulai']!).compareTo(DateTime.parse(a['tanggal_mulai']!)));
           break;
         case KegiatanSortOption.jti:
           filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'JTI').toList();
@@ -81,7 +82,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
 
   String _formatDate(String date) {
     final DateTime parsedDate = DateTime.parse(date);
-    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
+    final DateFormat formatter = DateFormat('d-M-yyyy');
     return formatter.format(parsedDate);
   }
 
@@ -89,6 +90,40 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _deleteKegiatan(String title) {
+    setState(() {
+      kegiatanList.removeWhere((kegiatan) => kegiatan['title'] == title);
+      _searchKegiatan();
+    });
+  }
+
+  void _showDeleteConfirmationDialog(String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus'),
+          content: const Text('Apakah Anda ingin menghapus kegiatan ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteKegiatan(title);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -134,7 +169,8 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                         context,
                         title: kegiatan['title']!,
                         ketua: kegiatan['ketua']!,
-                        tanggal: _formatDate(kegiatan['tanggal']!),
+                        tanggalMulai: _formatDate(kegiatan['tanggal_mulai']!),
+                        tanggalSelesai: _formatDate(kegiatan['tanggal_selesai']!),
                         jenis: kegiatan['jenis']!,
                         screenWidth: screenWidth,
                       ),
@@ -157,7 +193,8 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     BuildContext context, {
     required String title,
     required String ketua,
-    required String tanggal,
+    required String tanggalMulai,
+    required String tanggalSelesai,
     required String jenis,
     required double screenWidth,
   }) {
@@ -201,6 +238,69 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                     fontSize: fontSize,
                   ),
                 ),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final updatedKegiatan = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditKegiatanPage(kegiatan: {
+                              'title': title,
+                              'ketua': ketua,
+                              'tanggal_mulai': tanggalMulai,
+                              'tanggal_selesai': tanggalSelesai,
+                              'jenis': jenis,
+                            }),
+                          ),
+                        );
+                        if (updatedKegiatan != null) {
+                          setState(() {
+                            final index = kegiatanList.indexWhere((k) => k['title'] == updatedKegiatan['title']);
+                            if (index != -1) {
+                              kegiatanList[index] = updatedKegiatan;
+                              _searchKegiatan();
+                            }
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Edit',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showDeleteConfirmationDialog(title);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -238,6 +338,26 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
+                          'Tanggal Mulai',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          tanggalMulai,
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           'Tanggal Selesai',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
@@ -245,7 +365,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                           ),
                         ),
                         Text(
-                          tanggal,
+                          tanggalSelesai,
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontStyle: FontStyle.italic,
@@ -277,7 +397,13 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
+                            MaterialPageRoute(builder: (context) => DetailKegiatanPage(kegiatan: {
+                              'title': title,
+                              'ketua': ketua,
+                              'tanggal_mulai': tanggalMulai,
+                              'tanggal_selesai': tanggalSelesai,
+                              'jenis': jenis,
+                            })),
                           );
                         },
                         child: Text(

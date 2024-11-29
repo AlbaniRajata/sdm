@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/admin/daftardosen_page.dart';
+// import 'package:sdm/page/admin/daftardosen_page.dart';
 import 'package:sdm/page/admin/daftarkegiatan_page.dart';
 import 'package:sdm/page/admin/notifikasi_page.dart';
 import 'package:sdm/page/admin/daftarpengguna_page.dart';
@@ -196,23 +196,23 @@ class HomeadminPage extends StatelessWidget {
                               color: Colors.black,
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const DaftarDosenPage(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Lihat Semua',
-                              style: GoogleFonts.poppins(
-                                fontSize: screenWidth * 0.03,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
+                          // TextButton(
+                          //   onPressed: () {
+                          //     Navigator.pushReplacement(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //         builder: (context) => const DaftarDosenPage(),
+                          //       ),
+                          //     );
+                          //   },
+                          //   child: Text(
+                          //     'Lihat Semua',
+                          //     style: GoogleFonts.poppins(
+                          //       fontSize: screenWidth * 0.03,
+                          //       color: Colors.blue,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -315,23 +315,23 @@ class HomeadminPage extends StatelessWidget {
                               color: Colors.black,
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const DaftarKegiatanPage(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Lihat Semua',
-                              style: GoogleFonts.poppins(
-                                fontSize: screenWidth * 0.03,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
+                          // TextButton(
+                          //   onPressed: () {
+                          //     Navigator.pushReplacement(
+                          //       context,
+                          //       MaterialPageRoute(
+                          //         builder: (context) => const DaftarKegiatanPage(),
+                          //       ),
+                          //     );
+                          //   },
+                          //   child: Text(
+                          //     'Lihat Semua',
+                          //     style: GoogleFonts.poppins(
+                          //       fontSize: screenWidth * 0.03,
+                          //       color: Colors.blue,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       const SizedBox(height: 10),
