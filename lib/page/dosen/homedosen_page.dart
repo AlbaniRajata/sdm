@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/page/dosen/daftarkegiatan_page.dart';
 import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
 import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
 import 'package:sdm/page/dosen/statistik_page.dart';
@@ -153,10 +154,15 @@ class HomedosenPage extends StatelessWidget {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
+                                      _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
                                       _buildMenuButton(context, 'Kegiatan JTI', Icons.event, const DaftarKegiatanJTIPage(), screenWidth),
                                       _buildMenuButton(context, 'Kegiatan Non-JTI', Icons.event, const DaftarKegiatanNonJTIPage(), screenWidth),
-                                      _buildMenuButton(context, 'Statistik', Icons.bar_chart, const StatistikPage(), screenWidth),
                                     ],
+                                  ),
+                                  SizedBox(height: screenWidth * 0.04),
+                                  Align(
+                                    alignment: Alignment.bottomLeft,
+                                    child: _buildMenuButton(context, 'Statistik', Icons.bar_chart, const StatistikPage(), screenWidth),
                                   ),
                                 ],
                               ),
