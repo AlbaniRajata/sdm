@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/editpengguna_page.dart';
 import 'package:sdm/page/admin/detailpengguna_page.dart';
+import 'package:sdm/page/admin/tambahpengguna_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/pengguna_sortoption.dart';
@@ -139,6 +140,45 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
             },
             sortOptions: PenggunaSortOption.values.toList(),
           ),
+          const Divider(),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final newPengguna = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TambahPenggunaPage(),
+                    ),
+                  );
+                  if (newPengguna != null) {
+                    setState(() {
+                      penggunaList.add(newPengguna);
+                      _searchPengguna();
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                child: Text(
+                  'Tambah Pengguna',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: screenWidth < 500 ? 14.0 : 16.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),

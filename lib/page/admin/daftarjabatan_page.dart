@@ -4,6 +4,7 @@ import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/dosen_sortoption.dart';
 import 'package:sdm/page/admin/editjabatan_page.dart';
+import 'package:sdm/page/admin/tambahjabatan_page.dart';
 
 class DaftarJabatanPage extends StatefulWidget {
   const DaftarJabatanPage({super.key});
@@ -135,6 +136,45 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
             },
             sortOptions: DosenSortOption.values.toList(),
           ),
+          const Divider(),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final newJabatan = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TambahJabatanPage(),
+                    ),
+                  );
+                  if (newJabatan != null) {
+                    setState(() {
+                      jabatanList.add(newJabatan);
+                      _searchJabatan();
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                child: Text(
+                  'Tambah Jabatan',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: screenWidth < 500 ? 14.0 : 16.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
