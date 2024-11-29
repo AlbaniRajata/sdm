@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/daftarkegiatan_page.dart';
 import 'package:sdm/page/admin/notifikasi_page.dart';
 import 'package:sdm/page/admin/daftarpengguna_page.dart';
-import 'package:sdm/page/admin/jabatan_page.dart';
+import 'package:sdm/page/admin/daftarjabatan_page.dart';
 import 'package:sdm/page/admin/statistik_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 

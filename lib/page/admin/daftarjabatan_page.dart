@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/dosen_sortoption.dart';
+import 'package:sdm/page/admin/editjabatan_page.dart';
 
 class DaftarJabatanPage extends StatefulWidget {
   const DaftarJabatanPage({super.key});
@@ -14,8 +15,8 @@ class DaftarJabatanPage extends StatefulWidget {
 class DaftarJabatanPageState extends State<DaftarJabatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> jabatanList = [
-    {'title': 'Ketua', 'poin': '10 Poin'},
-    {'title': 'Wakil Ketua', 'poin': '8 Poin'},
+    {'title': 'PIC', 'poin': '10 Poin'},
+    {'title': 'Pembina', 'poin': '8 Poin'},
     {'title': 'Sekretaris', 'poin': '7 Poin'},
     {'title': 'Bendahara', 'poin': '9 Poin'},
   ];
@@ -60,6 +61,40 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
           break;
       }
     });
+  }
+
+  void _deleteJabatan(String title) {
+    setState(() {
+      jabatanList.removeWhere((jabatan) => jabatan['title'] == title);
+      _searchJabatan();
+    });
+  }
+
+  void _showDeleteConfirmationDialog(String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus'),
+          content: const Text('Apakah Anda ingin menghapus jabatan ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteJabatan(title);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -164,13 +199,78 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final updatedJabatan = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditJabatanPage(jabatan: {
+                              'title': title,
+                              'poin': poin,
+                            }),
+                          ),
+                        );
+                        if (updatedJabatan != null) {
+                          setState(() {
+                            final index = jabatanList.indexWhere((j) => j['title'] == updatedJabatan['title']);
+                            if (index != -1) {
+                              jabatanList[index] = updatedJabatan;
+                              _searchJabatan();
+                            }
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Edit',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showDeleteConfirmationDialog(title);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           // Isi Card
@@ -183,25 +283,6 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
                 _buildRichText('Nama Jabatan', title, fontSize),
                 const Divider(),
                 _buildRichText('Poin', poin, fontSize),
-                // const Divider(),
-                // Align(
-                //   alignment: Alignment.centerRight,
-                //   child: TextButton(
-                //     onPressed: () {
-                //       Navigator.pushReplacement(
-                //         context,
-                //         MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
-                //       );
-                //     },
-                //     child: Text(
-                //       'Lihat Detail',
-                //       style: GoogleFonts.poppins(
-                //         color: const Color(0xFF00796B),
-                //         fontSize: fontSize,
-                //       ),
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),
