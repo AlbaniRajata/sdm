@@ -82,7 +82,7 @@ class HomeadminPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'HR',
+                        'SI',
                         style: GoogleFonts.poppins(
                           fontSize: screenWidth * 0.08,
                           fontStyle: FontStyle.italic,
@@ -92,7 +92,7 @@ class HomeadminPage extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Sync',
+                        'SDM',
                         style: GoogleFonts.poppins(
                           fontSize: screenWidth * 0.08,
                           fontStyle: FontStyle.italic,

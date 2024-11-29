@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/admin/detailkegiatan_page.dart';
+import 'package:sdm/page/admin/editpengguna_page.dart';
+import 'package:sdm/page/admin/detailpengguna_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/pengguna_sortoption.dart';
@@ -15,10 +16,10 @@ class DaftarPenggunaPage extends StatefulWidget {
 class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> penggunaList = [
-    {'title': 'Albani Rajata Malik', 'username': 'albani', 'email': 'albani@domain.com', 'nip': '2024434343490314', 'level': 'Admin'},
-    {'title': 'Nurhidayah Amin', 'username': 'nurhidayah', 'email': 'nurhidayah@domain.com', 'nip': '2024434343490322', 'level': 'Dosen'},
-    {'title': 'Rizky Aditya', 'username': 'rizky', 'email': 'rizky@domain.com', 'nip': '2024434343490333', 'level': 'Pimpinan'},
-    {'title': 'Siti Fatimah', 'username': 'siti', 'email': 'siti@domain.com', 'nip': '2024434343490344', 'level': 'Dosen'},
+    {'id': '1', 'title': 'Albani Rajata Malik', 'username': 'albani', 'tanggal_lahir': '1990-01-01', 'email': 'albani@domain.com', 'nip': '2024434343490314', 'level': 'Admin'},
+    {'id': '2', 'title': 'Nurhidayah Amin', 'username': 'nurhidayah', 'tanggal_lahir': '1991-02-02', 'email': 'nurhidayah@domain.com', 'nip': '2024434343490322', 'level': 'Dosen'},
+    {'id': '3', 'title': 'Rizky Aditya', 'username': 'rizky', 'tanggal_lahir': '1992-03-03', 'email': 'rizky@domain.com', 'nip': '2024434343490333', 'level': 'Pimpinan'},
+    {'id': '4', 'title': 'Siti Fatimah', 'username': 'siti', 'tanggal_lahir': '1993-04-04', 'email': 'siti@domain.com', 'nip': '2024434343490344', 'level': 'Dosen'},
   ];
 
   List<Map<String, String>> filteredPenggunaList = [];
@@ -72,6 +73,40 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
     super.dispose();
   }
 
+  void _deletePengguna(String id) {
+    setState(() {
+      penggunaList.removeWhere((pengguna) => pengguna['id'] == id);
+      _searchPengguna();
+    });
+  }
+
+  void _showDeleteConfirmationDialog(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus'),
+          content: const Text('Apakah Anda ingin menghapus pengguna ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deletePengguna(id);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -113,6 +148,7 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     children: [
                       _buildPenggunaCard(
                         context,
+                        id: pengguna['id']!,
                         title: pengguna['title']!,
                         username: pengguna['username']!,
                         email: pengguna['email']!,
@@ -137,6 +173,7 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
 
   Widget _buildPenggunaCard(
     BuildContext context, {
+    required String id,
     required String title,
     required String username,
     required String email,
@@ -165,6 +202,7 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
         children: [
           // Header Card
           Container(
+            height: 60, // Increased height
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
@@ -174,13 +212,83 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final updatedPengguna = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditPenggunaPage(pengguna: {
+                              'id': id,
+                              'title': title,
+                              'username': username,
+                              'tanggal_lahir': penggunaList.firstWhere((pengguna) => pengguna['id'] == id)['tanggal_lahir']!,
+                              'email': email,
+                              'nip': nip,
+                              'level': level,
+                            }),
+                          ),
+                        );
+                        if (updatedPengguna != null) {
+                          setState(() {
+                            final index = penggunaList.indexWhere((p) => p['id'] == updatedPengguna['id']);
+                            if (index != -1) {
+                              penggunaList[index] = updatedPengguna;
+                              _searchPengguna();
+                            }
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Edit',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showDeleteConfirmationDialog(id);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           // Isi Card
@@ -204,7 +312,15 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
+                        MaterialPageRoute(builder: (context) => DetailPenggunaPage(pengguna: {
+                          'id': id,
+                          'title': title,
+                          'username': username,
+                          'tanggal_lahir': penggunaList.firstWhere((pengguna) => pengguna['id'] == id)['tanggal_lahir']!,
+                          'email': email,
+                          'nip': nip,
+                          'level': level,
+                        })),
                       );
                     },
                     child: Text(
@@ -225,17 +341,24 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   }
 
   Widget _buildRichText(String title, String? value, double fontSize) {
-    return RichText(
-      text: TextSpan(
-        text: '$title\n',
-        style: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black),
-        children: [
-          TextSpan(
-            text: value,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.normal, color: Colors.black),
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Text(
+            '$title: ',
+            style: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black),
           ),
-        ],
-      ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: 2,
+          child: Text(
+            value ?? '',
+            style: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.normal, color: Colors.black),
+          ),
+        ),
+      ],
     );
   }
 }
