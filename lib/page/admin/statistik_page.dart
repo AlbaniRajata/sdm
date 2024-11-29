@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
-import 'package:sdm/widget/admin/sort_option.dart';
+import 'package:sdm/widget/admin/dosen_sortoption.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 
 class StatistikPage extends StatefulWidget {
@@ -14,13 +14,13 @@ class StatistikPage extends StatefulWidget {
 class StatistikPageState extends State<StatistikPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'jabatan': 'Ketua', 'poin': '10', 'tanggalMulai': '2022-03-01', 'tanggalSelesai': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua', 'poin': '8', 'tanggalMulai': '2022-03-01', 'tanggalSelesai': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'jabatan': 'Anggota', 'poin': '5', 'tanggalMulai': '2022-04-10', 'tanggalSelesai': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'jabatan': 'Anggota', 'poin': '3', 'tanggalMulai': '2022-05-18', 'tanggalSelesai': '2022-05-20'},
+    {'title': 'Albani Rajata Malik', 'total kegiatan': '4', 'total poin': '10'},
+    {'title': 'Tasya Cantika Ristiyana', 'total kegiatan': '7', 'total poin': '8'},
+    {'title': 'Alya Rafani', 'total kegiatan': '6', 'total poin': '5'},
+    {'title': 'Altaf Rafandra', 'total kegiatan': '9', 'total poin': '3'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
-  SortOption selectedSortOption = SortOption.abjadAZ;
+  DosenSortOption selectedSortOption = DosenSortOption.abjadAZ;
 
   @override
   void initState() {
@@ -39,27 +39,21 @@ class StatistikPageState extends State<StatistikPage> {
     });
   }
 
-  void _sortKegiatanList(SortOption? option) {
+  void _sortKegiatanList(DosenSortOption? option) {
     setState(() {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
-        case SortOption.abjadAZ:
+        case DosenSortOption.abjadAZ:
           filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
           break;
-        case SortOption.abjadZA:
+        case DosenSortOption.abjadZA:
           filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
           break;
-        case SortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggalMulai']!).compareTo(DateTime.parse(b['tanggalMulai']!)));
+        case DosenSortOption.poinTerbanyak:
+          filteredKegiatanList.sort((a, b) => int.parse(b['total poin']!).compareTo(int.parse(a['total poin']!)));
           break;
-        case SortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggalMulai']!).compareTo(DateTime.parse(a['tanggalMulai']!)));
-          break;
-        case SortOption.poinTerbanyak:
-          filteredKegiatanList.sort((a, b) => int.parse(b['poin']!).compareTo(int.parse(a['poin']!)));
-          break;
-        case SortOption.poinTersedikit:
-          filteredKegiatanList.sort((a, b) => int.parse(a['poin']!).compareTo(int.parse(b['poin']!)));
+        case DosenSortOption.poinTersedikit:
+          filteredKegiatanList.sort((a, b) => int.parse(a['total poin']!).compareTo(int.parse(b['total poin']!)));
           break;
         default:
           break;
@@ -98,7 +92,7 @@ class StatistikPageState extends State<StatistikPage> {
             onChanged: (value) => _searchKegiatan(),
             selectedSortOption: selectedSortOption,
             onSortOptionChanged: (option) => _sortKegiatanList(option),
-            sortOptions: SortOption.values.toList(),
+            sortOptions: DosenSortOption.values.toList(),
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -110,10 +104,8 @@ class StatistikPageState extends State<StatistikPage> {
                       _buildKegiatanCard(
                         context,
                         title: kegiatan['title']!,
-                        jabatan: kegiatan['jabatan']!,
-                        poin: kegiatan['poin']!,
-                        tanggalMulai: kegiatan['tanggalMulai']!,
-                        tanggalSelesai: kegiatan['tanggalSelesai']!,
+                        totalkegiatan: kegiatan['total kegiatan']!,
+                        totalpoin: kegiatan['total poin']!,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -124,7 +116,7 @@ class StatistikPageState extends State<StatistikPage> {
           ),
         ],
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
@@ -133,10 +125,8 @@ class StatistikPageState extends State<StatistikPage> {
   Widget _buildKegiatanCard(
     BuildContext context, {
     required String title,
-    required String jabatan,
-    required String poin,
-    required String tanggalMulai,
-    required String tanggalSelesai,
+    required String totalkegiatan,
+    required String totalpoin,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -157,6 +147,7 @@ class StatistikPageState extends State<StatistikPage> {
         children: [
           // Header Card
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
@@ -165,37 +156,13 @@ class StatistikPageState extends State<StatistikPage> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      jabatan,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  '$poin Poin',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
           ),
           // Isi Card
@@ -212,14 +179,14 @@ class StatistikPageState extends State<StatistikPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tanggal Mulai',
+                          'Total Kegiatan',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          tanggalMulai,
+                          totalkegiatan,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontStyle: FontStyle.italic,
@@ -232,14 +199,14 @@ class StatistikPageState extends State<StatistikPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tanggal Selesai',
+                          'Total Poin',
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          tanggalSelesai,
+                          totalpoin,
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontStyle: FontStyle.italic,
