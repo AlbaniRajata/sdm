@@ -17,10 +17,10 @@ class DaftarKegiatanPage extends StatefulWidget {
 class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
+    {'title': 'Seminar Nasional', 'ketua': 'Albani Rajata Malik', 'tanggal_mulai': '2022-03-01', 'tanggal_selesai': '2022-03-03', 'tanggal_acara': '2022-03-02'},
+    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'tanggal_mulai': '2022-03-01', 'tanggal_selesai': '2022-03-03', 'tanggal_acara': '2022-03-02'},
+    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'tanggal_mulai': '2022-04-10', 'tanggal_selesai': '2022-04-12', 'tanggal_acara': '2022-04-11'},
+    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'tanggal_mulai': '2022-05-18', 'tanggal_selesai': '2022-05-20', 'tanggal_acara': '2022-05-19'},
   ];
 
   List<Map<String, String>> filteredKegiatanList = [];
@@ -62,10 +62,10 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
           break;
         case KegiatanSortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal_mulai']!).compareTo(DateTime.parse(b['tanggal_mulai']!)));
           break;
         case KegiatanSortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal_mulai']!).compareTo(DateTime.parse(a['tanggal_mulai']!)));
           break;
         case KegiatanSortOption.jti:
           filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'JTI').toList();
@@ -81,7 +81,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
 
   String _formatDate(String date) {
     final DateTime parsedDate = DateTime.parse(date);
-    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
     return formatter.format(parsedDate);
   }
 
@@ -90,7 +90,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     _searchController.dispose();
     super.dispose();
   }
-
+  
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -134,7 +134,9 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                         context,
                         title: kegiatan['title']!,
                         ketua: kegiatan['ketua']!,
-                        tanggal: _formatDate(kegiatan['tanggal']!),
+                        tanggalMulai: _formatDate(kegiatan['tanggal_mulai']!),
+                        tanggalSelesai: _formatDate(kegiatan['tanggal_selesai']!),
+                        tanggalAcara: _formatDate(kegiatan['tanggal_acara']!),
                         jenis: kegiatan['jenis']!,
                         screenWidth: screenWidth,
                       ),
@@ -157,7 +159,9 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     BuildContext context, {
     required String title,
     required String ketua,
-    required String tanggal,
+    required String tanggalMulai,
+    required String tanggalSelesai,
+    required String tanggalAcara,
     required String jenis,
     required double screenWidth,
   }) {
@@ -218,7 +222,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Ketua Pelaksana',
+                          'anggota PIC',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             color: Colors.black,
@@ -238,6 +242,26 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
+                          'Tanggal Mulai',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          tanggalMulai,
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           'Tanggal Selesai',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
@@ -245,7 +269,27 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                           ),
                         ),
                         Text(
-                          tanggal,
+                          tanggalSelesai,
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tanggal Acara',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          tanggalAcara,
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontStyle: FontStyle.italic,
@@ -259,36 +303,27 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                 const Divider(), // Garis pembatas
                 Align(
                   alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: jenis == 'JTI' ? Colors.blue : Colors.orange,
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: Text(
-                          jenis,
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => DetailKegiatanPage(kegiatan: {
+                          'title': title,
+                          'ketua': ketua,
+                          'tanggal_mulai': tanggalMulai,
+                          'tanggal_selesai': tanggalSelesai,
+                          'tanggal_acara': tanggalAcara,
+                          'jenis': jenis,
+                        })),
+                      );
+                    },
+                    child: Text(
+                      'Lihat Detail',
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xFF00796B),
+                        fontSize: fontSize,
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
-                          );
-                        },
-                        child: Text(
-                          'Lihat Detail',
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFF00796B),
-                            fontSize: fontSize,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],

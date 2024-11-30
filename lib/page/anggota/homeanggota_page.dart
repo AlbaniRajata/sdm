@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/anggota/daftarkegiatan_page.dart';
+import 'package:sdm/page/anggota/daftarkegiatanagenda_page.dart';
 import 'package:sdm/page/anggota/notifikasi_page.dart';
 import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
 
@@ -152,7 +153,7 @@ class HomeanggotaPage extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
-                                      _buildMenuButton(context, 'Agenda Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
+                                      _buildMenuButton(context, 'Agenda Kegiatan', Icons.event, const DaftarKegiatanAgendaPage(), screenWidth),
                                     ],
                                   ),
                                 ],
@@ -179,28 +180,11 @@ class HomeanggotaPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Jumlah Kegiatan JTI',
+                          'Jumlah Kegiatan',
                           style: GoogleFonts.poppins(
                             fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const DaftarKegiatanPage(),
-                              ),
-                            );
-                          },
-                          child: Text(
-                            'Lihat Semua',
-                            style: GoogleFonts.poppins(
-                              fontSize: screenWidth * 0.03,
-                              color: Colors.blue,
-                            ),
                           ),
                         ),
                       ],

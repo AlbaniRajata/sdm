@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/page/dosen/homedosen_page.dart';
 import 'package:sdm/page/dosen/logindosen_page.dart';
 import 'package:sdm/page/pic/editprofile_page.dart';
 import 'package:sdm/page/anggota/homeanggota_page.dart';
@@ -140,7 +141,7 @@ class ProfilepicPage extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LogindosenPage(),
+                  builder: (context) => const HomedosenPage(),
                 ),
               );
             },

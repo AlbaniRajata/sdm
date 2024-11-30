@@ -131,7 +131,7 @@ class HomepicPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            height: screenWidth * 0.58,
+                            height: screenWidth * 0.31,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10.0),
@@ -210,7 +210,7 @@ class HomepicPage extends StatelessWidget {
                     const SizedBox(height: 10),
                     Container(
                       width: screenWidth * 0.96,
-                      height: screenWidth * 0.31,
+                      height: screenWidth * 0.4,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.grey.shade200,

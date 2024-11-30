@@ -189,23 +189,6 @@ class HomePimpinanPage extends StatelessWidget {
                               color: Colors.black,
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const DaftarDosenPage(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Lihat Semua',
-                              style: GoogleFonts.poppins(
-                                fontSize: screenWidth * 0.03,
-                                color: Colors.blue,
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -308,23 +291,6 @@ class HomePimpinanPage extends StatelessWidget {
                               color: Colors.black,
                             ),
                           ),
-                          // TextButton(
-                          //   onPressed: () {
-                          //     Navigator.pushReplacement(
-                          //       context,
-                          //       MaterialPageRoute(
-                          //         builder: (context) => const DaftarKegiatanPage(),
-                          //       ),
-                          //     );
-                          //   },
-                          //   child: Text(
-                          //     'Lihat Semua',
-                          //     style: GoogleFonts.poppins(
-                          //       fontSize: screenWidth * 0.03,
-                          //       color: Colors.blue,
-                          //     ),
-                          //   ),
-                          // ),
                         ],
                       ),
                       const SizedBox(height: 10),

@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/pic/daftarkegiatanagenda_page.dart';
 import 'package:sdm/page/pic/detailagendaanggota_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
-import 'package:sdm/widget/pic/custom_horizontalcalendar.dart';
 
 class DetailKegiatanAgendaPage extends StatefulWidget {
   const DetailKegiatanAgendaPage({Key? key}) : super(key: key);
@@ -14,8 +13,6 @@ class DetailKegiatanAgendaPage extends StatefulWidget {
 }
 
 class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +22,7 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
         automaticallyImplyLeading: false,
         backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         title: Text(
-          'Detail Kegiatan',
+          'Detail Agenda Kegiatan',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -38,18 +35,6 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: CustomHorizontalCalendar(
-                focusedDay: _focusedDay,
-                selectedDay: _selectedDay,
-                onDaySelected: (date) {
-                  setState(() {
-                    _selectedDay = date;
-                  });
-                },
-              ),
-            ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: LayoutBuilder(

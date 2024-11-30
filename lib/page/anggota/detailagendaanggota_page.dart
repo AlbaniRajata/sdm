@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/pic/detailagendakegiatan_page.dart';
-import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:sdm/page/anggota/detailagendakegiatan_page.dart';
+import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
 
 class DetailAgendaAnggotaPage extends StatefulWidget {
   const DetailAgendaAnggotaPage({Key? key}) : super(key: key);

@@ -73,19 +73,6 @@ class ProfileadminPage extends StatelessWidget {
             endIndent: 20,
           ),
           const SizedBox(height: 10),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              child: Icon(Icons.timer, color: Colors.white, size: screenWidth * 0.05),
-            ),
-            title: Text(
-              'Lihat Progress Kegiatan',
-              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-            ),
-            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-            onTap: () {},
-          ),
-          const SizedBox(height: 10),
           Divider(
             thickness: 0.5,
             color: Colors.grey[300],

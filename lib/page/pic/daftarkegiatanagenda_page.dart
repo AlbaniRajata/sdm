@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/pic/detailkegiatanagenda_page.dart';
+import 'package:sdm/page/pic/detailagendakegiatan_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/widget/pic/custom_filter.dart';
@@ -100,7 +100,7 @@ class DaftarKegiatanAgendaPageState extends State<DaftarKegiatanAgendaPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Daftar Kegiatan',
+          'Daftar Agenda Kegiatan',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,

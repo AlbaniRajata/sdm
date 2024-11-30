@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/widget/pic/custom_bottomappbar.dart';
-import 'package:sdm/page/pic/daftarkegiatan_page.dart';
+import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
 import 'package:intl/intl.dart';
 
 class DetailKegiatanPage extends StatefulWidget {
@@ -90,10 +90,10 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                   children: [
                     const SizedBox(height: 8),
                     _buildDetailField('Judul Kegiatan', kegiatan['title']!),
-                    _buildDetailField('Deskripsi Kegiatan', kegiatan['deskripsi'] ?? 'Deskripsi kegiatan belum tersedia'),
+                    _buildDetailField('Deskripsi Kegiatan', kegiatan['deskripsi'] ?? 'Deskripsi kegiatan belum tersedia', isDescription: true),
                     _buildDetailField('Tanggal Mulai', _formatDate(kegiatan['tanggal_mulai'] ?? '01-01-1970')),
-                    _buildDetailField('Tanggal Selesai', _formatDate(kegiatan['tanggal_selesai'] ?? '01-01-1970')),
                     _buildDetailField('Tanggal Acara', _formatDate(kegiatan['tanggal_acara'] ?? '01-01-1970')),
+                    _buildDetailField('Tanggal Selesai', _formatDate(kegiatan['tanggal_selesai'] ?? '01-01-1970')),
                     const SizedBox(height: 16.0),
                     Text(
                       'File Pendukung',
@@ -118,7 +118,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                           onPressed: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (context) => const DaftarKegiatanPage()),
+                              MaterialPageRoute(builder: (context) => const DaftarKegiatanNonJTIPage()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -129,22 +129,6 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                           ),
                           child: const Text(
                             'Kembali',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Implement upload functionality here
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
-                          ),
-                          child: const Text(
-                            'Upload',
                             style: TextStyle(color: Colors.white),
                           ),
                         ),
@@ -163,7 +147,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
     );
   }
 
-  Widget _buildDetailField(String title, String content) {
+  Widget _buildDetailField(String title, String content, {bool isDescription = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -181,7 +165,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
           TextFormField(
             initialValue: content,
             readOnly: true,
-            maxLines: 1,
+            maxLines: isDescription ? 5 : 1,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,

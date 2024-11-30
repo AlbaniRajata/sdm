@@ -17,10 +17,10 @@ class DaftarKegiatanPage extends StatefulWidget {
 class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'tanggal': '2022-05-20'},
+    {'title': 'Seminar Nasional', 'ketua': 'Albani Rajata Malik', 'lokasi': 'Aula Pertamina', 'tanggal': '03-03-2022'},
+    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'lokasi': 'Ruang Auditorium Lt8', 'tanggal': '03-03-2022'},
+    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'lokasi': 'Aula Pertamina', 'tanggal': '12-04-2022'},
+    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'lokasi': 'Graha Polinema', 'tanggal': '20-05-2022'},
   ];
 
   List<Map<String, String>> filteredKegiatanList = [];
@@ -62,10 +62,10 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
           break;
         case KegiatanSortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateFormat('dd-MM-yyyy').parse(a['tanggal']!).compareTo(DateFormat('dd-MM-yyyy').parse(b['tanggal']!)));
           break;
         case KegiatanSortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateFormat('dd-MM-yyyy').parse(b['tanggal']!).compareTo(DateFormat('dd-MM-yyyy').parse(a['tanggal']!)));
           break;
         case KegiatanSortOption.jti:
           filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'JTI').toList();
@@ -80,8 +80,8 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   }
 
   String _formatDate(String date) {
-    final DateTime parsedDate = DateTime.parse(date);
-    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
+    final DateTime parsedDate = DateFormat('dd-MM-yyyy').parse(date);
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
     return formatter.format(parsedDate);
   }
 
@@ -134,6 +134,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                         context,
                         title: kegiatan['title']!,
                         ketua: kegiatan['ketua']!,
+                        lokasi: kegiatan['lokasi']!,
                         tanggal: _formatDate(kegiatan['tanggal']!),
                         jenis: kegiatan['jenis']!,
                         screenWidth: screenWidth,
@@ -157,6 +158,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     BuildContext context, {
     required String title,
     required String ketua,
+    required String lokasi,
     required String tanggal,
     required String jenis,
     required double screenWidth,
@@ -238,7 +240,27 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tanggal Selesai',
+                          'Lokasi',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          lokasi,
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tanggal',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             color: Colors.black,
@@ -277,7 +299,13 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const DetailKegiatanPage()),
+                            MaterialPageRoute(builder: (context) => DetailKegiatanPage(kegiatan: {
+                              'title': title,
+                              'ketua': ketua,
+                              'lokasi': lokasi,
+                              'tanggal': tanggal,
+                              'jenis': jenis,
+                            })),
                           );
                         },
                         child: Text(
