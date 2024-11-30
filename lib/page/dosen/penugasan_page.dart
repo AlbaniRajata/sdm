@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
-import 'package:sdm/page/dosen/sarandosen_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
 
@@ -176,16 +175,16 @@ class PenugasanPageState extends State<PenugasanPage> {
               },
               child: const Text('Tidak'),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SaranDosenPage()),
-                );
-              },
-              child: const Text('Ya'),
-            ),
+            // TextButton(
+            //   onPressed: () {
+            //     Navigator.of(context).pop();
+            //     Navigator.pushReplacement(
+            //       context,
+            //       MaterialPageRoute(builder: (context) => const SaranDosenPage()),
+            //     );
+            //   },
+            //   child: const Text('Ya'),
+            // ),
           ],
         );
       },

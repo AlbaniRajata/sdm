@@ -162,7 +162,7 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
         children: [
           // Header Card
           Container(
-            width: double.infinity, // Make the header full width
+            width: double.infinity, 
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
@@ -237,9 +237,15 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const DetailKegiatanJTIPage()),
+                        MaterialPageRoute(
+                          builder: (context) => DetailKegiatanJTIPage(
+                            title: title,
+                            jabatan: jabatan,
+                            tanggal: tanggal,
+                          ),
+                        ),
                       );
                     },
                     child: Text(
