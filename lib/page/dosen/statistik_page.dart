@@ -16,13 +16,13 @@ class StatistikPageState extends State<StatistikPage> {
   List<Map<String, String>> kegiatanList = [
     {
       'title': 'Seminar Nasional',
-      'jabatan': 'Ketua',
+      'jabatan': 'PIC',
       'poin': '10',
       'tanggalMulai': '2022-03-01'
     },
     {
       'title': 'Kuliah Tamu',
-      'jabatan': 'Ketua',
+      'jabatan': 'PIC',
       'poin': '8',
       'tanggalMulai': '2022-03-01'
     },
@@ -207,6 +207,22 @@ class StatistikPageState extends State<StatistikPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 8),
+                Text(
+                  'Jabatan',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  jabatan,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   'Poin',
