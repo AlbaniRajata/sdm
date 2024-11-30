@@ -14,10 +14,30 @@ class StatistikPage extends StatefulWidget {
 class StatistikPageState extends State<StatistikPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'jabatan': 'Ketua', 'poin': '10', 'tanggalMulai': '2022-03-01', 'tanggalSelesai': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua', 'poin': '8', 'tanggalMulai': '2022-03-01', 'tanggalSelesai': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'jabatan': 'Anggota', 'poin': '5', 'tanggalMulai': '2022-04-10', 'tanggalSelesai': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'jabatan': 'Anggota', 'poin': '3', 'tanggalMulai': '2022-05-18', 'tanggalSelesai': '2022-05-20'},
+    {
+      'title': 'Seminar Nasional',
+      'jabatan': 'Ketua',
+      'poin': '10',
+      'tanggalMulai': '2022-03-01'
+    },
+    {
+      'title': 'Kuliah Tamu',
+      'jabatan': 'Ketua',
+      'poin': '8',
+      'tanggalMulai': '2022-03-01'
+    },
+    {
+      'title': 'Workshop Teknologi',
+      'jabatan': 'Anggota',
+      'poin': '5',
+      'tanggalMulai': '2022-04-10'
+    },
+    {
+      'title': 'Lokakarya Nasional',
+      'jabatan': 'Anggota',
+      'poin': '3',
+      'tanggalMulai': '2022-05-18'
+    },
   ];
   List<Map<String, String>> filteredKegiatanList = [];
   SortOption selectedSortOption = SortOption.abjadAZ;
@@ -44,22 +64,28 @@ class StatistikPageState extends State<StatistikPage> {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case SortOption.abjadAZ:
-          filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          filteredKegiatanList
+              .sort((a, b) => a['title']!.compareTo(b['title']!));
           break;
         case SortOption.abjadZA:
-          filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          filteredKegiatanList
+              .sort((a, b) => b['title']!.compareTo(a['title']!));
           break;
         case SortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggalMulai']!).compareTo(DateTime.parse(b['tanggalMulai']!)));
+          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggalMulai']!)
+              .compareTo(DateTime.parse(b['tanggalMulai']!)));
           break;
         case SortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggalMulai']!).compareTo(DateTime.parse(a['tanggalMulai']!)));
+          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggalMulai']!)
+              .compareTo(DateTime.parse(a['tanggalMulai']!)));
           break;
         case SortOption.poinTerbanyak:
-          filteredKegiatanList.sort((a, b) => int.parse(b['poin']!).compareTo(int.parse(a['poin']!)));
+          filteredKegiatanList.sort(
+              (a, b) => int.parse(b['poin']!).compareTo(int.parse(a['poin']!)));
           break;
         case SortOption.poinTersedikit:
-          filteredKegiatanList.sort((a, b) => int.parse(a['poin']!).compareTo(int.parse(b['poin']!)));
+          filteredKegiatanList.sort(
+              (a, b) => int.parse(a['poin']!).compareTo(int.parse(b['poin']!)));
           break;
         default:
           break;
@@ -113,7 +139,6 @@ class StatistikPageState extends State<StatistikPage> {
                         jabatan: kegiatan['jabatan']!,
                         poin: kegiatan['poin']!,
                         tanggalMulai: kegiatan['tanggalMulai']!,
-                        tanggalSelesai: kegiatan['tanggalSelesai']!,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -124,7 +149,8 @@ class StatistikPageState extends State<StatistikPage> {
           ),
         ],
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton:
+          CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
@@ -136,10 +162,10 @@ class StatistikPageState extends State<StatistikPage> {
     required String jabatan,
     required String poin,
     required String tanggalMulai,
-    required String tanggalSelesai,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
+      width: double.infinity, // Menyesuaikan dengan lebar layar
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.white,
@@ -158,6 +184,7 @@ class StatistikPageState extends State<StatistikPage> {
           // Header Card
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            width: double.infinity, // Menyesuaikan dengan lebar layar
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
               borderRadius: BorderRadius.only(
@@ -165,37 +192,13 @@ class StatistikPageState extends State<StatistikPage> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      jabatan,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  '$poin Poin',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
             ),
           ),
           // Isi Card
@@ -205,49 +208,36 @@ class StatistikPageState extends State<StatistikPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tanggal Mulai',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          tanggalMulai,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tanggal Selesai',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          tanggalSelesai,
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  'Poin',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  '$poin Poin',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Tanggal',
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
+                ),
+                Text(
+                  tanggalMulai,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.black,
+                  ),
                 ),
                 const SizedBox(height: 10),
               ],
