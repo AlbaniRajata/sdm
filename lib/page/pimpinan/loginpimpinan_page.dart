@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/page/pimpinan/homepimpinan_page.dart';
 
 class LoginpimpinanPage extends StatefulWidget {
   const LoginpimpinanPage({super.key});
@@ -10,7 +11,7 @@ class LoginpimpinanPage extends StatefulWidget {
 }
 
 class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerProviderStateMixin {
-  bool _isObscured = true; // Variabel untuk mengontrol visibilitas password
+  bool _isObscured = true;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _opacityAnimation;
@@ -241,7 +242,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                               width: double.infinity,
                               child: ElevatedButton(
                                 onPressed: () {
-                                  // Implement login functionality
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePimpinanPage()));
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFFFF9500),
