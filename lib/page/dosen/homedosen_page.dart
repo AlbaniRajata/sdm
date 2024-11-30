@@ -133,7 +133,7 @@ class HomedosenPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 5),
                           Container(
-                            height: screenWidth * 0.31,
+                            height: screenWidth * 0.58,
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(10.0),
