@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/dosen/detailkegiatan_nonjti_page.dart';
+import 'package:sdm/page/dosen/editkegiatan_nonjti_page.dart';
+import 'package:sdm/page/dosen/tambahkegiatan_nonjti_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/widget/dosen/sort_option.dart';
@@ -16,10 +18,10 @@ class DaftarKegiatanNonJTIPage extends StatefulWidget {
 class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
   final TextEditingController _searchController = TextEditingController();
   List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-05-20'},
+    {'title': 'Seminar Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal_mulai': '01-03-2022', 'tanggal_acara': '02-03-2022', 'tanggal_selesai': '03-03-2022'},
+    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua Pelaksana', 'tanggal_mulai': '01-03-2022', 'tanggal_acara': '02-03-2022', 'tanggal_selesai': '03-03-2022'},
+    {'title': 'Workshop Teknologi', 'jabatan': 'Ketua Pelaksana', 'tanggal_mulai': '10-04-2022', 'tanggal_acara': '11-04-2022', 'tanggal_selesai': '12-04-2022'},
+    {'title': 'Lokakarya Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal_mulai': '18-05-2022', 'tanggal_acara': '19-05-2022', 'tanggal_selesai': '20-05-2022'},
   ];
   List<Map<String, String>> filteredKegiatanList = [];
   SortOption selectedSortOption = SortOption.abjadAZ;
@@ -52,10 +54,10 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
           filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
           break;
         case SortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateFormat('dd-MM-yyyy').parse(a['tanggal_mulai']!).compareTo(DateFormat('dd-MM-yyyy').parse(b['tanggal_mulai']!)));
           break;
         case SortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => DateFormat('dd-MM-yyyy').parse(b['tanggal_mulai']!).compareTo(DateFormat('dd-MM-yyyy').parse(a['tanggal_mulai']!)));
           break;
         default:
           break;
@@ -64,8 +66,8 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
   }
 
   String _formatDate(String date) {
-    final DateTime parsedDate = DateTime.parse(date);
-    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
+    final DateTime parsedDate = DateFormat('dd-MM-yyyy').parse(date);
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
     return formatter.format(parsedDate);
   }
 
@@ -73,6 +75,40 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _deleteKegiatan(String title) {
+    setState(() {
+      kegiatanList.removeWhere((kegiatan) => kegiatan['title'] == title);
+      _searchKegiatan();
+    });
+  }
+
+  void _showDeleteConfirmationDialog(String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Hapus'),
+          content: const Text('Apakah Anda ingin menghapus kegiatan ini?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Tidak'),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteKegiatan(title);
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Ya'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -105,6 +141,45 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
             onSortOptionChanged: (option) => _sortKegiatanList(option),
             sortOptions: SortOption.values.where((option) => option != SortOption.poinTerbanyak && option != SortOption.poinTersedikit).toList(),
           ),
+          const Divider(),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final newKegiatan = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const TambahKegiatanNonJTIPage(),
+                    ),
+                  );
+                  if (newKegiatan != null) {
+                    setState(() {
+                      kegiatanList.add(newKegiatan);
+                      _searchKegiatan();
+                    });
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                child: Text(
+                  'Tambah Kegiatan',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: screenWidth < 500 ? 14.0 : 16.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -116,7 +191,9 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
                         context,
                         title: kegiatan['title']!,
                         jabatan: kegiatan['jabatan']!,
-                        tanggal: _formatDate(kegiatan['tanggal']!),
+                        tanggalMulai: _formatDate(kegiatan['tanggal_mulai']!),
+                        tanggalAcara: _formatDate(kegiatan['tanggal_acara']!),
+                        tanggalSelesai: _formatDate(kegiatan['tanggal_selesai']!),
                         screenWidth: screenWidth,
                       ),
                       const SizedBox(height: 16),
@@ -138,7 +215,9 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
     BuildContext context, {
     required String title,
     required String jabatan,
-    required String tanggal,
+    required String tanggalMulai,
+    required String tanggalAcara,
+    required String tanggalSelesai,
     required double screenWidth,
   }) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
@@ -162,7 +241,6 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
         children: [
           // Header Card
           Container(
-            width: double.infinity, // Make the header full width
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
@@ -171,13 +249,81 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
                 topRight: Radius.circular(12),
               ),
             ),
-            child: Text(
-              title,
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: fontSize,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                ),
+                Row(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final updatedKegiatan = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditKegiatanNonJTIPage(kegiatan: {
+                              'title': title,
+                              'jabatan': jabatan,
+                              'tanggal_mulai': tanggalMulai,
+                              'tanggal_acara': tanggalAcara,
+                              'tanggal_selesai': tanggalSelesai,
+                            }),
+                          ),
+                        );
+                        if (updatedKegiatan != null) {
+                          setState(() {
+                            final index = kegiatanList.indexWhere((k) => k['title'] == updatedKegiatan['title']);
+                            if (index != -1) {
+                              kegiatanList[index] = updatedKegiatan;
+                              _searchKegiatan();
+                            }
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Edit',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        _showDeleteConfirmationDialog(title);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Hapus',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontSize: fontSize * 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           // Isi Card
@@ -214,6 +360,46 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
+                          'Tanggal Mulai',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          tanggalMulai,
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Tanggal Acara',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          tanggalAcara,
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           'Tanggal Selesai',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
@@ -221,7 +407,7 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
                           ),
                         ),
                         Text(
-                          tanggal,
+                          tanggalSelesai,
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontStyle: FontStyle.italic,
@@ -232,14 +418,20 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Divider(),
+                const Divider(), // Garis pembatas
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => const DetailKegiatanNonJTIPage()),
+                        MaterialPageRoute(builder: (context) => DetailKegiatanNonJTIPage(kegiatan: {
+                          'title': title,
+                          'jabatan': jabatan,
+                          'tanggal_mulai': tanggalMulai,
+                          'tanggal_acara': tanggalAcara,
+                          'tanggal_selesai': tanggalSelesai,
+                        })),
                       );
                     },
                     child: Text(

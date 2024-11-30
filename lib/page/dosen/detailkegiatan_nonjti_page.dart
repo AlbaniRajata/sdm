@@ -1,22 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/widget/dosen/custom_horizontalcalendar.dart';
+import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
+import 'package:intl/intl.dart';
 
 class DetailKegiatanNonJTIPage extends StatefulWidget {
-  const DetailKegiatanNonJTIPage({Key? key}) : super(key: key);
+  final Map<String, String> kegiatan;
+
+  const DetailKegiatanNonJTIPage({super.key, required this.kegiatan});
 
   @override
   DetailKegiatanNonJTIPageState createState() => DetailKegiatanNonJTIPageState();
 }
 
 class DetailKegiatanNonJTIPageState extends State<DetailKegiatanNonJTIPage> {
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay = DateTime.now();
+  String _formatDate(String date) {
+    final DateTime parsedDate = DateFormat('dd-MM-yyyy').parse(date);
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
+    return formatter.format(parsedDate);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final kegiatan = widget.kegiatan;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -33,119 +40,114 @@ class DetailKegiatanNonJTIPageState extends State<DetailKegiatanNonJTIPage> {
         elevation: 0,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: CustomHorizontalCalendar(
-                focusedDay: _focusedDay,
-                selectedDay: _selectedDay,
-                onDaySelected: (date) {
-                  setState(() {
-                    _selectedDay = date;
-                  });
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Card Header
+              Container(
+                height: 40,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255, 5, 167, 170),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  'Detail Kegiatan',
+                  style: GoogleFonts.poppins(
                     color: Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                  ),
+                ),
+              ),
+              // Card Body
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(12),
+                    bottomRight: Radius.circular(12),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.2),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 8),
+                    _buildDetailField('Judul Kegiatan', kegiatan['title']!),
+                    _buildDetailField('Deskripsi Kegiatan', kegiatan['deskripsi'] ?? 'Deskripsi kegiatan belum tersedia', isDescription: true),
+                    _buildDetailField('Tanggal Mulai', _formatDate(kegiatan['tanggal_mulai'] ?? '01-01-1970')),
+                    _buildDetailField('Tanggal Acara', _formatDate(kegiatan['tanggal_acara'] ?? '01-01-1970')),
+                    _buildDetailField('Tanggal Selesai', _formatDate(kegiatan['tanggal_selesai'] ?? '01-01-1970')),
+                    const SizedBox(height: 16.0),
+                    Text(
+                      'File Pendukung',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    TextFormField(
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Nama File',
+                      ),
+                      readOnly: true,
+                    ),
+                    const SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 5, 167, 170),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const DaftarKegiatanNonJTIPage()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.orange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0),
                             ),
                           ),
-                          child: Text(
-                            'Detail Kegiatan',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildDetailField('Nama Kegiatan', 'Seminar Nasional', titleColor: Colors.black),
-                              _buildDetailField('Jenis Kegiatan', 'Kegiatan JTI', titleColor: Colors.black),
-                              _buildDetailField('Nama Ketua Pelaksana', 'Albani Rajata Malik', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 1', 'Almira S.Pd', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 1', 'Menyusun materi', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 2', 'Anita S.T.Tr'),
-                              _buildDetailField('Tugas Anggota 2', 'Menyiapkan alat dan bahan', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 3', 'Sofyan Andani S.T.Tr M.Ti', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 3', 'Mengatur jadwal', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 4', 'Tasya Cantika Ristiyana', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 4', 'Menghubungi narasumber', titleColor: Colors.black),
-                              _buildDetailField('Nama Anggota 5', 'ALya Rafani Mikaila', titleColor: Colors.black),
-                              _buildDetailField('Tugas Anggota 5', 'Membuat laporan', titleColor: Colors.black),
-                              _buildDetailField('Deskripsi Kegiatan', 'Seminar Nasional yang diadakan oleh Dishub', isDescription: true, titleColor: Colors.black),
-                              _buildDetailField('Dokumen', 'Draft_surat_tugas_SemNas.pdf'),
-                              const SizedBox(height: 16),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => const DaftarKegiatanJTIPage()),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.orange,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4.0),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Kembali',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                          child: const Text(
+                            'Kembali',
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
   }
 
-  Widget _buildDetailField(String title, String content, {bool isDescription = false, Color titleColor = Colors.black54}) {
+  Widget _buildDetailField(String title, String content, {bool isDescription = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -154,15 +156,16 @@ class DetailKegiatanNonJTIPageState extends State<DetailKegiatanNonJTIPage> {
           Text(
             title,
             style: GoogleFonts.poppins(
-              color: titleColor,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
               fontSize: 12,
             ),
           ),
           const SizedBox(height: 4),
           TextFormField(
             initialValue: content,
-            readOnly: !isDescription,
-            maxLines: isDescription ? 5 : 1, // Increase maxLines for description
+            readOnly: true,
+            maxLines: isDescription ? 5 : 1,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,
