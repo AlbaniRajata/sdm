@@ -4,7 +4,7 @@ import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 
 class TambahKegiatanNonJTIPage extends StatefulWidget {
-  const TambahKegiatanNonJTIPage({super.key});
+  const TambahKegiatanNonJTIPage({Key? key}) : super(key: key);
 
   @override
   _TambahKegiatanNonJTIPageState createState() => _TambahKegiatanNonJTIPageState();
@@ -13,12 +13,18 @@ class TambahKegiatanNonJTIPage extends StatefulWidget {
 class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _namaKegiatanController = TextEditingController();
-  final TextEditingController _namaAnggotaController = TextEditingController(text: 'Albani Rajata Malik');
+  final TextEditingController _jenisKegiatanController = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
-  final TextEditingController _dokumenController = TextEditingController();
   final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalAcaraController = TextEditingController();
   final TextEditingController _tanggalSelesaiController = TextEditingController();
+  final TextEditingController _tanggalAcaraController = TextEditingController();
+
+  List<Map<String, String>> anggotaList = [
+    {'jabatan': 'Anggota', 'nama': 'Albani Rajata Malik'},
+  ];
+
+  final List<String> jabatanOptions = ['PIC', 'Anggota'];
+  final List<String> dosenOptions = ['Albani Rajata Malik'];
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
@@ -37,24 +43,20 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
   void _saveKegiatan() {
     if (_formKey.currentState!.validate()) {
       final newKegiatan = {
-        'title': _namaKegiatanController.text,
-        'jabatan': 'Anggota',
-        'tanggal_mulai': _tanggalMulaiController.text,
-        'tanggal_acara': _tanggalAcaraController.text,
-        'tanggal_selesai': _tanggalSelesaiController.text,
+        'nama_kegiatan': _namaKegiatanController.text,
+        'jenis_kegiatan': _jenisKegiatanController.text,
         'deskripsi': _deskripsiController.text,
-        'dokumen': _dokumenController.text,
-        'nama_anggota': _namaAnggotaController.text,
-        'jenis': 'Non JTI',
+        'tanggal_mulai': _tanggalMulaiController.text,
+        'tanggal_selesai': _tanggalSelesaiController.text,
+        'tanggal_acara': _tanggalAcaraController.text,
+        'anggota': anggotaList,
       };
-      Navigator.pop(context, newKegiatan);
+      print(newKegiatan);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -65,7 +67,6 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            fontSize: screenWidth * 0.05,
           ),
         ),
         centerTitle: true,
@@ -95,7 +96,7 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.045,
+                      fontSize: 18,
                     ),
                   ),
                 ),
@@ -121,31 +122,80 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDetailField('Nama Kegiatan', _namaKegiatanController, screenWidth),
-                      _buildDetailField('Nama Anggota', _namaAnggotaController, screenWidth),
-                      _buildDetailField('Deskripsi Kegiatan', _deskripsiController, screenWidth, isDescription: true),
-                      _buildDetailField('Dokumen', _dokumenController, screenWidth),
-                      _buildDateField('Tanggal Mulai', _tanggalMulaiController, screenWidth),
-                      _buildDateField('Tanggal Acara', _tanggalAcaraController, screenWidth),
-                      _buildDateField('Tanggal Selesai', _tanggalSelesaiController, screenWidth),
+                      _buildDetailField('Nama Kegiatan', _namaKegiatanController),
+                      _buildDetailField('Jenis Kegiatan', _jenisKegiatanController),
+                      _buildDetailField('Deskripsi Kegiatan', _deskripsiController, isDescription: true),
+                      _buildDateField('Tanggal Mulai', _tanggalMulaiController),
+                      _buildDateField('Tanggal Selesai', _tanggalSelesaiController),
+                      _buildDateField('Tanggal Acara', _tanggalAcaraController),
                       const SizedBox(height: 16),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: ElevatedButton(
-                          onPressed: _saveKegiatan,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
-                            ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Card Jabatan and Anggota
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Card Header
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 5, 167, 170),
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12),
                           ),
-                          child: Text(
-                            'Simpan',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: screenWidth * 0.04,
-                            ),
+                        ),
+                        child: Text(
+                          'Jabatan dan Anggota',
+                          style: GoogleFonts.poppins(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
+                        ),
+                      ),
+                      // Card Body
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ..._buildAnggotaFields(),
+                            const SizedBox(height: 16),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                onPressed: _saveKegiatan,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4.0),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Simpan',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -156,13 +206,63 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
           ),
         ),
       ),
-      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
   }
 
-  Widget _buildDetailField(String title, TextEditingController controller, double screenWidth, {bool isDescription = false, Color titleColor = Colors.black}) {
+  List<Widget> _buildAnggotaFields() {
+    return List.generate(anggotaList.length, (index) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DropdownButtonFormField<String>(
+              value: jabatanOptions.contains(anggotaList[index]['jabatan']) ? anggotaList[index]['jabatan'] : null,
+              items: jabatanOptions.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                setState(() {
+                  anggotaList[index]['jabatan'] = newValue!;
+                });
+              },
+              decoration: const InputDecoration(
+                labelText: 'Jabatan',
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Mohon pilih jabatan';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 8),
+            TextFormField(
+              initialValue: 'Albani Rajata Malik',
+              readOnly: true,
+              decoration: const InputDecoration(
+                labelText: 'Nama Anggota',
+                border: OutlineInputBorder(),
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildDetailField(String title, TextEditingController controller, {bool isDescription = false, Color titleColor = Colors.black}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -172,13 +272,13 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
             title,
             style: GoogleFonts.poppins(
               color: titleColor,
-              fontSize: screenWidth * 0.035,
+              fontSize: 12,
             ),
           ),
           const SizedBox(height: 4),
           TextFormField(
             controller: controller,
-            maxLines: isDescription ? 5 : 1, // Increase maxLines for description
+            maxLines: isDescription ? 5 : 1,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,
@@ -196,7 +296,7 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
     );
   }
 
-  Widget _buildDateField(String title, TextEditingController controller, double screenWidth) {
+  Widget _buildDateField(String title, TextEditingController controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -206,7 +306,7 @@ class _TambahKegiatanNonJTIPageState extends State<TambahKegiatanNonJTIPage> {
             title,
             style: GoogleFonts.poppins(
               color: Colors.black,
-              fontSize: screenWidth * 0.035,
+              fontSize: 12,
             ),
           ),
           const SizedBox(height: 4),

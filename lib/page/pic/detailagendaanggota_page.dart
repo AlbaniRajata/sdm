@@ -104,17 +104,16 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
                                     children: [
                                       ElevatedButton.icon(
                                         onPressed: _addAgenda,
-                                        icon: const Icon(Icons.add, color: Colors.white,),
-                                        label: const Text('Tambah', style: TextStyle(color: Colors.white),),
+                                        icon: const Icon(Icons.add, color: Colors.white),
+                                        label: const Text('Tambah', style: TextStyle(color: Colors.white)),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.green,
                                         ),
                                       ),
                                       ElevatedButton.icon(
-                                        onPressed:
-                                            agendas.length > 1 ? _deleteAgenda : null,
-                                        icon: const Icon(Icons.delete, color: Colors.white,),
-                                        label: const Text('Hapus', style: TextStyle(color: Colors.white),),
+                                        onPressed: agendas.length > 1 ? _deleteAgenda : null,
+                                        icon: const Icon(Icons.delete, color: Colors.white),
+                                        label: const Text('Hapus', style: TextStyle(color: Colors.white)),
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.red,
                                         ),
@@ -136,8 +135,7 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.orange,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4.0),
+                                          borderRadius: BorderRadius.circular(4.0),
                                         ),
                                       ),
                                       child: const Text(
@@ -149,11 +147,9 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
                                     ElevatedButton(
                                       onPressed: _saveAgenda,
                                       style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color.fromARGB(
-                                            255, 5, 167, 170),
+                                        backgroundColor: const Color.fromARGB(255, 5, 167, 170),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(4.0),
+                                          borderRadius: BorderRadius.circular(4.0),
                                         ),
                                       ),
                                       child: const Text(
@@ -171,15 +167,14 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
                                       Navigator.pushReplacement(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>
-                                              const DetailKegiatanAgendaPage(),
+                                          builder: (context) => const DetailKegiatanAgendaPage(),
                                         ),
                                       );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.orange,
                                     ),
-                                    child: const Text('Kembali', style: TextStyle(color: Colors.white),),
+                                    child: const Text('Kembali', style: TextStyle(color: Colors.white)),
                                   ),
                                 ),
                             ],
@@ -194,8 +189,7 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
           ],
         ),
       ),
-      floatingActionButton:
-          CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
@@ -215,8 +209,7 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   isDense: true,
-                  contentPadding:
-                      EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                 ),
               )
             : Text(
@@ -251,8 +244,7 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
   }
 
   /// Membuat detail field
-  Widget _buildDetailField(String title, String content,
-      {bool isEditable = false, Color titleColor = Colors.black54}) {
+  Widget _buildDetailField(String title, String content, {bool isEditable = false, Color titleColor = Colors.black54}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -272,8 +264,7 @@ class DetailAgendaAnggotaPageState extends State<DetailAgendaAnggotaPage> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     isDense: true,
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   ),
                 )
               : Text(
