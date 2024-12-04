@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
+import 'package:sdm/services/admin/api_jabatankegiatan.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/dosen_sortoption.dart';
@@ -15,28 +17,41 @@ class DaftarJabatanPage extends StatefulWidget {
 
 class DaftarJabatanPageState extends State<DaftarJabatanPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> jabatanList = [
-    {'title': 'PIC', 'poin': '10 Poin'},
-    {'title': 'Pembina', 'poin': '8 Poin'},
-    {'title': 'Sekretaris', 'poin': '7 Poin'},
-    {'title': 'Bendahara', 'poin': '9 Poin'},
-  ];
-
-  List<Map<String, String>> filteredJabatanList = [];
+  final ApiJabatanKegiatan _apiJabatanKegiatan = ApiJabatanKegiatan();
+  List<JabatanKegiatan> jabatanList = [];
+  List<JabatanKegiatan> filteredJabatanList = [];
   DosenSortOption selectedSortOption = DosenSortOption.abjadAZ;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    filteredJabatanList = jabatanList;
     _searchController.addListener(_searchJabatan);
+    _loadJabatan();
+  }
+
+  Future<void> _loadJabatan() async {
+    try {
+      setState(() => isLoading = true);
+      final jabatan = await _apiJabatanKegiatan.getAllJabatanKegiatan();
+      setState(() {
+        jabatanList = jabatan;
+        filteredJabatanList = jabatan;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
   void _searchJabatan() {
     setState(() {
       filteredJabatanList = jabatanList.where((jabatan) {
         final searchLower = _searchController.text.toLowerCase();
-        final titleLower = jabatan['title']!.toLowerCase();
+        final titleLower = jabatan.jabatanNama.toLowerCase();
         return titleLower.contains(searchLower);
       }).toList();
     });
@@ -47,31 +62,38 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case DosenSortOption.abjadAZ:
-          filteredJabatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          filteredJabatanList.sort((a, b) => a.jabatanNama.compareTo(b.jabatanNama));
           break;
         case DosenSortOption.abjadZA:
-          filteredJabatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          filteredJabatanList.sort((a, b) => b.jabatanNama.compareTo(a.jabatanNama));
           break;
         case DosenSortOption.poinTerbanyak:
-          filteredJabatanList.sort((a, b) => int.parse(b['poin']!.split(' ')[0]).compareTo(int.parse(a['poin']!.split(' ')[0])));
+          filteredJabatanList.sort((a, b) => b.poin.compareTo(a.poin));
           break;
         case DosenSortOption.poinTersedikit:
-          filteredJabatanList.sort((a, b) => int.parse(a['poin']!.split(' ')[0]).compareTo(int.parse(b['poin']!.split(' ')[0])));
-          break;
-        default:
+          filteredJabatanList.sort((a, b) => a.poin.compareTo(b.poin));
           break;
       }
     });
   }
 
-  void _deleteJabatan(String title) {
-    setState(() {
-      jabatanList.removeWhere((jabatan) => jabatan['title'] == title);
-      _searchJabatan();
-    });
+  Future<void> _deleteJabatan(int id) async {
+    try {
+      final success = await _apiJabatanKegiatan.deleteJabatanKegiatan(id);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Jabatan berhasil dihapus')),
+        );
+        _loadJabatan();
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
-  void _showDeleteConfirmationDialog(String title) {
+  void _showDeleteConfirmationDialog(JabatanKegiatan jabatan) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -80,15 +102,13 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
           content: const Text('Apakah Anda ingin menghapus jabatan ini?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Tidak'),
             ),
             TextButton(
               onPressed: () {
-                _deleteJabatan(title);
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
+                _deleteJabatan(jabatan.idJabatanKegiatan!);
               },
               child: const Text('Ya'),
             ),
@@ -144,17 +164,14 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
               alignment: Alignment.centerRight,
               child: ElevatedButton(
                 onPressed: () async {
-                  final newJabatan = await Navigator.push(
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const TambahJabatanPage(),
                     ),
                   );
-                  if (newJabatan != null) {
-                    setState(() {
-                      jabatanList.add(newJabatan);
-                      _searchJabatan();
-                    });
+                  if (result == true) {
+                    _loadJabatan();
                   }
                 },
                 style: ElevatedButton.styleFrom(
@@ -176,24 +193,27 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: filteredJabatanList.map((jabatan) {
-                  return Column(
-                    children: [
-                      _buildJabatanCard(
-                        context,
-                        title: jabatan['title']!,
-                        poin: jabatan['poin']!,
-                        screenWidth: screenWidth,
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filteredJabatanList.isEmpty
+                    ? const Center(child: Text('Tidak ada data jabatan'))
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: filteredJabatanList.map((jabatan) {
+                            return Column(
+                              children: [
+                                _buildJabatanCard(
+                                  context,
+                                  jabatan: jabatan,
+                                  screenWidth: screenWidth,
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            );
+                          }).toList(),
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
           ),
         ],
       ),
@@ -205,8 +225,7 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
 
   Widget _buildJabatanCard(
     BuildContext context, {
-    required String title,
-    required String poin,
+    required JabatanKegiatan jabatan,
     required double screenWidth,
   }) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
@@ -228,7 +247,6 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -243,7 +261,7 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  title,
+                  jabatan.jabatanNama,
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -254,23 +272,14 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-                        final updatedJabatan = await Navigator.push(
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditJabatanPage(jabatan: {
-                              'title': title,
-                              'poin': poin,
-                            }),
+                            builder: (context) => EditJabatanPage(jabatan: jabatan),
                           ),
                         );
-                        if (updatedJabatan != null) {
-                          setState(() {
-                            final index = jabatanList.indexWhere((j) => j['title'] == updatedJabatan['title']);
-                            if (index != -1) {
-                              jabatanList[index] = updatedJabatan;
-                              _searchJabatan();
-                            }
-                          });
+                        if (result == true) {
+                          _loadJabatan();
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -290,9 +299,7 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () {
-                        _showDeleteConfirmationDialog(title);
-                      },
+                      onPressed: () => _showDeleteConfirmationDialog(jabatan),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
                         shape: RoundedRectangleBorder(
@@ -313,16 +320,15 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
               ],
             ),
           ),
-          // Isi Card
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                _buildRichText('Nama Jabatan', title, fontSize),
+                _buildRichText('Nama Jabatan', jabatan.jabatanNama, fontSize),
                 const Divider(),
-                _buildRichText('Poin', poin, fontSize),
+                _buildRichText('Poin', '${jabatan.poin} Poin', fontSize),
               ],
             ),
           ),
@@ -331,7 +337,7 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
     );
   }
 
-  Widget _buildRichText(String title, String? value, double fontSize) {
+  Widget _buildRichText(String title, String value, double fontSize) {
     return RichText(
       text: TextSpan(
         text: '$title\n',

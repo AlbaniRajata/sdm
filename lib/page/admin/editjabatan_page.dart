@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
+import 'package:sdm/services/admin/api_jabatankegiatan.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 
 class EditJabatanPage extends StatefulWidget {
-  final Map<String, String> jabatan;
+  final JabatanKegiatan jabatan;
 
   const EditJabatanPage({super.key, required this.jabatan});
 
@@ -13,29 +15,51 @@ class EditJabatanPage extends StatefulWidget {
 
 class EditJabatanPageState extends State<EditJabatanPage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _titleController;
+  final ApiJabatanKegiatan _apiJabatanKegiatan = ApiJabatanKegiatan();
+  late TextEditingController _namaController;
   late TextEditingController _poinController;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.jabatan['title']);
-    _poinController = TextEditingController(text: widget.jabatan['poin']);
+    _namaController = TextEditingController(text: widget.jabatan.jabatanNama);
+    _poinController = TextEditingController(text: widget.jabatan.poin.toString());
   }
 
   @override
   void dispose() {
-    _titleController.dispose();
+    _namaController.dispose();
     _poinController.dispose();
     super.dispose();
   }
 
-  void _saveChanges() {
+  Future<void> _saveChanges() async {
     if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, {
-        'title': _titleController.text,
-        'poin': _poinController.text,
-      });
+      try {
+        setState(() => _isLoading = true);
+        
+        await _apiJabatanKegiatan.updateJabatanKegiatan(
+          id: widget.jabatan.idJabatanKegiatan!,
+          jabatanNama: _namaController.text,
+          poin: double.parse(_poinController.text),
+        );
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Jabatan berhasil diupdate')),
+          );
+          Navigator.pop(context, true);
+        }
+      } catch (e) {
+ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
+      }
     }
   }
 
@@ -65,7 +89,6 @@ class EditJabatanPageState extends State<EditJabatanPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Card Header
               Container(
                 height: 40,
                 width: double.infinity,
@@ -86,7 +109,6 @@ class EditJabatanPageState extends State<EditJabatanPage> {
                   ),
                 ),
               ),
-              // Card Body
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -110,40 +132,71 @@ class EditJabatanPageState extends State<EditJabatanPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDetailField('Nama Jabatan', _titleController),
-                      _buildDetailField('Poin', _poinController),
+                      _buildDetailField(
+                        'Nama Jabatan',
+                        _namaController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Nama jabatan tidak boleh kosong';
+                          }
+                          return null;
+                        },
+                      ),
+                      _buildDetailField(
+                        'Poin',
+                        _poinController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Poin tidak boleh kosong';
+                          }
+                          try {
+                            double.parse(value);
+                            return null;
+                          } catch (e) {
+                            return 'Masukkan angka yang valid';
+                          }
+                        },
+                      ),
                       const SizedBox(height: 20),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
+                            onPressed: _isLoading ? null : () => Navigator.pop(context),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4.0),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Kembali',
-                              style: TextStyle(color: Colors.white),
+                              style: GoogleFonts.poppins(color: Colors.white),
                             ),
                           ),
                           const SizedBox(width: 8),
                           ElevatedButton(
-                            onPressed: _saveChanges,
+                            onPressed: _isLoading ? null : _saveChanges,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color.fromARGB(255, 5, 167, 170),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4.0),
                               ),
                             ),
-                            child: const Text(
-                              'Simpan',
-                              style: TextStyle(color: Colors.white),
-                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    'Simpan',
+                                    style: GoogleFonts.poppins(color: Colors.white),
+                                  ),
                           ),
                         ],
                       ),
@@ -161,7 +214,14 @@ class EditJabatanPageState extends State<EditJabatanPage> {
     );
   }
 
-  Widget _buildDetailField(String title, TextEditingController controller, {bool isDescription = false, Color titleColor = Colors.black}) {
+  Widget _buildDetailField(
+    String title,
+    TextEditingController controller, {
+    bool isDescription = false,
+    Color titleColor = Colors.black,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -178,12 +238,13 @@ class EditJabatanPageState extends State<EditJabatanPage> {
           TextFormField(
             controller: controller,
             maxLines: isDescription ? 5 : 1,
+            keyboardType: keyboardType,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,
               contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             ),
-            validator: (value) {
+            validator: validator ?? (value) {
               if (value == null || value.isEmpty) {
                 return 'Mohon isi $title';
               }
