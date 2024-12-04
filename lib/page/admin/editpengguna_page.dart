@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/admin/user_model.dart';
+import 'package:sdm/services/admin/api_user.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:intl/intl.dart';
 
 class EditPenggunaPage extends StatefulWidget {
-  final Map<String, String> pengguna;
+  final User user;
 
-  const EditPenggunaPage({super.key, required this.pengguna});
+  const EditPenggunaPage({super.key, required this.user});
 
   @override
   EditPenggunaPageState createState() => EditPenggunaPageState();
@@ -13,49 +16,79 @@ class EditPenggunaPage extends StatefulWidget {
 
 class EditPenggunaPageState extends State<EditPenggunaPage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _idController;
-  late TextEditingController _titleController;
+  final ApiUserAdmin _apiService = ApiUserAdmin();
   late TextEditingController _usernameController;
+  late TextEditingController _namaController;
   late TextEditingController _tanggalLahirController;
   late TextEditingController _emailController;
   late TextEditingController _nipController;
-  late TextEditingController _levelController;
+  late String _selectedLevel;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _idController = TextEditingController(text: widget.pengguna['id']);
-    _titleController = TextEditingController(text: widget.pengguna['title']);
-    _usernameController = TextEditingController(text: widget.pengguna['username']);
-    _tanggalLahirController = TextEditingController(text: widget.pengguna['tanggal_lahir']);
-    _emailController = TextEditingController(text: widget.pengguna['email']);
-    _nipController = TextEditingController(text: widget.pengguna['nip']);
-    _levelController = TextEditingController(text: widget.pengguna['level']);
+    _usernameController = TextEditingController(text: widget.user.username);
+    _namaController = TextEditingController(text: widget.user.nama);
+    _tanggalLahirController = TextEditingController(
+      text: DateFormat('yyyy-MM-dd').format(widget.user.tanggalLahir),
+    );
+    _emailController = TextEditingController(text: widget.user.email);
+    _nipController = TextEditingController(text: widget.user.nip);
+    _selectedLevel = widget.user.level;
   }
 
   @override
   void dispose() {
-    _idController.dispose();
-    _titleController.dispose();
     _usernameController.dispose();
+    _namaController.dispose();
     _tanggalLahirController.dispose();
     _emailController.dispose();
     _nipController.dispose();
-    _levelController.dispose();
     super.dispose();
   }
 
-  void _saveChanges() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, {
-        'id': _idController.text,
-        'title': _titleController.text,
-        'username': _usernameController.text,
-        'tanggal_lahir': _tanggalLahirController.text,
-        'email': _emailController.text,
-        'nip': _nipController.text,
-        'level': _levelController.text,
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: widget.user.tanggalLahir,
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null) {
+      setState(() {
+        _tanggalLahirController.text = DateFormat('yyyy-MM-dd').format(picked);
       });
+    }
+  }
+
+  Future<void> _updatePengguna() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() => isLoading = true);
+      try {
+        final response = await _apiService.updateUser(
+          userId: widget.user.idUser,
+          username: _usernameController.text,
+          nama: _namaController.text,
+          tanggalLahir: _tanggalLahirController.text,
+          email: _emailController.text,
+          nip: _nipController.text,
+          level: _selectedLevel.toLowerCase(),
+        );
+
+        if (response.isSuccess) {
+          Navigator.pop(context, response.data);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Data pengguna berhasil diperbarui')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      } finally {
+        setState(() => isLoading = false);
+      }
     }
   }
 
@@ -74,111 +107,169 @@ class EditPenggunaPageState extends State<EditPenggunaPage> {
             color: Colors.white,
             fontSize: screenWidth * 0.05,
           ),
-          textAlign: TextAlign.center,
         ),
         backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Card Header
-              Container(
-                height: 40,
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 5, 167, 170),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Edit Pengguna',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth < 500 ? 14.0 : 16.0,
-                  ),
-                ),
-              ),
-              // Card Body
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailField('ID', _idController),
-                      _buildDetailField('Nama Lengkap', _titleController),
-                      _buildDetailField('Username', _usernameController),
-                      _buildDetailField('Tanggal Lahir', _tanggalLahirController),
-                      _buildDetailField('Email', _emailController),
-                      _buildDetailField('NIP', _nipController),
-                      _buildDetailField('Level', _levelController),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'Kembali',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: _saveChanges,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'Simpan',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ],
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Card Header
+                  Container(
+                    height: 40,
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: const BoxDecoration(
+                      color: Color.fromARGB(255, 5, 167, 170),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12),
                       ),
-                    ],
+                    ),
+                    child: Text(
+                      'Edit Pengguna',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: screenWidth < 500 ? 14.0 : 16.0,
+                      ),
+                    ),
                   ),
-                ),
+                  // Card Body
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(12),
+                        bottomRight: Radius.circular(12),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          label: 'Username',
+                          controller: _usernameController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Username tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'Nama Lengkap',
+                          controller: _namaController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Nama lengkap tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
+                        _buildDateField(
+                          label: 'Tanggal Lahir',
+                          controller: _tanggalLahirController,
+                          onTap: () => _selectDate(context),
+                        ),
+                        _buildTextField(
+                          label: 'Email',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email tidak boleh kosong';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Email tidak valid';
+                            }
+                            return null;
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'NIP',
+                          controller: _nipController,
+                          keyboardType: TextInputType.number,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'NIP tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
+                        _buildDropdownField(
+                          label: 'Level',
+                          value: _selectedLevel,
+                          items: ['admin', 'pimpinan', 'dosen'],
+                          onChanged: (String? newValue) {
+                            if (newValue != null) {
+                              setState(() => _selectedLevel = newValue);
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              style: TextButton.styleFrom(
+                                backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
+                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                              ),
+                              child: Text(
+                                'Batal',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            ElevatedButton(
+                              onPressed: isLoading ? null : _updatePengguna,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                                padding: const EdgeInsets.symmetric(horizontal: 24),
+                              ),
+                              child: Text(
+                                'Simpan',
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
       ),
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -186,34 +277,127 @@ class EditPenggunaPageState extends State<EditPenggunaPage> {
     );
   }
 
-  Widget _buildDetailField(String title, TextEditingController controller, {bool isDescription = false, Color titleColor = Colors.black}) {
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    bool obscureText = false,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            title,
+            label,
             style: GoogleFonts.poppins(
-              color: titleColor,
-              fontSize: 12,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           TextFormField(
             controller: controller,
-            maxLines: isDescription ? 5 : 1,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            obscureText: obscureText,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            validator: validator,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required TextEditingController controller,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: controller,
+            readOnly: true,
+            onTap: onTap,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              suffixIcon: const Icon(Icons.calendar_today),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Mohon isi $title';
+                return 'Tanggal lahir tidak boleh kosong';
               }
               return null;
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownField({
+    required String label,
+    required String value,
+    required List<String> items,
+    required void Function(String?) onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: value,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+            items: items.map((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(item),
+              );
+            }).toList(),
+            onChanged: onChanged,
           ),
         ],
       ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/page/admin/editpengguna_page.dart';
 import 'package:sdm/page/admin/detailpengguna_page.dart';
 import 'package:sdm/page/admin/tambahpengguna_page.dart';
+import 'package:sdm/services/admin/api_user.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/pengguna_sortoption.dart';
@@ -16,29 +18,49 @@ class DaftarPenggunaPage extends StatefulWidget {
 
 class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> penggunaList = [
-    {'id': '1', 'title': 'Albani Rajata Malik', 'username': 'albani', 'tanggal_lahir': '1990-01-01', 'email': 'albani@domain.com', 'nip': '2024434343490314', 'level': 'Admin'},
-    {'id': '2', 'title': 'Nurhidayah Amin', 'username': 'nurhidayah', 'tanggal_lahir': '1991-02-02', 'email': 'nurhidayah@domain.com', 'nip': '2024434343490322', 'level': 'Dosen'},
-    {'id': '3', 'title': 'Rizky Aditya', 'username': 'rizky', 'tanggal_lahir': '1992-03-03', 'email': 'rizky@domain.com', 'nip': '2024434343490333', 'level': 'Pimpinan'},
-    {'id': '4', 'title': 'Siti Fatimah', 'username': 'siti', 'tanggal_lahir': '1993-04-04', 'email': 'siti@domain.com', 'nip': '2024434343490344', 'level': 'Dosen'},
-  ];
-
-  List<Map<String, String>> filteredPenggunaList = [];
+  final ApiUserAdmin _apiService = ApiUserAdmin();
+  List<User> userList = [];
+  List<User> filteredUserList = [];
   PenggunaSortOption selectedSortOption = PenggunaSortOption.abjadAZ;
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    filteredPenggunaList = penggunaList;
+    _loadUsers();
     _searchController.addListener(_searchPengguna);
+  }
+
+  Future<void> _loadUsers() async {
+    setState(() => isLoading = true);
+    try {
+      final response = await _apiService.getUsers();
+      debugPrint('API Response: ${response.data}');
+
+      if (response.isSuccess) {
+        final users = response.getUserList();
+        setState(() {
+          userList = users;
+          filteredUserList = users;
+          _sortPenggunaList(selectedSortOption);
+        });
+      }
+    } catch (e) {
+      debugPrint('Load users error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   void _searchPengguna() {
     setState(() {
-      filteredPenggunaList = penggunaList.where((pengguna) {
+      filteredUserList = userList.where((user) {
         final searchLower = _searchController.text.toLowerCase();
-        final titleLower = pengguna['title']!.toLowerCase();
-        return titleLower.contains(searchLower);
+        final nameLower = user.nama.toLowerCase();
+        return nameLower.contains(searchLower);
       }).toList();
     });
   }
@@ -48,57 +70,60 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case PenggunaSortOption.abjadAZ:
-          filteredPenggunaList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          filteredUserList.sort((a, b) => a.nama.compareTo(b.nama));
           break;
         case PenggunaSortOption.abjadZA:
-          filteredPenggunaList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          filteredUserList.sort((a, b) => b.nama.compareTo(a.nama));
           break;
         case PenggunaSortOption.admin:
-          filteredPenggunaList = penggunaList.where((pengguna) => pengguna['level'] == 'Admin').toList();
+          filteredUserList =
+              userList.where((user) => user.level == 'admin').toList();
           break;
         case PenggunaSortOption.dosen:
-          filteredPenggunaList = penggunaList.where((pengguna) => pengguna['level'] == 'Dosen').toList();
+          filteredUserList =
+              userList.where((user) => user.level == 'dosen').toList();
           break;
         case PenggunaSortOption.pimpinan:
-          filteredPenggunaList = penggunaList.where((pengguna) => pengguna['level'] == 'Pimpinan').toList();
-          break;
-        default:
+          filteredUserList =
+              userList.where((user) => user.level == 'pimpinan').toList();
           break;
       }
     });
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  Future<void> _deletePengguna(int id) async {
+    try {
+      final response = await _apiService.deleteUser(id);
+      if (response.isSuccess) {
+        await _loadUsers();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pengguna berhasil dihapus')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
   }
 
-  void _deletePengguna(String id) {
-    setState(() {
-      penggunaList.removeWhere((pengguna) => pengguna['id'] == id);
-      _searchPengguna();
-    });
-  }
-
-  void _showDeleteConfirmationDialog(String id) {
+  void _showDeleteConfirmationDialog(int id) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
-          content: const Text('Apakah Anda ingin menghapus pengguna ini?'),
+          content:
+              const Text('Apakah Anda yakin ingin menghapus pengguna ini?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
+              onPressed: () => Navigator.of(context).pop(),
               child: const Text('Tidak'),
             ),
             TextButton(
               onPressed: () {
                 _deletePengguna(id);
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text('Ya'),
             ),
@@ -123,7 +148,6 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
             color: Colors.white,
             fontSize: screenWidth * 0.05,
           ),
-          textAlign: TextAlign.center,
         ),
         backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         centerTitle: true,
@@ -135,92 +159,71 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
             controller: _searchController,
             onChanged: (value) => _searchPengguna(),
             selectedSortOption: selectedSortOption,
-            onSortOptionChanged: (PenggunaSortOption? value) {
-              _sortPenggunaList(value);
-            },
+            onSortOptionChanged: _sortPenggunaList,
             sortOptions: PenggunaSortOption.values.toList(),
           ),
           const Divider(),
-          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () async {
-                  final newPengguna = await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const TambahPenggunaPage(),
-                    ),
-                  );
-                  if (newPengguna != null) {
-                    setState(() {
-                      penggunaList.add(newPengguna);
-                      _searchPengguna();
-                    });
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Total Pengguna: ${filteredUserList.length}',
+                  style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
                 ),
-                child: Text(
-                  'Tambah Pengguna',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontSize: screenWidth < 500 ? 14.0 : 16.0,
+                ElevatedButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const TambahPenggunaPage()),
+                    );
+                    if (result != null) {
+                      _loadUsers();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
+                  child: Text('Tambah Pengguna',
+                      style: GoogleFonts.poppins(color: Colors.white)),
                 ),
-              ),
+              ],
             ),
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: filteredPenggunaList.map((pengguna) {
-                  return Column(
-                    children: [
-                      _buildPenggunaCard(
-                        context,
-                        id: pengguna['id']!,
-                        title: pengguna['title']!,
-                        username: pengguna['username']!,
-                        email: pengguna['email']!,
-                        nip: pengguna['nip']!,
-                        level: pengguna['level']!,
-                        screenWidth: screenWidth,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : RefreshIndicator(
+                    onRefresh: _loadUsers,
+                    child: filteredUserList.isEmpty
+                        ? const Center(child: Text('Tidak ada data pengguna'))
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: filteredUserList.length,
+                            itemBuilder: (context, index) {
+                              final user = filteredUserList[index];
+                              return _buildPenggunaCard(
+                                  context, user, screenWidth);
+                            },
+                          ),
+                  ),
           ),
         ],
       ),
-      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton:
+          const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
   }
 
   Widget _buildPenggunaCard(
-    BuildContext context, {
-    required String id,
-    required String title,
-    required String username,
-    required String email,
-    required String nip,
-    required String level,
-    required double screenWidth,
-  }) {
+      BuildContext context, User user, double screenWidth) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
 
     return Container(
@@ -238,13 +241,9 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
           Container(
-            height: 60, // Increased height
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
               borderRadius: BorderRadius.only(
@@ -255,112 +254,77 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
+                Expanded(
+                  child: Text(
+                    user.nama,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize,
+                    ),
                   ),
                 ),
                 Row(
                   children: [
                     ElevatedButton(
                       onPressed: () async {
-                        final updatedPengguna = await Navigator.push(
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditPenggunaPage(pengguna: {
-                              'id': id,
-                              'title': title,
-                              'username': username,
-                              'tanggal_lahir': penggunaList.firstWhere((pengguna) => pengguna['id'] == id)['tanggal_lahir']!,
-                              'email': email,
-                              'nip': nip,
-                              'level': level,
-                            }),
+                            builder: (context) => EditPenggunaPage(user: user),
                           ),
                         );
-                        if (updatedPengguna != null) {
-                          setState(() {
-                            final index = penggunaList.indexWhere((p) => p['id'] == updatedPengguna['id']);
-                            if (index != -1) {
-                              penggunaList[index] = updatedPengguna;
-                              _searchPengguna();
-                            }
-                          });
+                        if (result != null) {
+                          _loadUsers();
                         }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: Text(
-                        'Edit',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: fontSize * 0.8,
-                        ),
-                      ),
+                      child: Text('Edit',
+                          style: GoogleFonts.poppins(color: Colors.white)),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () {
-                        _showDeleteConfirmationDialog(id);
-                      },
+                      onPressed: () =>
+                          _showDeleteConfirmationDialog(user.idUser),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: Text(
-                        'Hapus',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: fontSize * 0.8,
-                        ),
-                      ),
+                      child: Text('Hapus',
+                          style: GoogleFonts.poppins(color: Colors.white)),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          // Isi Card
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                _buildInfoRow('Username', user.username, fontSize),
+                const Divider(),
+                _buildInfoRow('Email', user.email, fontSize),
+                const Divider(),
+                _buildInfoRow('NIP', user.nip, fontSize),
+                const Divider(),
+                _buildInfoRow('Level', user.level, fontSize),
+                const Divider(),
                 const SizedBox(height: 8),
-                _buildRichText('Username', username, fontSize),
-                const Divider(),
-                _buildRichText('Email', email, fontSize),
-                const Divider(),
-                _buildRichText('NIP', nip, fontSize),
-                const Divider(),
-                _buildRichText('Level', level, fontSize),
-                const Divider(),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => DetailPenggunaPage(pengguna: {
-                          'id': id,
-                          'title': title,
-                          'username': username,
-                          'tanggal_lahir': penggunaList.firstWhere((pengguna) => pengguna['id'] == id)['tanggal_lahir']!,
-                          'email': email,
-                          'nip': nip,
-                          'level': level,
-                        })),
+                        MaterialPageRoute(
+                          builder: (context) => DetailPenggunaPage(user: user),
+                        ),
                       );
                     },
                     child: Text(
@@ -380,22 +344,24 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
     );
   }
 
-  Widget _buildRichText(String title, String? value, double fontSize) {
+  Widget _buildInfoRow(String label, String value, double fontSize) {
     return Row(
       children: [
         Expanded(
           flex: 1,
           child: Text(
-            '$title: ',
-            style: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black),
+            '$label:',
+            style: GoogleFonts.poppins(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
-        const SizedBox(width: 8),
         Expanded(
           flex: 2,
           child: Text(
-            value ?? '',
-            style: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.normal, color: Colors.black),
+            value,
+            style: GoogleFonts.poppins(fontSize: fontSize),
           ),
         ),
       ],
