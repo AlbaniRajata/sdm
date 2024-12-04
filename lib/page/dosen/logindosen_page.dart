@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/dosen/homedosen_page.dart';
+import 'package:sdm/services/dosen/api_login.dart';
+import 'package:sdm/models/dosen/user.dart';
 
 class LogindosenPage extends StatefulWidget {
   const LogindosenPage({super.key});
@@ -11,10 +13,15 @@ class LogindosenPage extends StatefulWidget {
 }
 
 class LogindosenPageState extends State<LogindosenPage> with SingleTickerProviderStateMixin {
-  bool _isObscured = true; // Variabel untuk mengontrol visibilitas password
+  bool _isObscured = true;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _opacityAnimation;
+
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final ApiLogin _apiService = ApiLogin();
+  String errorMessage = '';
 
   @override
   void initState() {
@@ -47,6 +54,77 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _showNotification(String message, Color backgroundColor) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            color: backgroundColor,
+            padding: const EdgeInsets.all(12),
+            child: SafeArea(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void _login() async {
+    if (_usernameController.text.isEmpty) {
+      _showNotification('Field username tidak boleh kosong', Colors.red);
+      return;
+    }
+    if (_passwordController.text.isEmpty) {
+      _showNotification('Field password tidak boleh kosong', Colors.red);
+      return;
+    }
+
+    User user = User(
+      username: _usernameController.text,
+      password: _passwordController.text,
+    );
+
+    try {
+      String result = await _apiService.login(user);
+      if (result == 'Login successful') {
+        _showNotification('Login berhasil', Colors.green);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomedosenPage(),
+          ),
+        );
+      } else if (result == 'Invalid username') {
+        _showNotification('Username salah', Colors.red);
+      } else if (result == 'Invalid password') {
+        _showNotification('Password salah', Colors.red);
+      } else {
+        _showNotification(result, Colors.red);
+      }
+    } catch (e) {
+      _showNotification('Login failed: $e', Colors.red);
+    }
   }
 
   @override
@@ -143,7 +221,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'Login Dosen',
+                              'Login dosen',
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -154,7 +232,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                'Email Anda',
+                                'Username Anda',
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                 ),
@@ -167,10 +245,11 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                                 color: Colors.white,
                               ),
                               child: TextField(
+                                controller: _usernameController,
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
-                                  hintText: 'Isi Email Anda',
+                                  hintText: 'Isi Username Anda',
                                   hintStyle: GoogleFonts.poppins(color: Colors.grey),
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -197,6 +276,7 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                                 color: Colors.white,
                               ),
                               child: TextField(
+                                controller: _passwordController,
                                 obscureText: _isObscured,
                                 decoration: InputDecoration(
                                   filled: true,
@@ -222,35 +302,13 @@ class LogindosenPageState extends State<LogindosenPage> with SingleTickerProvide
                                 style: GoogleFonts.poppins(color: Colors.black),
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/forgot_password');
-                                },
-                                child: Text(
-                                  'Lupa Password?',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 20),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const HomedosenPage(),
-                                    ),
-                                  );
-                                },
+                                onPressed: _login,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF9500),
+                                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
                                   padding: const EdgeInsets.symmetric(vertical: 15),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),

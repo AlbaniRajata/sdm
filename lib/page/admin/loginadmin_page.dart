@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/homeadmin_page.dart';
+import 'package:sdm/services/admin/api_login.dart';
+import 'package:sdm/models/admin/user.dart';
 
 class LoginadminPage extends StatefulWidget {
   const LoginadminPage({super.key});
@@ -15,6 +17,11 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _opacityAnimation;
+
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final ApiLogin _apiService = ApiLogin();
+  String errorMessage = '';
 
   @override
   void initState() {
@@ -46,7 +53,84 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
   @override
   void dispose() {
     _controller.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
+  }
+
+  void _showNotification(String message, Color backgroundColor) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            color: backgroundColor,
+            padding: const EdgeInsets.all(12),
+            child: SafeArea(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
+
+  void _login() async {
+    if (_usernameController.text.isEmpty) {
+      _showNotification('Field username tidak boleh kosong', Colors.red);
+      return;
+    }
+    if (_passwordController.text.isEmpty) {
+      _showNotification('Field password tidak boleh kosong', Colors.red);
+      return;
+    }
+
+    User user = User(
+      username: _usernameController.text,
+      password: _passwordController.text,
+    );
+
+    try {
+      final result = await _apiService.login(user);
+      
+      if (result['status']) {
+        _showNotification('Login berhasil', Colors.green);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const HomeadminPage(),
+          ),
+        );
+      } else {
+        String errorMsg = result['message'];
+        if (errorMsg.contains('Invalid username')) {
+          _showNotification('Username salah', Colors.red);
+        } else if (errorMsg.contains('Invalid password')) {
+          _showNotification('Password salah', Colors.red);
+        } else {
+          _showNotification(errorMsg, Colors.red);
+        }
+      }
+    } catch (e) {
+      _showNotification('Terjadi kesalahan: $e', Colors.red);
+    }
   }
 
   @override
@@ -167,6 +251,7 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                                 color: Colors.white,
                               ),
                               child: TextField(
+                                controller: _usernameController,
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: Colors.white,
@@ -197,6 +282,7 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                                 color: Colors.white,
                               ),
                               child: TextField(
+                                controller: _passwordController,
                                 obscureText: _isObscured,
                                 decoration: InputDecoration(
                                   filled: true,
@@ -222,28 +308,11 @@ class LoginadminPageState extends State<LoginadminPage> with SingleTickerProvide
                                 style: GoogleFonts.poppins(color: Colors.black),
                               ),
                             ),
-                            const SizedBox(height: 10),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/forgot_password');
-                                },
-                                child: Text(
-                                  'Lupa Password?',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 20),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeadminPage()));
-                                },
+                                onPressed: _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
                                   padding: const EdgeInsets.symmetric(vertical: 15),
