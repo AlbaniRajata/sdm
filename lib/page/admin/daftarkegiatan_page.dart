@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
+import 'package:sdm/models/admin/kegiatan_model.dart';
 import 'package:sdm/page/admin/detailkegiatan_page.dart';
 import 'package:sdm/page/admin/editkegiatan_page.dart';
+import 'package:sdm/services/admin/api_kegiatan.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
-import 'package:intl/intl.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/kegiatan_sortoption.dart';
-import 'dart:math';
 
 class DaftarKegiatanPage extends StatefulWidget {
   const DaftarKegiatanPage({super.key});
@@ -17,28 +18,29 @@ class DaftarKegiatanPage extends StatefulWidget {
 
 class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'ketua': 'Albani Rajata Malik', 'tanggal_mulai': '2022-03-01', 'tanggal_selesai': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'ketua': 'Albani Rajata Malik', 'tanggal_mulai': '2022-03-01', 'tanggal_selesai': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'ketua': 'Siti Fadhilah', 'tanggal_mulai': '2022-04-10', 'tanggal_selesai': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'ketua': 'Rizki Pratama', 'tanggal_mulai': '2022-05-18', 'tanggal_selesai': '2022-05-20'},
-  ];
-
-  List<Map<String, String>> filteredKegiatanList = [];
+  final ApiKegiatan _apiKegiatan = ApiKegiatan();
+  List<KegiatanModel> kegiatanList = [];
+  List<KegiatanModel> filteredKegiatanList = [];
   KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
 
   @override
   void initState() {
     super.initState();
-    _assignRandomJenis();
-    filteredKegiatanList = kegiatanList;
+    _getKegiatanList();
     _searchController.addListener(_searchKegiatan);
   }
 
-  void _assignRandomJenis() {
-    final random = Random();
-    for (var kegiatan in kegiatanList) {
-      kegiatan['jenis'] = random.nextBool() ? 'JTI' : 'Non JTI';
+  void _getKegiatanList() async {
+    try {
+      final kegiatan = await _apiKegiatan.getKegiatan();
+      setState(() {
+        kegiatanList = kegiatan;
+        filteredKegiatanList = kegiatan;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
     }
   }
 
@@ -46,7 +48,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     setState(() {
       filteredKegiatanList = kegiatanList.where((kegiatan) {
         final searchLower = _searchController.text.toLowerCase();
-        final titleLower = kegiatan['title']!.toLowerCase();
+        final titleLower = kegiatan.namaKegiatan.toLowerCase();
         return titleLower.contains(searchLower);
       }).toList();
     });
@@ -57,33 +59,37 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case KegiatanSortOption.abjadAZ:
-          filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          filteredKegiatanList.sort((a, b) => 
+            a.namaKegiatan.compareTo(b.namaKegiatan));
           break;
         case KegiatanSortOption.abjadZA:
-          filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          filteredKegiatanList.sort((a, b) => 
+            b.namaKegiatan.compareTo(a.namaKegiatan));
           break;
         case KegiatanSortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal_mulai']!).compareTo(DateTime.parse(b['tanggal_mulai']!)));
+          filteredKegiatanList.sort((a, b) => 
+            a.tanggalMulai.compareTo(b.tanggalMulai));
           break;
         case KegiatanSortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal_mulai']!).compareTo(DateTime.parse(a['tanggal_mulai']!)));
+          filteredKegiatanList.sort((a, b) => 
+            b.tanggalMulai.compareTo(a.tanggalMulai));
           break;
         case KegiatanSortOption.jti:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'JTI').toList();
+          filteredKegiatanList = kegiatanList
+            .where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan JTI')
+            .toList();
           break;
         case KegiatanSortOption.nonJTI:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan['jenis'] == 'Non JTI').toList();
-          break;
-        default:
+          filteredKegiatanList = kegiatanList
+            .where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan Non-JTI')
+            .toList();
           break;
       }
     });
   }
 
-  String _formatDate(String date) {
-    final DateTime parsedDate = DateTime.parse(date);
-    final DateFormat formatter = DateFormat('d-M-yyyy');
-    return formatter.format(parsedDate);
+  String _formatDate(DateTime date) {
+    return DateFormat('dd MMMM yyyy').format(date);
   }
 
   @override
@@ -92,33 +98,45 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
     super.dispose();
   }
 
-  void _deleteKegiatan(String title) {
-    setState(() {
-      kegiatanList.removeWhere((kegiatan) => kegiatan['title'] == title);
-      _searchKegiatan();
-    });
+  void _deleteKegiatan(int id) async {
+    try {
+      final success = await _apiKegiatan.deleteKegiatan(id);
+      if (success) {
+        setState(() {
+          kegiatanList.removeWhere((kegiatan) => kegiatan.idKegiatan == id);
+          _searchKegiatan();
+        });
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Kegiatan berhasil dihapus')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
   }
 
-  void _showDeleteConfirmationDialog(String title) {
+  void _showDeleteConfirmationDialog(KegiatanModel kegiatan) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Konfirmasi Hapus'),
-          content: const Text('Apakah Anda ingin menghapus kegiatan ini?'),
+          content: Text('Apakah Anda yakin ingin menghapus kegiatan "${kegiatan.namaKegiatan}"?'),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: const Text('Tidak'),
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Batal'),
             ),
             TextButton(
               onPressed: () {
-                _deleteKegiatan(title);
-                Navigator.of(context).pop(); // Close the dialog
+                _deleteKegiatan(kegiatan.idKegiatan!);
+                Navigator.of(context).pop();
               },
-              child: const Text('Ya'),
+              child: const Text('Hapus'),
             ),
           ],
         );
@@ -141,7 +159,6 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
             color: Colors.white,
             fontSize: screenWidth * 0.05,
           ),
-          textAlign: TextAlign.center,
         ),
         backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         centerTitle: true,
@@ -153,9 +170,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
             controller: _searchController,
             onChanged: (value) => _searchKegiatan(),
             selectedSortOption: selectedSortOption,
-            onSortOptionChanged: (KegiatanSortOption? value) {
-              _sortKegiatanList(value);
-            },
+            onSortOptionChanged: _sortKegiatanList,
             sortOptions: KegiatanSortOption.values.toList(),
           ),
           Expanded(
@@ -165,15 +180,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                 children: filteredKegiatanList.map((kegiatan) {
                   return Column(
                     children: [
-                      _buildKegiatanCard(
-                        context,
-                        title: kegiatan['title']!,
-                        ketua: kegiatan['ketua']!,
-                        tanggalMulai: _formatDate(kegiatan['tanggal_mulai']!),
-                        tanggalSelesai: _formatDate(kegiatan['tanggal_selesai']!),
-                        jenis: kegiatan['jenis']!,
-                        screenWidth: screenWidth,
-                      ),
+                      _buildKegiatanCard(context, kegiatan: kegiatan, screenWidth: screenWidth),
                       const SizedBox(height: 16),
                     ],
                   );
@@ -191,11 +198,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
 
   Widget _buildKegiatanCard(
     BuildContext context, {
-    required String title,
-    required String ketua,
-    required String tanggalMulai,
-    required String tanggalSelesai,
-    required String jenis,
+    required KegiatanModel kegiatan,
     required double screenWidth,
   }) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
@@ -217,7 +220,6 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
@@ -230,12 +232,14 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  title,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
+                Expanded(
+                  child: Text(
+                    kegiatan.namaKegiatan,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize,
+                    ),
                   ),
                 ),
                 Row(
@@ -245,18 +249,14 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                         final updatedKegiatan = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => EditKegiatanPage(kegiatan: {
-                              'title': title,
-                              'ketua': ketua,
-                              'tanggal_mulai': tanggalMulai,
-                              'tanggal_selesai': tanggalSelesai,
-                              'jenis': jenis,
-                            }),
+                            builder: (context) => EditKegiatanPage(kegiatan: kegiatan),
                           ),
                         );
                         if (updatedKegiatan != null) {
                           setState(() {
-                            final index = kegiatanList.indexWhere((k) => k['title'] == updatedKegiatan['title']);
+                            final index = kegiatanList.indexWhere(
+                              (k) => k.idKegiatan == updatedKegiatan.idKegiatan
+                            );
                             if (index != -1) {
                               kegiatanList[index] = updatedKegiatan;
                               _searchKegiatan();
@@ -281,9 +281,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton(
-                      onPressed: () {
-                        _showDeleteConfirmationDialog(title);
-                      },
+                      onPressed: () => _showDeleteConfirmationDialog(kegiatan),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(244, 71, 8, 1),
                         shape: RoundedRectangleBorder(
@@ -304,118 +302,86 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
               ],
             ),
           ),
-          // Isi Card
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Dosen PIC',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          ketua,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'Tanggal Mulai',
+                      style: GoogleFonts.poppins(
+                        fontSize: fontSize,
+                        color: Colors.black,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tanggal Mulai',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          tanggalMulai,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      _formatDate(kegiatan.tanggalMulai),
+                      style: GoogleFonts.poppins(
+                        fontSize: fontSize,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tanggal Selesai',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          tanggalSelesai,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tanggal Selesai',
+                      style: GoogleFonts.poppins(
+                        fontSize: fontSize,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      _formatDate(kegiatan.tanggalSelesai),
+                      style: GoogleFonts.poppins(
+                        fontSize: fontSize,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Divider(), // Garis pembatas
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: jenis == 'JTI' ? Colors.blue : Colors.orange,
-                          borderRadius: BorderRadius.circular(4.0),
-                        ),
-                        child: Text(
-                          jenis,
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: kegiatan.jenisKegiatan == 'Kegiatan JTI' 
+                          ? Colors.blue 
+                          : Colors.orange,
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => DetailKegiatanPage(kegiatan: {
-                              'title': title,
-                              'ketua': ketua,
-                              'tanggal_mulai': tanggalMulai,
-                              'tanggal_selesai': tanggalSelesai,
-                              'jenis': jenis,
-                            })),
-                          );
-                        },
-                        child: Text(
-                          'Lihat Detail',
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFF00796B),
-                            fontSize: fontSize,
+                      child: Text(
+                        kegiatan.jenisKegiatan,
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailKegiatanPage(kegiatan: kegiatan),
                           ),
+                        );
+                      },
+                      child: Text(
+                        'Lihat Detail',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF00796B),
+                          fontSize: fontSize,
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

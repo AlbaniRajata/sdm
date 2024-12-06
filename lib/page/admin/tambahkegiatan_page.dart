@@ -1,30 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
+import 'package:sdm/models/admin/anggota_model.dart';
+import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
+import 'package:sdm/models/admin/user_model.dart';
+import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/models/admin/kegiatan_model.dart';
+import 'package:sdm/services/admin/api_kegiatan.dart';
 
 class TambahKegiatanPage extends StatefulWidget {
-  const TambahKegiatanPage({Key? key}) : super(key: key);
+  const TambahKegiatanPage({super.key});
 
   @override
-  _TambahKegiatanPageState createState() => _TambahKegiatanPageState();
+  TambahKegiatanPageState createState() => TambahKegiatanPageState();
 }
 
-class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
+class TambahKegiatanPageState extends State<TambahKegiatanPage> {
   final _formKey = GlobalKey<FormState>();
+  final ApiKegiatan _apiKegiatan = ApiKegiatan();
+  
   final TextEditingController _namaKegiatanController = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
   final TextEditingController _tanggalMulaiController = TextEditingController();
   final TextEditingController _tanggalSelesaiController = TextEditingController();
   final TextEditingController _tanggalAcaraController = TextEditingController();
-  String? _selectedJenisKegiatan;
+  final TextEditingController _tempatKegiatanController = TextEditingController();
+  String? _jenisKegiatan;
+  
+  List<AnggotaModel> anggotaList = [];
+  List<UserModel> dosenList = [];
+  List<JabatanKegiatan> jabatanList = [];
+  bool isLoading = true;
 
-  List<Map<String, String>> anggotaList = [
-    {},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialData();
+  }
 
-  final List<String> jabatanOptions = ['PIC', 'Anggota'];
-  final List<String> dosenOptions = ['Dosen 1', 'Dosen 2', 'Dosen 3', 'Dosen 4'];
+  Future<void> _loadInitialData() async {
+    setState(() => isLoading = true);
+    try {
+      final dosens = await _apiKegiatan.getDosen();
+      final jabatans = await _apiKegiatan.getJabatan();
+
+      setState(() {
+        dosenList = dosens;
+        jabatanList = jabatans;
+        
+        // Initialize with one empty member
+        if (dosenList.isNotEmpty && jabatanList.isNotEmpty) {
+          anggotaList.add(AnggotaModel(
+            idUser: dosenList.first.idUser,
+            idJabatanKegiatan: jabatanList.first.idJabatanKegiatan ?? 0,
+            user: dosenList.first,
+            jabatan: jabatanList.first,
+          ));
+        }
+        
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error mengambil data: $e')),
+      );
+      setState(() => isLoading = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _namaKegiatanController.dispose();
+    _deskripsiController.dispose();
+    _tanggalMulaiController.dispose();
+    _tanggalSelesaiController.dispose();
+    _tanggalAcaraController.dispose();
+    _tempatKegiatanController.dispose();
+    super.dispose();
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('dd MMMM yyyy').format(date);
+  }
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
@@ -32,48 +90,106 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
+      locale: const Locale('id', 'ID'),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Color.fromARGB(255, 5, 167, 170),
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+    
     if (picked != null) {
       setState(() {
-        controller.text = DateFormat('dd-MM-yyyy').format(picked);
+        controller.text = DateFormat('dd MMMM yyyy').format(picked);
       });
     }
   }
 
-  void _saveKegiatan() {
-    if (_formKey.currentState!.validate()) {
-      final newKegiatan = {
-        'nama_kegiatan': _namaKegiatanController.text,
-        'jenis_kegiatan': _selectedJenisKegiatan,
-        'deskripsi': _deskripsiController.text,
-        'tanggal_mulai': _tanggalMulaiController.text,
-        'tanggal_selesai': _tanggalSelesaiController.text,
-        'tanggal_acara': _tanggalAcaraController.text,
-        'anggota': anggotaList,
-      };
-      print(newKegiatan);
+  void _addAnggota() {
+    if (dosenList.isEmpty || jabatanList.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Data dosen atau jabatan belum tersedia')),
+      );
+      return;
+    }
+
+    setState(() {
+      anggotaList.add(AnggotaModel(
+        idUser: dosenList.first.idUser,
+        idJabatanKegiatan: jabatanList.first.idJabatanKegiatan ?? 0,
+        user: dosenList.first,
+        jabatan: jabatanList.first,
+      ));
+    });
+  }
+
+  void _deleteAnggota(int index) {
+    if (anggotaList.length > 1) {
+      setState(() {
+        anggotaList.removeAt(index);
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Minimal harus ada satu anggota')),
+      );
     }
   }
 
-  void _addAnggota() {
-    setState(() {
-      anggotaList.add({'jabatan': '', 'nama': ''});
-    });
-  }
+  Future<void> _saveKegiatan() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        // Parse tanggal dari format display ke DateTime
+        final DateFormat displayFormat = DateFormat('dd MMMM yyyy');
+        
+        final newKegiatan = KegiatanModel(
+          namaKegiatan: _namaKegiatanController.text,
+          deskripsiKegiatan: _deskripsiController.text,
+          tanggalMulai: displayFormat.parse(_tanggalMulaiController.text),
+          tanggalSelesai: displayFormat.parse(_tanggalSelesaiController.text),
+          tanggalAcara: displayFormat.parse(_tanggalAcaraController.text),
+          tempatKegiatan: _tempatKegiatanController.text,
+          jenisKegiatan: _jenisKegiatan!,
+          progress: 0,
+          anggota: anggotaList,
+        );
 
-  void _removeAnggota(int index) {
-    setState(() {
-      anggotaList.removeAt(index);
-    });
+        final createdKegiatan = await _apiKegiatan.createKegiatan(newKegiatan);
+
+        if (!mounted) return;
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berhasil menambahkan kegiatan')),
+        );
+
+        Navigator.pop(context, createdKegiatan);
+      } catch (e) {
+        print('Error detail: $e'); // Untuk debugging
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menambahkan kegiatan: $e')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         title: Text(
           'Tambah Kegiatan',
           style: GoogleFonts.poppins(
@@ -81,8 +197,8 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
             color: Colors.white,
           ),
         ),
+        backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         centerTitle: true,
-        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -92,150 +208,11 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Card Header
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 5, 167, 170),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Detail Kegiatan',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ),
-                // Card Body
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(12),
-                      bottomRight: Radius.circular(12),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailField('Nama Kegiatan', _namaKegiatanController),
-                      _buildJenisKegiatanField(),
-                      _buildDetailField('Deskripsi Kegiatan', _deskripsiController, isDescription: true),
-                      _buildDateField('Tanggal Mulai', _tanggalMulaiController),
-                      _buildDateField('Tanggal Selesai', _tanggalSelesaiController),
-                      _buildDateField('Tanggal Acara', _tanggalAcaraController),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
-                ),
+                _buildHeaderCard('Detail Kegiatan'),
+                _buildKegiatanForm(),
                 const SizedBox(height: 16),
-                // Card Jabatan and Anggota
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        spreadRadius: 1,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Card Header
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: const BoxDecoration(
-                          color: Color.fromARGB(255, 5, 167, 170),
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(12),
-                            topRight: Radius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          'Jabatan dan Anggota',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      // Card Body
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ..._buildAnggotaFields(),
-                            const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: _addAnggota,
-                                  icon: const Icon(Icons.add, color: Colors.white),
-                                  label: const Text('Tambah', style: TextStyle(color: Colors.white)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                ),
-                                ElevatedButton.icon(
-                                  onPressed: anggotaList.length > 1 ? () => _removeAnggota(anggotaList.length - 1) : null,
-                                  icon: const Icon(Icons.delete, color: Colors.white),
-                                  label: const Text('Hapus', style: TextStyle(color: Colors.white)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            const Divider(),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: _saveKegiatan,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Simpan',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _buildHeaderCard('Daftar Anggota'),
+                _buildAnggotaList(),
               ],
             ),
           ),
@@ -247,182 +224,296 @@ class _TambahKegiatanPageState extends State<TambahKegiatanPage> {
     );
   }
 
-  List<Widget> _buildAnggotaFields() {
-    return List.generate(anggotaList.length, (index) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DropdownButtonFormField<String>(
-              value: jabatanOptions.contains(anggotaList[index]['jabatan']) ? anggotaList[index]['jabatan'] : null,
-              items: jabatanOptions.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  anggotaList[index]['jabatan'] = newValue!;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Jabatan',
-                border: OutlineInputBorder(),
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Mohon pilih jabatan';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String>(
-              value: dosenOptions.contains(anggotaList[index]['nama']) ? anggotaList[index]['nama'] : null,
-              items: dosenOptions.map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (newValue) {
-                setState(() {
-                  anggotaList[index]['nama'] = newValue!;
-                });
-              },
-              decoration: const InputDecoration(
-                labelText: 'Nama Anggota',
-                border: OutlineInputBorder(),
-                isDense: true,
-                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Mohon pilih nama anggota';
-                }
-                return null;
-              },
-            ),
-          ],
+  Widget _buildHeaderCard(String title) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(255, 5, 167, 170),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
         ),
-      );
-    });
+      ),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    );
   }
 
-  Widget _buildDetailField(String title, TextEditingController controller, {bool isDescription = false, Color titleColor = Colors.black}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+  Widget _buildKegiatanForm() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: titleColor,
-              fontSize: 12,
-            ),
+          _buildTextField(
+            'Nama Kegiatan',
+            _namaKegiatanController,
+            validator: (value) => value?.isEmpty ?? true ? 'Nama kegiatan harus diisi' : null,
           ),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: controller,
-            maxLines: isDescription ? 5 : 1,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Mohon isi $title';
-              }
-              return null;
-            },
+          _buildTextField(
+            'Deskripsi Kegiatan',
+            _deskripsiController,
+            maxLines: 3,
+            validator: (value) => value?.isEmpty ?? true ? 'Deskripsi kegiatan harus diisi' : null,
           ),
+          _buildDateField(
+            'Tanggal Mulai',
+            _tanggalMulaiController,
+          ),
+          _buildDateField(
+            'Tanggal Selesai',
+            _tanggalSelesaiController,
+          ),
+          _buildDateField(
+            'Tanggal Acara',
+            _tanggalAcaraController,
+          ),
+          _buildTextField(
+            'Tempat Kegiatan',
+            _tempatKegiatanController,
+            validator: (value) => value?.isEmpty ?? true ? 'Tempat kegiatan harus diisi' : null,
+          ),
+          _buildJenisKegiatanDropdown(),
         ],
       ),
     );
   }
 
-  Widget _buildJenisKegiatanField() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+  Widget _buildAnggotaList() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Jenis Kegiatan',
-            style: GoogleFonts.poppins(
-              color: Colors.black,
-              fontSize: 12,
+          ...anggotaList.asMap().entries.map((entry) => _buildAnggotaItem(entry.key)),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _addAnggota,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('Tambah Anggota', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
-          const SizedBox(height: 4),
-          DropdownButtonFormField<String>(
-            value: _selectedJenisKegiatan,
-            items: <String>['Kegiatan JTI', 'Kegiatan Non-JTI']
-                .map((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+          _buildActionButtons(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnggotaItem(int index) {
+    final anggota = anggotaList[index];
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          DropdownButtonFormField<UserModel>(
+            value: dosenList.firstWhere(
+              (dosen) => dosen.idUser == anggota.idUser,
+              orElse: () => dosenList.first,
+            ),
+            items: dosenList.map((dosen) {
+              return DropdownMenuItem(
+                value: dosen,
+                child: Text(dosen.nama ?? ''),
               );
             }).toList(),
-            onChanged: (newValue) {
-              setState(() {
-                _selectedJenisKegiatan = newValue;
-              });
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  anggotaList[index] = AnggotaModel(
+                    idUser: value.idUser,
+                    idJabatanKegiatan: anggota.idJabatanKegiatan,
+                    user: value,
+                    jabatan: anggota.jabatan,
+                  );
+                });
+              }
             },
             decoration: const InputDecoration(
+              labelText: 'Pilih Dosen',
               border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Mohon pilih jenis kegiatan';
+            validator: (value) => value == null ? 'Dosen harus dipilih' : null,
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<JabatanKegiatan>(
+            value: jabatanList.firstWhere(
+              (jabatan) => jabatan.idJabatanKegiatan == anggota.idJabatanKegiatan,
+              orElse: () => jabatanList.first,
+            ),
+            items: jabatanList.map((jabatan) {
+              return DropdownMenuItem(
+                value: jabatan,
+                child: Text(jabatan.jabatanNama ?? ''),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  anggotaList[index] = AnggotaModel(
+                    idUser: anggota.idUser,
+                    idJabatanKegiatan: value.idJabatanKegiatan ?? 0,
+                    user: anggota.user,
+                    jabatan: value,
+                  );
+                });
               }
-              return null;
             },
+            decoration: const InputDecoration(
+              labelText: 'Pilih Jabatan',
+              border: OutlineInputBorder(),
+            ),
+            validator: (value) => value == null ? 'Jabatan harus dipilih' : null,
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deleteAnggota(index),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDateField(String title, TextEditingController controller) {
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          child: const Text('Batal',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+        const SizedBox(width: 16),
+        ElevatedButton(
+          onPressed: _saveKegiatan,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          child: const Text(
+            'Simpan',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: Colors.black,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: controller,
-            readOnly: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            ),
-            onTap: () => _selectDate(context, controller),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Mohon isi $title';
-              }
-              return null;
-            },
-          ),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        ),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _buildDateField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          suffixIcon: const Icon(Icons.calendar_today),
+        ),
+        onTap: () => _selectDate(context, controller),
+        validator: (value) => value?.isEmpty ?? true ? '$label harus diisi' : null,
+      ),
+    );
+  }
+
+  Widget _buildJenisKegiatanDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<String>(
+        value: _jenisKegiatan,
+        items: const [
+          DropdownMenuItem(value: 'Kegiatan JTI', child: Text('Kegiatan JTI')),
+          DropdownMenuItem(value: 'Kegiatan Non-JTI', child: Text('Kegiatan Non-JTI')),
         ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              _jenisKegiatan = value;
+            });
+          }
+        },
+        decoration: const InputDecoration(
+          labelText: 'Jenis Kegiatan',
+          border: OutlineInputBorder(),
+        ),
+        validator: (value) => value == null ? 'Jenis kegiatan harus dipilih' : null,
       ),
     );
   }

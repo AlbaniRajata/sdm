@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
+import 'package:sdm/models/admin/kegiatan_model.dart';
+import 'package:sdm/models/admin/anggota_model.dart';
+import 'package:sdm/models/admin/user_model.dart';
+import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
+import 'package:sdm/services/admin/api_kegiatan.dart';
 
 class EditKegiatanPage extends StatefulWidget {
-  final Map<String, String> kegiatan;
+  final KegiatanModel kegiatan;
 
   const EditKegiatanPage({super.key, required this.kegiatan});
 
@@ -14,65 +19,167 @@ class EditKegiatanPage extends StatefulWidget {
 
 class EditKegiatanPageState extends State<EditKegiatanPage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _titleController;
+  final ApiKegiatan _apiKegiatan = ApiKegiatan();
+  
+  late TextEditingController _namaKegiatanController;
   late TextEditingController _deskripsiController;
   late TextEditingController _tanggalMulaiController;
   late TextEditingController _tanggalSelesaiController;
-  late TextEditingController _ketuaController;
-  late TextEditingController _jenisController;
+  late TextEditingController _tanggalAcaraController;
+  late TextEditingController _tempatKegiatanController;
+  late String _jenisKegiatan;
+  
+  List<AnggotaModel> anggotaList = [];
+  List<UserModel> dosenList = [];
+  List<JabatanKegiatan> jabatanList = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(text: widget.kegiatan['title']);
-    _deskripsiController = TextEditingController(text: widget.kegiatan['deskripsi']);
-    _tanggalMulaiController = TextEditingController(text: widget.kegiatan['tanggal_mulai']);
-    _tanggalSelesaiController = TextEditingController(text: widget.kegiatan['tanggal_selesai']);
-    _ketuaController = TextEditingController(text: widget.kegiatan['ketua']);
-    _jenisController = TextEditingController(text: widget.kegiatan['jenis']);
+    _initializeControllers();
+    _loadInitialData();
+  }
+
+  void _initializeControllers() {
+    final DateFormat displayFormat = DateFormat('dd MMMM yyyy');
+    
+    _namaKegiatanController = TextEditingController(text: widget.kegiatan.namaKegiatan);
+    _deskripsiController = TextEditingController(text: widget.kegiatan.deskripsiKegiatan);
+    _tanggalMulaiController = TextEditingController(text: displayFormat.format(widget.kegiatan.tanggalMulai));
+    _tanggalSelesaiController = TextEditingController(text: displayFormat.format(widget.kegiatan.tanggalSelesai));
+    _tanggalAcaraController = TextEditingController(text: displayFormat.format(widget.kegiatan.tanggalAcara));
+    _tempatKegiatanController = TextEditingController(text: widget.kegiatan.tempatKegiatan);
+    _jenisKegiatan = widget.kegiatan.jenisKegiatan;
+    anggotaList = List.from(widget.kegiatan.anggota);
+  }
+
+  Future<void> _loadInitialData() async {
+    setState(() => isLoading = true);
+    try {
+      final dosens = await _apiKegiatan.getDosen();
+      final jabatans = await _apiKegiatan.getJabatan();
+
+      setState(() {
+        dosenList = dosens;
+        jabatanList = jabatans;
+        isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error mengambil data: $e')),
+      );
+      setState(() => isLoading = false);
+    }
   }
 
   @override
   void dispose() {
-    _titleController.dispose();
+    _namaKegiatanController.dispose();
     _deskripsiController.dispose();
     _tanggalMulaiController.dispose();
     _tanggalSelesaiController.dispose();
-    _ketuaController.dispose();
-    _jenisController.dispose();
+    _tanggalAcaraController.dispose();
+    _tempatKegiatanController.dispose();
     super.dispose();
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('dd MMMM yyyy').format(date);
   }
 
   Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.parse(controller.text),
+      initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
+      locale: const Locale('id', 'ID'),
     );
-    if (picked != null && picked != DateTime.parse(controller.text)) {
+    if (picked != null) {
       setState(() {
-        controller.text = DateFormat('yyyy-MM-dd').format(picked);
+        controller.text = DateFormat('dd MMMM yyyy').format(picked);
       });
     }
   }
 
-  void _saveChanges() {
-    if (_formKey.currentState!.validate()) {
-      Navigator.pop(context, {
-        'title': _titleController.text,
-        'deskripsi': _deskripsiController.text,
-        'tanggal_mulai': _tanggalMulaiController.text,
-        'tanggal_selesai': _tanggalSelesaiController.text,
-        'ketua': _ketuaController.text,
-        'jenis': _jenisController.text,
+  void _addAnggota() {
+    if (dosenList.isEmpty || jabatanList.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Data dosen atau jabatan belum tersedia')),
+      );
+      return;
+    }
+
+    setState(() {
+      anggotaList.add(AnggotaModel(
+        idUser: dosenList.first.idUser,
+        idJabatanKegiatan: jabatanList.first.idJabatanKegiatan!,
+        user: dosenList.first,
+        jabatan: jabatanList.first,
+      ));
+    });
+  }
+
+  void _deleteAnggota(int index) {
+    if (anggotaList.length > 1) {
+      setState(() {
+        anggotaList.removeAt(index);
       });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Minimal harus ada satu anggota')),
+      );
+    }
+  }
+
+  Future<void> _saveChanges() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final DateFormat apiFormat = DateFormat('dd MMMM yyyy');
+        
+        final updatedKegiatan = KegiatanModel(
+          idKegiatan: widget.kegiatan.idKegiatan,
+          namaKegiatan: _namaKegiatanController.text,
+          deskripsiKegiatan: _deskripsiController.text,
+          tanggalMulai: apiFormat.parse(_tanggalMulaiController.text),
+          tanggalSelesai: apiFormat.parse(_tanggalSelesaiController.text),
+          tanggalAcara: apiFormat.parse(_tanggalAcaraController.text),
+          tempatKegiatan: _tempatKegiatanController.text,
+          jenisKegiatan: _jenisKegiatan,
+          progress: widget.kegiatan.progress,
+          anggota: anggotaList,
+        );
+
+        final savedKegiatan = await _apiKegiatan.updateKegiatan(
+          widget.kegiatan.idKegiatan!, 
+          updatedKegiatan,
+        );
+
+        if (!mounted) return;
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Berhasil menyimpan perubahan')),
+        );
+
+        Navigator.pop(context, savedKegiatan);
+      } catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal menyimpan perubahan: $e')),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -83,9 +190,7 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
-            fontSize: screenWidth * 0.05,
           ),
-          textAlign: TextAlign.center,
         ),
         backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         centerTitle: true,
@@ -93,100 +198,19 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Card Header
-              Container(
-                height: 40,
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 5, 167, 170),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Edit Kegiatan',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth < 500 ? 14.0 : 16.0,
-                  ),
-                ),
-              ),
-              // Card Body
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildDetailField('Judul Kegiatan', _titleController),
-                      _buildDetailField('Deskripsi Kegiatan', _deskripsiController, isDescription: true),
-                      _buildDateField('Tanggal Mulai', _tanggalMulaiController),
-                      _buildDateField('Tanggal Selesai', _tanggalSelesaiController),
-                      _buildDetailField('Nama Ketua Pelaksana', _ketuaController),
-                      _buildDetailField('Jenis Kegiatan', _jenisController),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'Kembali',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: _saveChanges,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4.0),
-                              ),
-                            ),
-                            child: const Text(
-                              'Simpan',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderCard('Detail Kegiatan'),
+                _buildKegiatanForm(),
+                const SizedBox(height: 16),
+                _buildHeaderCard('Daftar Anggota'),
+                _buildAnggotaList(),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
@@ -196,71 +220,293 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
     );
   }
 
-  Widget _buildDetailField(String title, TextEditingController controller, {bool isDescription = false, Color titleColor = Colors.black}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+  Widget _buildHeaderCard(String title) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(255, 5, 167, 170),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
+      ),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildKegiatanForm() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: titleColor,
-              fontSize: 12,
+          _buildTextField(
+            'Nama Kegiatan',
+            _namaKegiatanController,
+            validator: (value) => value?.isEmpty ?? true ? 'Nama kegiatan harus diisi' : null,
+          ),
+          _buildTextField(
+            'Deskripsi Kegiatan',
+            _deskripsiController,
+            maxLines: 3,
+            validator: (value) => value?.isEmpty ?? true ? 'Deskripsi kegiatan harus diisi' : null,
+          ),
+          _buildDateField(
+            'Tanggal Mulai',
+            _tanggalMulaiController,
+          ),
+          _buildDateField(
+            'Tanggal Selesai',
+            _tanggalSelesaiController,
+          ),
+          _buildDateField(
+            'Tanggal Acara',
+            _tanggalAcaraController,
+          ),
+          _buildTextField(
+            'Tempat Kegiatan',
+            _tempatKegiatanController,
+            validator: (value) => value?.isEmpty ?? true ? 'Tempat kegiatan harus diisi' : null,
+          ),
+          _buildJenisKegiatanDropdown(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnggotaList() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          ...anggotaList.asMap().entries.map((entry) => _buildAnggotaItem(entry.key)),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _addAnggota,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('Tambah Anggota', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: controller,
-            maxLines: isDescription ? 5 : 1,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+          _buildActionButtons(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnggotaItem(int index) {
+    final anggota = anggotaList[index];
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          DropdownButtonFormField<UserModel>(
+            value: dosenList.firstWhere(
+              (dosen) => dosen.idUser == anggota.idUser,
+              orElse: () => dosenList.first,
             ),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Mohon isi $title';
+            items: dosenList.map((dosen) {
+              return DropdownMenuItem(
+                value: dosen,
+                child: Text(dosen.nama ?? ''),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  anggotaList[index] = AnggotaModel(
+                    idUser: value.idUser,
+                    idJabatanKegiatan: anggota.idJabatanKegiatan,
+                    user: value,
+                    jabatan: anggota.jabatan,
+                  );
+                });
               }
-              return null;
             },
+            decoration: const InputDecoration(
+              labelText: 'Pilih Dosen',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<JabatanKegiatan>(
+            value: jabatanList.firstWhere(
+              (jabatan) => jabatan.idJabatanKegiatan == anggota.idJabatanKegiatan,
+              orElse: () => jabatanList.first,
+            ),
+            items: jabatanList.map((jabatan) {
+              return DropdownMenuItem(
+                value: jabatan,
+                child: Text(jabatan.jabatanNama ?? ''),
+              );
+            }).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() {
+                  anggotaList[index] = AnggotaModel(
+                    idUser: anggota.idUser,
+                    idJabatanKegiatan: value.idJabatanKegiatan!,
+                    user: anggota.user,
+                    jabatan: value,
+                  );
+                });
+              }
+            },
+            decoration: const InputDecoration(
+              labelText: 'Pilih Jabatan',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deleteAnggota(index),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDateField(String title, TextEditingController controller) {
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.red,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          child: const Text('Batal',
+            style: TextStyle(color: Colors.white)
+          ),
+        ),
+        const SizedBox(width: 16),
+        ElevatedButton(
+          onPressed: _saveChanges,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+          ),
+          child: const Text('Simpan',
+            style: TextStyle(color: Colors.white)
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+    String? Function(String?)? validator,
+  }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: Colors.black,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 4),
-          TextFormField(
-            controller: controller,
-            readOnly: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            ),
-            onTap: () => _selectDate(context, controller),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Mohon isi $title';
-              }
-              return null;
-            },
-          ),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        ),
+        validator: validator,
+      ),
+    );
+  }
+
+  Widget _buildDateField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextFormField(
+        controller: controller,
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+          suffixIcon: const Icon(Icons.calendar_today),
+        ),
+        onTap: () => _selectDate(context, controller),
+        validator: (value) => value?.isEmpty ?? true ? '$label harus diisi' : null,
+      ),
+    );
+  }
+
+  Widget _buildJenisKegiatanDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: DropdownButtonFormField<String>(
+        value: _jenisKegiatan,
+        items: const [
+          DropdownMenuItem(value: 'Kegiatan JTI', child: Text('Kegiatan JTI')),
+          DropdownMenuItem(value: 'Kegiatan Non-JTI', child: Text('Kegiatan Non-JTI')),
         ],
+        onChanged: (value) {
+          if (value != null) {
+            setState(() {
+              _jenisKegiatan = value;
+            });
+          }
+        },
+        decoration: const InputDecoration(
+          labelText: 'Jenis Kegiatan',
+          border: OutlineInputBorder(),
+        ),
+        validator: (value) => value == null ? 'Jenis kegiatan harus dipilih' : null,
       ),
     );
   }

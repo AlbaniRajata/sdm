@@ -1,6 +1,6 @@
 class JabatanKegiatan {
   final int? idJabatanKegiatan;
-  final String jabatanNama;
+  String jabatanNama;
   final double poin;
   final String? createdAt;
   final String? updatedAt;
