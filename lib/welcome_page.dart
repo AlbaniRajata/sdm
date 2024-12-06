@@ -11,200 +11,137 @@ class WelcomePage extends StatefulWidget {
   State<WelcomePage> createState() => _WelcomePageState();
 }
 
-class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStateMixin {
-  bool _showFirstPage = true;
-  bool _showSecondPage = false;
-  bool _showThirdPage = false;
-  late AnimationController _controller;
+class _WelcomePageState extends State<WelcomePage> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
   int _selectedRole = -1;
 
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-  }
+  final List<Map<String, dynamic>> _pageData = [
+    {
+      'image': 'assets/images/WS2.png',
+      'title': 'Selamat Datang, Mari Kita Mulai!',
+      'subtitle': 'Ciptakan solusi inovatif dan kelola sumber\ndaya manusia secara efisien dalam satu platform.',
+    },
+    {
+      'image': 'assets/images/WS1.png',
+      'title': 'Tingkatkan Kinerja, Raih Kesuksesan',
+      'subtitle': 'Mengelola kegiatan anda kini lebih mudah.\nBersiaplah untuk mencapai target lebih tinggi.',
+    },
+    {
+      'image': 'assets/images/WS3.png',
+      'title': 'Apa Peran Anda Disini?',
+      'subtitle': 'Pilih salah satu untuk masuk ke sistem',
+    },
+  ];
+
+  final List<Widget> _loginPages = [
+    const LoginAdminPage(),
+    const LogindosenPage(),
+    const LoginpimpinanPage(),
+  ];
 
   @override
   void dispose() {
-    _controller.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
-  void _goForward() {
-    setState(() {
-      if (_showFirstPage) {
-        _showFirstPage = false;
-        _showSecondPage = true;
-      } else if (_showSecondPage) {
-        _showSecondPage = false;
-        _showThirdPage = true;
-      }
-      _controller.forward();
-    });
-  }
-
-  void _goBackward() {
-    setState(() {
-      if (_showThirdPage) {
-        _showThirdPage = false;
-        _showSecondPage = true;
-      } else if (_showSecondPage) {
-        _showSecondPage = false;
-        _showFirstPage = true;
-      }
-      _controller.forward();
-    });
-  }
-
   void _navigateToLoginPage() {
-    if (_selectedRole == -1) {
-      _showErrorNotification();
-    } else {
-      if (_selectedRole == 0) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginadminPage()),
-        );
-      } else if (_selectedRole == 1) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LogindosenPage()),
-        );
-      } else if (_selectedRole == 2) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginpimpinanPage()),
-        );
-      }
-    }
-  }
-
-  void _showErrorNotification() {
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            color: Colors.red,
-            padding: const EdgeInsets.all(12),
-            child: SafeArea(
-              child: Text(
-                'Anda harus memilih peran terlebih dahulu',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
+    if (_currentPage == 2 && _selectedRole == -1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Anda harus memilih peran terlebih dahulu',
+            style: GoogleFonts.poppins(color: Colors.white),
           ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.fixed,
+          margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
+          elevation: 6,
         ),
-      ),
-    );
+      );
+      return;
+    }
 
-    overlay.insert(overlayEntry);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
+    if (_currentPage < 2) {
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => _loginPages[_selectedRole]),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/img-min.png'),
-                fit: BoxFit.cover,
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/images/img-min.png'),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (index) => setState(() => _currentPage = index),
+                itemCount: _pageData.length,
+                itemBuilder: (context, index) => _buildPage(index),
               ),
             ),
-            child: SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.of(context).size.height,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 10),
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      transitionBuilder: (Widget child, Animation<double> animation) {
-                        final slideAnimation = Tween<Offset>(
-                          begin: const Offset(1.0, 0.0),
-                          end: Offset.zero,
-                        ).animate(animation);
-                        return SlideTransition(
-                          position: slideAnimation,
-                          child: child,
-                        );
-                      },
-                      child: _showFirstPage
-                          ? _buildWelcomeContent1()
-                          : _showSecondPage
-                              ? _buildWelcomeContent2()
-                              : _buildWelcomeContent3(),
-                    ),
-                    const SizedBox(height: 30),
-                    if (_showThirdPage) _buildRoleSelector(),
-                    const SizedBox(height: 20),
-                    _buildPageIndicator(),
-                    const SizedBox(height: 15),
-                    SizedBox(
-                      width: 300,
-                      height: 60,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_showFirstPage || _showSecondPage) {
-                            _goForward();
-                          } else if (_showThirdPage) {
-                            _navigateToLoginPage();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 255, 175, 3),
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          _showFirstPage || _showSecondPage ? 'Lanjutkan' : 'Mari Kita Mulai',
-                          style: GoogleFonts.poppins(
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (!_showFirstPage)
-                      TextButton(
-                        onPressed: () {
-                          _goBackward();
-                        },
-                        child: Text(
-                          'Kembali',
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+            if (_currentPage == 2) _buildRoleSelector(),
+            const SizedBox(height: 10),
+            _buildPageIndicator(),
+            const SizedBox(height: 10),
+            _buildNavigationButtons(),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPage(int index) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 80),
+          Image.asset(
+            _pageData[index]['image'],
+            height: 300,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 15),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              _pageData[index]['title'],
+              style: GoogleFonts.poppins(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              _pageData[index]['subtitle'],
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
         ],
@@ -212,153 +149,23 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
     );
   }
 
-  Widget _buildWelcomeContent1() {
-    return Column(
-      key: const ValueKey(1),
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          child: Image.asset(
-            'assets/images/WS2.png',
-            height: 350,
-            fit: BoxFit.contain,
-            key: const ValueKey('WS2'),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Selamat Datang, Mari Kita Mulai!',
-          style: GoogleFonts.poppins(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Ciptakan solusi inovatif dan kelola sumber \n'
-          'daya manusia secara efisien dalam satu platform.',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWelcomeContent2() {
-    return Column(
-      key: const ValueKey(2),
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          child: Image.asset(
-            'assets/images/WS1.png',
-            height: 350,
-            fit: BoxFit.contain,
-            key: const ValueKey('WS1'),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Tingkatkan Kinerja, Raih Kesuksesan',
-          style: GoogleFonts.poppins(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Mengelola kegiatan anda kini lebih mudah.\n'
-          'Bersiaplah untuk mencapai target lebih tinggi.',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildWelcomeContent3() {
-    return Column(
-      key: const ValueKey(3),
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(opacity: animation, child: child);
-          },
-          child: Image.asset(
-            'assets/images/WS3.png',
-            height: 350,
-            fit: BoxFit.contain,
-            key: const ValueKey('WS3'),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Apa Peran Anda Disini?',
-          style: GoogleFonts.poppins(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          'Pilih salah satu untuk masuk ke sistem',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
-
   Widget _buildRoleSelector() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildRoleCircle(0, 'Admin'),
-        const SizedBox(width: 20),
-        _buildRoleCircle(1, 'Dosen'),
-        const SizedBox(width: 20),
-        _buildRoleCircle(2, 'Pimpinan'),
-      ],
+      children: ['Admin', 'Dosen', 'Pimpinan'].asMap().entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: _buildRoleOption(entry.key, entry.value),
+        );
+      }).toList(),
     );
   }
 
-  Widget _buildRoleCircle(int role, String label) {
-    bool isSelected = _selectedRole == role;
+  Widget _buildRoleOption(int index, String label) {
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedRole = role;
-        });
-      },
+      onTap: () => setState(() => _selectedRole = index),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 30,
@@ -367,18 +174,15 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white, width: 2),
             ),
-            child: Center(
-              child: isSelected
-                  ? Container(
-                      width: 20,
-                      height: 20,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                      ),
-                    )
-                  : null,
-            ),
+            child: _selectedRole == index
+                ? Container(
+                    margin: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                  )
+                : null,
           ),
           const SizedBox(height: 5),
           Text(
@@ -397,23 +201,60 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   Widget _buildPageIndicator() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildDot(_showFirstPage),
-        _buildDot(_showSecondPage),
-        _buildDot(_showThirdPage),
-      ],
+      children: List.generate(
+        3,
+        (index) => Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          height: 8,
+          width: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _currentPage == index ? Colors.white : Colors.white54,
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _buildDot(bool isActive) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4.0),
-      height: 8.0,
-      width: 8.0,
-      decoration: BoxDecoration(
-        color: isActive ? Colors.white : Colors.white54,
-        borderRadius: BorderRadius.circular(4.0),
-      ),
+  Widget _buildNavigationButtons() {
+    return Column(
+      children: [
+        SizedBox(
+          width: 300,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: _navigateToLoginPage,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 255, 175, 3),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: Text(
+              _currentPage < 2 ? 'Lanjutkan' : 'Mari Kita Mulai',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+        if (_currentPage > 0)
+          TextButton(
+            onPressed: () => _pageController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            ),
+            child: Text(
+              'Kembali',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

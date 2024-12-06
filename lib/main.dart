@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sdm/welcome_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:sdm/welcome_page.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('id_ID', null); 
-  runApp(const MyApp());
+  initializeDateFormatting('id_ID').then((_) => runApp(const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,7 +18,18 @@ class MyApp extends StatelessWidget {
       title: 'Sistem Manajemen SDM',
       theme: ThemeData(
         fontFamily: 'Poppins',
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('id', 'ID'), // Indonesian
+        Locale('en', 'US'), // English
+      ],
       home: const WelcomePage(),
     );
   }

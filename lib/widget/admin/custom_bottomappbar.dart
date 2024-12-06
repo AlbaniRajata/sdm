@@ -14,42 +14,55 @@ class CustomBottomAppBar extends StatelessWidget {
       shape: const CircularNotchedRectangle(),
       notchMargin: 8.0,
       color: const Color.fromARGB(255, 103, 119, 239),
-      child: Row(
-        children: <Widget>[
-          const Spacer(flex: 2),
-          IconButton(
-            icon: const Icon(Icons.home_rounded, size: 40),
-            color: currentPage == 'home' ? Colors.white : Colors.grey.shade400,
-            onPressed: () {
-              if (currentPage != 'home') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomeadminPage(),
-                  ),
-                );
-              }
-            },
-          ),
-          const Spacer(flex: 5),
-          IconButton(
-            icon: const Icon(Icons.person, size: 40),
-            color: currentPage == 'profile' ? Colors.white : Colors.grey.shade400,
-            onPressed: () {
-              if (currentPage != 'profile') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileadminPage(),
-                  ),
-                );
-              }
-            },
-          ),
-          const Spacer(flex: 2),
-        ],
+      child: SizedBox(
+        height: 60,
+        child: Row(
+          children: <Widget>[
+            const Spacer(flex: 2),
+            _buildNavButton(
+              context: context,
+              icon: Icons.home_rounded,
+              isSelected: currentPage == 'home',
+              onPressed: () => _navigateToPage(context, 'home'),
+            ),
+            const Spacer(flex: 5),
+            _buildNavButton(
+              context: context,
+              icon: Icons.person,
+              isSelected: currentPage == 'profile',
+              onPressed: () => _navigateToPage(context, 'profile'),
+            ),
+            const Spacer(flex: 2),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget _buildNavButton({
+    required BuildContext context,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onPressed,
+  }) {
+    return IconButton(
+      icon: Icon(icon, size: 30),
+      color: isSelected ? Colors.white : Colors.grey.shade400,
+      onPressed: onPressed,
+    );
+  }
+
+  void _navigateToPage(BuildContext context, String page) {
+    if (currentPage != page) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => page == 'home' 
+            ? const HomeAdminPage()
+            : const ProfileAdminPage(),
+        ),
+      );
+    }
   }
 
   Widget buildFloatingActionButton(BuildContext context) {
@@ -64,11 +77,9 @@ class CustomBottomAppBar extends StatelessWidget {
       },
       backgroundColor: Colors.transparent,
       elevation: 0,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
       child: Container(
-        width: 75,
-        height: 75,
+        width: 60,
+        height: 60,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           gradient: const LinearGradient(
@@ -79,9 +90,9 @@ class CustomBottomAppBar extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2),
-              spreadRadius: 3,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+              spreadRadius: 2,
+              blurRadius: 4,
+              offset: const Offset(0, 2),
             ),
           ],
         ),

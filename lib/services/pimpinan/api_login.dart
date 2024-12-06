@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sdm/models/pimpinan/user.dart';
 
 class ApiLogin {
-  final String _baseUrl = 'http://192.168.65.64:8000/api';
+  final String _baseUrl = 'http://192.168.249.67:8000/api';
 
   Future<String> login(User user) async {
     final String apiUrl = '$_baseUrl/login';
