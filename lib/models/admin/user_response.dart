@@ -23,17 +23,17 @@ class UserResponse {
 
   bool get isSuccess => status.toLowerCase() == 'success';
 
-  List<User> getUserList() {
+  List<UserModel> getUserList() {
     try {
       if (data == null) return [];
       
       if (data is List) {
-        return List<User>.from(
+        return List<UserModel>.from(
           (data as List).map((item) {
             if (item is Map<String, dynamic>) {
-              return User.fromJson(item);
+              return UserModel.fromJson(item);
             }
-            return User(
+            return UserModel(
               idUser: 0,
               username: '',
               nama: '',
@@ -47,7 +47,7 @@ class UserResponse {
       }
       
       if (data is Map<String, dynamic>) {
-        return [User.fromJson(data)];
+        return [UserModel.fromJson(data)];
       }
       
       return [];

@@ -1,7 +1,5 @@
 // lib/models/user/user.dart
-import 'package:flutter/foundation.dart';
-
-class User {
+class UserModel {
   final int idUser;
   final String username;
   final String nama;
@@ -10,7 +8,7 @@ class User {
   final String nip;
   final String level;
 
-  User({
+  UserModel({
     required this.idUser,
     required this.username,
     required this.nama,
@@ -20,29 +18,16 @@ class User {
     required this.level,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    try {
-      return User(
-        idUser: json['id_user'] is int ? json['id_user'] : int.tryParse(json['id_user'].toString()) ?? 0,
-        username: json['username']?.toString() ?? '',
-        nama: json['nama']?.toString() ?? '',
-        tanggalLahir: DateTime.tryParse(json['tanggal_lahir']?.toString() ?? '') ?? DateTime.now(),
-        email: json['email']?.toString() ?? '',
-        nip: json['NIP']?.toString() ?? '',
-        level: json['level']?.toString().toLowerCase() ?? 'user',
-      );
-    } catch (e) {
-      debugPrint('Error parsing User: $e');
-      return User(
-        idUser: 0,
-        username: '',
-        nama: '',
-        tanggalLahir: DateTime.now(),
-        email: '',
-        nip: '',
-        level: 'user',
-      );
-    }
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      idUser: json['id_user'],
+      username: json['username'],
+      nama: json['nama'],
+      tanggalLahir: DateTime.parse(json['tanggal_lahir']),
+      email: json['email'],
+      nip: json['NIP'],
+      level: json['level'],
+    );
   }
 
   Map<String, dynamic> toJson() => {
