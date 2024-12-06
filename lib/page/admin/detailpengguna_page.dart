@@ -6,7 +6,7 @@ import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 
 class DetailPenggunaPage extends StatefulWidget {
-  final User user;
+  final UserModel user;
 
   const DetailPenggunaPage({super.key, required this.user});
 
@@ -17,7 +17,7 @@ class DetailPenggunaPage extends StatefulWidget {
 class DetailPenggunaPageState extends State<DetailPenggunaPage> {
   final ApiUserAdmin _apiService = ApiUserAdmin();
   bool isLoading = true;
-  late User userData;
+  late UserModel userData;
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class DetailPenggunaPageState extends State<DetailPenggunaPage> {
       final response = await _apiService.getUserDetail(widget.user.idUser);
       if (response.isSuccess) {
         setState(() {
-          userData = User.fromJson(response.data);
+          userData = UserModel.fromJson(response.data);
           isLoading = false;
         });
       }

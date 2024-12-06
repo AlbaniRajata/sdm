@@ -19,8 +19,8 @@ class DaftarPenggunaPage extends StatefulWidget {
 class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   final TextEditingController _searchController = TextEditingController();
   final ApiUserAdmin _apiService = ApiUserAdmin();
-  List<User> userList = [];
-  List<User> filteredUserList = [];
+  List<UserModel> userList = [];
+  List<UserModel> filteredUserList = [];
   PenggunaSortOption selectedSortOption = PenggunaSortOption.abjadAZ;
   bool isLoading = false;
 
@@ -223,7 +223,7 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
   }
 
   Widget _buildPenggunaCard(
-      BuildContext context, User user, double screenWidth) {
+    BuildContext context, UserModel user, double screenWidth) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
 
     return Container(

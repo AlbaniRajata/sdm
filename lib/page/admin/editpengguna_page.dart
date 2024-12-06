@@ -6,7 +6,7 @@ import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 
 class EditPenggunaPage extends StatefulWidget {
-  final User user;
+  final UserModel user;
 
   const EditPenggunaPage({super.key, required this.user});
 
