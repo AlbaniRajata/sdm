@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/dosen/statistik_data.dart';
+import 'package:sdm/services/dosen/api_statistik.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:sdm/widget/dosen/sort_option.dart';
 import 'package:sdm/widget/dosen/custom_filter.dart';
@@ -13,47 +15,40 @@ class StatistikPage extends StatefulWidget {
 
 class StatistikPageState extends State<StatistikPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> kegiatanList = [
-    {
-      'title': 'Seminar Nasional',
-      'jabatan': 'PIC',
-      'poin': '10',
-      'tanggalMulai': '2022-03-01'
-    },
-    {
-      'title': 'Kuliah Tamu',
-      'jabatan': 'PIC',
-      'poin': '8',
-      'tanggalMulai': '2022-03-01'
-    },
-    {
-      'title': 'Workshop Teknologi',
-      'jabatan': 'Anggota',
-      'poin': '5',
-      'tanggalMulai': '2022-04-10'
-    },
-    {
-      'title': 'Lokakarya Nasional',
-      'jabatan': 'Anggota',
-      'poin': '3',
-      'tanggalMulai': '2022-05-18'
-    },
-  ];
-  List<Map<String, String>> filteredKegiatanList = [];
+  List<StatistikItem> kegiatanList = [];
+  List<StatistikItem> filteredKegiatanList = [];
   SortOption selectedSortOption = SortOption.abjadAZ;
+  double totalPoin = 0.0;
 
   @override
   void initState() {
     super.initState();
-    filteredKegiatanList = kegiatanList;
+    _fetchStatistikDosen();
     _searchController.addListener(_searchKegiatan);
+  }
+
+  Future<void> _fetchStatistikDosen() async {
+    try {
+      final apiStatistik = ApiStatistik();
+      final statistikModel = await apiStatistik.getStatistikDosen();
+
+      setState(() {
+        kegiatanList = statistikModel.statistik ?? [];
+        filteredKegiatanList = kegiatanList;
+        totalPoin = statistikModel.totalPoin ?? 0.0;
+      });
+    } catch (e) {
+      // Handle error
+      print('Error: $e');
+      // Show error message to the user or perform any necessary action
+    }
   }
 
   void _searchKegiatan() {
     setState(() {
       filteredKegiatanList = kegiatanList.where((kegiatan) {
         final searchLower = _searchController.text.toLowerCase();
-        final titleLower = kegiatan['title']!.toLowerCase();
+        final titleLower = kegiatan.namaKegiatan?.toLowerCase() ?? '';
         return titleLower.contains(searchLower);
       }).toList();
     });
@@ -64,28 +59,26 @@ class StatistikPageState extends State<StatistikPage> {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case SortOption.abjadAZ:
-          filteredKegiatanList
-              .sort((a, b) => a['title']!.compareTo(b['title']!));
+          filteredKegiatanList.sort((a, b) =>
+              (a.namaKegiatan ?? '').compareTo(b.namaKegiatan ?? ''));
           break;
         case SortOption.abjadZA:
-          filteredKegiatanList
-              .sort((a, b) => b['title']!.compareTo(a['title']!));
+          filteredKegiatanList.sort((a, b) =>
+              (b.namaKegiatan ?? '').compareTo(a.namaKegiatan ?? ''));
           break;
         case SortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggalMulai']!)
-              .compareTo(DateTime.parse(b['tanggalMulai']!)));
+          filteredKegiatanList.sort((a, b) => (a.tanggalAcara ?? '')
+              .compareTo(b.tanggalAcara ?? ''));
           break;
         case SortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggalMulai']!)
-              .compareTo(DateTime.parse(a['tanggalMulai']!)));
+          filteredKegiatanList.sort((a, b) => (b.tanggalAcara ?? '')
+              .compareTo(a.tanggalAcara ?? ''));
           break;
         case SortOption.poinTerbanyak:
-          filteredKegiatanList.sort(
-              (a, b) => int.parse(b['poin']!).compareTo(int.parse(a['poin']!)));
+          filteredKegiatanList.sort((a, b) => (b.poin ?? 0).compareTo(a.poin ?? 0));
           break;
         case SortOption.poinTersedikit:
-          filteredKegiatanList.sort(
-              (a, b) => int.parse(a['poin']!).compareTo(int.parse(b['poin']!)));
+          filteredKegiatanList.sort((a, b) => (a.poin ?? 0).compareTo(b.poin ?? 0));
           break;
         default:
           break;
@@ -130,20 +123,31 @@ class StatistikPageState extends State<StatistikPage> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                children: filteredKegiatanList.map((kegiatan) {
-                  return Column(
-                    children: [
-                      _buildKegiatanCard(
-                        context,
-                        title: kegiatan['title']!,
-                        jabatan: kegiatan['jabatan']!,
-                        poin: kegiatan['poin']!,
-                        tanggalMulai: kegiatan['tanggalMulai']!,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                }).toList(),
+                children: [
+                  Text(
+                    'Total Poin: $totalPoin',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ...filteredKegiatanList.map((kegiatan) {
+                    return Column(
+                      children: [
+                        _buildKegiatanCard(
+                          context,
+                          title: kegiatan.namaKegiatan ?? '',
+                          jabatan: kegiatan.jabatan ?? '',
+                          poin: kegiatan.poin ?? 0.0,
+                          tanggalMulai: kegiatan.tanggalAcara ?? '',
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    );
+                  }).toList(),
+                ],
               ),
             ),
           ),
@@ -160,7 +164,7 @@ class StatistikPageState extends State<StatistikPage> {
     BuildContext context, {
     required String title,
     required String jabatan,
-    required String poin,
+    required double poin,
     required String tanggalMulai,
   }) {
     return Container(
@@ -184,7 +188,7 @@ class StatistikPageState extends State<StatistikPage> {
           // Header Card
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            width: double.infinity, // Menyesuaikan dengan lebar layar
+            width: double.infinity,
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
               borderRadius: BorderRadius.only(

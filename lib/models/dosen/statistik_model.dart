@@ -1,19 +1,27 @@
-class StatistikDosen {
-  final String nama;
-  final int totalKegiatan;
-  final double totalPoin;
+import 'package:sdm/models/dosen/statistik_data.dart';
 
-  StatistikDosen({
-    required this.nama,
-    required this.totalKegiatan,
-    required this.totalPoin,
-  });
+class StatistikModel {
+  List<StatistikItem>? statistik;
+  double? totalPoin;
 
-  factory StatistikDosen.fromJson(Map<String, dynamic> json) {
-    return StatistikDosen(
-      nama: json['nama'] ?? '',
-      totalKegiatan: json['total_kegiatan'] ?? 0,
-      totalPoin: double.tryParse(json['total_poin'].toString()) ?? 0.0,
-    );
+  StatistikModel({this.statistik, this.totalPoin});
+
+  StatistikModel.fromJson(Map<String, dynamic> json) {
+    if (json['statistik'] != null) {
+      statistik = <StatistikItem>[];
+      json['statistik'].forEach((v) {
+        statistik!.add(StatistikItem.fromJson(v));
+      });
+    }
+    totalPoin = double.tryParse(json['total_poin'].toString()) ?? 0.0;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (statistik != null) {
+      data['statistik'] = statistik!.map((v) => v.toJson()).toList();
+    }
+    data['total_poin'] = totalPoin;
+    return data;
   }
 }
