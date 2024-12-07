@@ -1,29 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
-import 'package:intl/intl.dart';
+import 'package:sdm/page/dosen/daftarkegiatan_page.dart';
+import 'package:sdm/models/dosen/kegiatan_model.dart';
 
 class DetailKegiatanPage extends StatefulWidget {
-  final Map<String, String> kegiatan;
+  final int idKegiatan;
 
-  const DetailKegiatanPage({super.key, required this.kegiatan});
+  const DetailKegiatanPage({super.key, required this.idKegiatan});
 
   @override
   DetailKegiatanPageState createState() => DetailKegiatanPageState();
 }
 
 class DetailKegiatanPageState extends State<DetailKegiatanPage> {
-  String _formatDate(String date) {
-    final DateTime parsedDate = DateFormat('dd-MM-yyyy').parse(date);
-    final DateFormat formatter = DateFormat('dd-MM-yyyy');
-    return formatter.format(parsedDate);
+  final ApiKegiatan _apiKegiatan = ApiKegiatan(); // Replace with actual token
+  bool isLoading = true;
+  String? error;
+  KegiatanModel? kegiatan;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadKegiatanDetail();
+  }
+
+  Future<void> _loadKegiatanDetail() async {
+    try {
+      setState(() {
+        isLoading = true;
+        error = null;
+      });
+      
+      final data = await _apiKegiatan.getKegiatanDetail(widget.idKegiatan);
+      setState(() {
+        kegiatan = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final kegiatan = widget.kegiatan;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -39,108 +63,104 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Card Header
-              Container(
-                height: 40,
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: const BoxDecoration(
-                  color: Color.fromARGB(255, 5, 167, 170),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Detail Kegiatan',
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16.0,
-                  ),
-                ),
-              ),
-              // Card Body
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(12),
-                    bottomRight: Radius.circular(12),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      spreadRadius: 1,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    _buildDetailField('Judul Kegiatan', kegiatan['title']!),
-                    _buildDetailField('Deskripsi Kegiatan', kegiatan['deskripsi'] ?? 'Deskripsi kegiatan belum tersedia', isDescription: true),
-                    _buildDetailField('Tanggal Mulai', _formatDate(kegiatan['tanggal_mulai'] ?? '01-01-1970')),
-                    _buildDetailField('Tanggal Acara', _formatDate(kegiatan['tanggal_acara'] ?? '01-01-1970')),
-                    _buildDetailField('Tanggal Selesai', _formatDate(kegiatan['tanggal_selesai'] ?? '01-01-1970')),
-                    const SizedBox(height: 16.0),
-                    Text(
-                      'File Pendukung',
-                      style: GoogleFonts.poppins(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 8.0),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Nama File',
-                      ),
-                      readOnly: true,
-                    ),
-                    const SizedBox(height: 16.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : error != null
+              ? Center(child: Text(error!))
+              : SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => const DaftarKegiatanNonJTIPage()),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.orange,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0),
+                        // Card Header
+                        Container(
+                          height: 40,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 5, 167, 170),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
                             ),
                           ),
-                          child: const Text(
-                            'Kembali',
-                            style: TextStyle(color: Colors.white),
+                          child: Text(
+                            'Detail Kegiatan',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
+                        // Card Body
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 8),
+                              _buildDetailField('Nama Kegiatan', kegiatan!.namaKegiatan),
+                              _buildDetailField('Deskripsi Kegiatan', 
+                                kegiatan!.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia',
+                                isDescription: true),
+                              _buildDetailField('Tanggal Mulai', kegiatan!.tanggalMulai),
+                              _buildDetailField('Tanggal Selesai', kegiatan!.tanggalSelesai),
+                              _buildDetailField('Tanggal Acara', kegiatan!.tanggalAcara),
+                              _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
+                              _buildDetailField('Jenis Kegiatan', kegiatan!.jenisKegiatan),
+                              const SizedBox(height: 16.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const DaftarKegiatanPage(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4.0),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'Kembali',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
