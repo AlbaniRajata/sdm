@@ -148,7 +148,7 @@ class ProfiledosenPage extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LogindosenPage(),
+                  builder: (context) => const LoginDosenPage(),
                 ),
               );
             },

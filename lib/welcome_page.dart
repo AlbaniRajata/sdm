@@ -71,7 +71,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
       } else if (_selectedRole == 1) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const LogindosenPage()),
+          MaterialPageRoute(builder: (context) => const LoginDosenPage()),
         );
       } else if (_selectedRole == 2) {
         Navigator.push(

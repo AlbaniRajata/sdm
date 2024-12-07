@@ -138,12 +138,12 @@ class ProfilepicPage extends StatelessWidget {
             ),
             trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
             onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HomedosenPage(),
-                ),
-              );
+              // Navigator.pushReplacement(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => const HomeDosenPage(),
+              //   ),
+              // );
             },
           ),
           const SizedBox(height: 10),
@@ -168,7 +168,7 @@ class ProfilepicPage extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LogindosenPage(),
+                  builder: (context) => const LoginDosenPage(),
                 ),
               );
             },
