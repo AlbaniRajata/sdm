@@ -1,12 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/page/admin/loginadmin_page.dart';
 import 'package:sdm/page/admin/editprofile_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
-class ProfileAdminPage extends StatelessWidget {
+class ProfileAdminPage extends StatefulWidget {
   const ProfileAdminPage({super.key});
+
+  @override
+  State<ProfileAdminPage> createState() => _ProfileAdminPageState();
+}
+
+class _ProfileAdminPageState extends State<ProfileAdminPage> {
+  UserModel? userData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userString = prefs.getString('user_data');
+      if (userString != null) {
+        setState(() {
+          userData = UserModel.fromJson(json.decode(userString));
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading user data: $e');
+      setState(() => isLoading = false);
+    }
+  }
 
   Future<void> _handleLogout(BuildContext context) async {
     final prefs = await SharedPreferences.getInstance();
@@ -23,6 +55,12 @@ class ProfileAdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -76,21 +114,17 @@ class ProfileAdminPage extends StatelessWidget {
               width: 2,
             ),
           ),
-          child: const CircleAvatar(
-            radius: 48,
-            backgroundImage: AssetImage('assets/images/pp.png'),
-          ),
         ),
         const SizedBox(height: 15),
         Text(
-          'Albani Rajata Malik',
+          userData?.nama ?? 'Loading...',
           style: GoogleFonts.poppins(
             fontSize: screenWidth * 0.045,
             fontWeight: FontWeight.bold,
           ),
         ),
         Text(
-          'albanirajata@polinema.ac.id',
+          userData?.email ?? 'Loading...',
           style: GoogleFonts.poppins(
             color: Colors.grey[600],
             fontSize: screenWidth * 0.035,
@@ -102,15 +136,22 @@ class ProfileAdminPage extends StatelessWidget {
 
   Widget _buildEditButton(BuildContext context, double screenWidth) {
     return ElevatedButton.icon(
-      onPressed: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const EditProfilePage()),
-      ),
+      onPressed: () {
+        if (userData != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => EditProfilePage(userData: userData!),
+            ),
+          );
+        }
+      },
       icon: const Icon(Icons.edit, size: 20, color: Colors.white),
       label: Text(
         'Edit Profil',
         style: GoogleFonts.poppins(
-          fontSize: screenWidth * 0.04, color: Colors.white,
+          fontSize: screenWidth * 0.04,
+          color: Colors.white,
         ),
       ),
       style: ElevatedButton.styleFrom(

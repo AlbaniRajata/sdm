@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -5,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/homeadmin_page.dart';
 import 'package:sdm/services/admin/api_login.dart';
 import 'package:sdm/models/admin/user.dart';
+import 'package:sdm/models/admin/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginAdminPage extends StatefulWidget {
   const LoginAdminPage({super.key});
@@ -101,13 +104,19 @@ class LoginAdminPageState extends State<LoginAdminPage> with SingleTickerProvide
       final result = await _apiService.login(user);
       
       if (result['status']) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_data', json.encode(result['data']['user']));
+        
         _showNotification('Login berhasil', Colors.green);
         await Future.delayed(const Duration(milliseconds: 1500));
         
         if (mounted) {
+          final userData = UserModel.fromJson(result['data']['user']);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeAdminPage()),
+            MaterialPageRoute(
+              builder: (context) => HomeAdminPage(user: userData),
+            ),
           );
         }
       } else {

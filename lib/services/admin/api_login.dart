@@ -46,10 +46,15 @@ class ApiLogin {
 
       if (response.statusCode == 200 && responseData['token'] != null) {
         await _persistToken(responseData['token']);
+        
+        // Return user data along with token
         return {
           'status': true,
           'message': 'Login successful',
-          'data': responseData
+          'data': {
+            'token': responseData['token'],
+            'user': responseData['user'],  // Assuming the API returns user data
+          }
         };
       } else if (response.statusCode == 401) {
         return {

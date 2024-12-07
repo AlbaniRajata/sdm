@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/services/admin/api_dashboard.dart';
 import 'package:sdm/page/admin/daftarkegiatan_page.dart';
 import 'package:sdm/page/admin/notifikasi_page.dart';
@@ -10,7 +11,12 @@ import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_calendar.dart';
 
 class HomeAdminPage extends StatefulWidget {
-  const HomeAdminPage({super.key});
+  final UserModel user;
+
+  const HomeAdminPage({
+    super.key,
+    required this.user,  
+  });
 
   @override
   State<HomeAdminPage> createState() => _HomeAdminPageState();
@@ -185,7 +191,7 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
               ),
               const SizedBox(height: 45),
               Text(
-                'Hai, Albani Rajata',
+                'Hai, ${widget.user.nama}',
                 style: GoogleFonts.poppins(
                   fontSize: screenWidth * 0.07,
                   fontWeight: FontWeight.bold,

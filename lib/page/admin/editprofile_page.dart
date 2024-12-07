@@ -1,18 +1,85 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class EditProfilePage extends StatefulWidget {
-  const EditProfilePage({super.key});
+  final UserModel userData;
+  
+  const EditProfilePage({
+    super.key,
+    required this.userData,
+  });
 
   @override
   _EditProfilePageState createState() => _EditProfilePageState();
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _nipController;
+  late TextEditingController _oldPasswordController;
+  late TextEditingController _newPasswordController;
+  late TextEditingController _confirmPasswordController;
   bool _isOldPasswordVisible = false;
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+
+  void _showNotification(String message, Color backgroundColor) {
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            color: backgroundColor,
+            padding: const EdgeInsets.all(12),
+            child: SafeArea(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+    Future.delayed(const Duration(seconds: 2), overlayEntry.remove);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.userData.nama);
+    _emailController = TextEditingController(text: widget.userData.email);
+    _nipController = TextEditingController(text: widget.userData.nip);
+    _oldPasswordController = TextEditingController();
+    _newPasswordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _nipController.dispose();
+    _oldPasswordController.dispose();
+    _newPasswordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,12 +111,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             const SizedBox(height: 15),
             Text(
-              'Albani Rajata Malik',
-              style: GoogleFonts.poppins(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
+              widget.userData.nama,
+              style: GoogleFonts.poppins(
+                fontSize: screenWidth * 0.045,
+                fontWeight: FontWeight.bold
+              ),
             ),
             Text(
-              'albanirajata@polinema.ac.id',
-              style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: screenWidth * 0.035),
+              widget.userData.email,
+              style: GoogleFonts.poppins(
+                color: Colors.grey[600],
+                fontSize: screenWidth * 0.035
+              ),
             ),
             const SizedBox(height: 30),
             Padding(
@@ -87,65 +160,84 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildDetailField('Nama', 'Albani Rajata Malik'),
+                          _buildDetailField('Nama Lengkap', _nameController),
                           const SizedBox(height: 16),
-                          _buildDetailField('Email', 'albanirajata@polinema.ac.id'),
+                          _buildDetailField('Email', _emailController),
                           const SizedBox(height: 16),
-                          _buildDetailField('NIP', '123456789'),
+                          _buildDetailField('NIP', _nipController),
                           const SizedBox(height: 16),
-                          _buildDetailField('Jabatan', 'Admin'),
+                          _buildReadOnlyField('Jabatan', widget.userData.level),
                           const SizedBox(height: 16),
-                          _buildPasswordField('Password Lama', _isOldPasswordVisible, (value) {
-                            setState(() {
-                              _isOldPasswordVisible = value;
-                            });
-                          }),
-                          const SizedBox(height: 16),
-                          _buildPasswordField('Password Baru', _isNewPasswordVisible, (value) {
-                            setState(() {
-                              _isNewPasswordVisible = value;
-                            });
-                          }),
-                          const SizedBox(height: 16),
-                          _buildPasswordField('Konfirmasi Password', _isConfirmPasswordVisible, (value) {
-                            setState(() {
-                              _isConfirmPasswordVisible = value;
-                            });
-                          }),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Ganti Foto Profil',
-                            style: GoogleFonts.poppins(
-                              fontSize: screenWidth * 0.035,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextFormField(
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                            ),
+                          _buildPasswordField(
+                            'Password Lama',
+                            _oldPasswordController,
+                            _isOldPasswordVisible,
+                            (value) => setState(() => _isOldPasswordVisible = value),
                           ),
                           const SizedBox(height: 16),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                // Implement save functionality here
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4.0),
+                          _buildPasswordField(
+                            'Password Baru',
+                            _newPasswordController,
+                            _isNewPasswordVisible,
+                            (value) => setState(() => _isNewPasswordVisible = value),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildPasswordField(
+                            'Konfirmasi Password',
+                            _confirmPasswordController,
+                            _isConfirmPasswordVisible,
+                            (value) => setState(() => _isConfirmPasswordVisible = value),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Kembali',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
-                              child: const Text(
-                                'Simpan',
-                                style: TextStyle(color: Colors.white),
+                              const SizedBox(width: 12), // Space between buttons
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (_validateInputs()) {
+                                    _showConfirmationDialog();
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Simpan',
+                                  style: GoogleFonts.poppins(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ],
                       ),
@@ -159,18 +251,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       ),
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const CustomBottomAppBar(
-        currentPage: 'profile',
-      ),
+      bottomNavigationBar: const CustomBottomAppBar(currentPage: 'profile'),
     );
   }
 
-  Widget _buildDetailField(String title, String content) {
+  Widget _buildDetailField(String label, TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          label,
           style: GoogleFonts.poppins(
             fontSize: 14,
             color: Colors.black,
@@ -178,23 +268,26 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         const SizedBox(height: 8),
         TextFormField(
-          initialValue: content,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
+          controller: controller,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            hintText: 'Masukkan $label',
+            filled: true,
+            fillColor: Colors.white,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildPasswordField(String title, bool isVisible, ValueChanged<bool> onVisibilityChanged) {
+  Widget _buildReadOnlyField(String label, String value) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          label,
           style: GoogleFonts.poppins(
             fontSize: 14,
             color: Colors.black,
@@ -202,22 +295,151 @@ class _EditProfilePageState extends State<EditProfilePage> {
         ),
         const SizedBox(height: 8),
         TextFormField(
+          initialValue: value,
+          enabled: false,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            isDense: true,
+            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField(
+    String label,
+    TextEditingController controller,
+    bool isVisible,
+    ValueChanged<bool> onVisibilityChanged,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
           obscureText: !isVisible,
           decoration: InputDecoration(
             border: const OutlineInputBorder(),
             isDense: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            hintText: 'Masukkan $label',
+            filled: true,
+            fillColor: Colors.white,
             suffixIcon: IconButton(
               icon: Icon(
                 isVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
               ),
-              onPressed: () {
-                onVisibilityChanged(!isVisible);
-              },
+              onPressed: () => onVisibilityChanged(!isVisible),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  bool _validateInputs() {
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _nipController.text.isEmpty) {
+      _showNotification('Semua field harus diisi', Colors.red);
+      return false;
+    }
+
+    if (_newPasswordController.text.isNotEmpty ||
+        _confirmPasswordController.text.isNotEmpty) {
+      if (_oldPasswordController.text.isEmpty) {
+        _showNotification(
+          'Password lama harus diisi untuk mengubah password',
+          Colors.red
+        );
+        return false;
+      }
+
+      if (_newPasswordController.text != _confirmPasswordController.text) {
+        _showNotification(
+          'Password baru dan konfirmasi password tidak cocok',
+          Colors.red
+        );
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  Future<void> _saveChanges() async {
+    try {
+      final updatedUser = UserModel(
+        idUser: widget.userData.idUser,
+        username: widget.userData.username,
+        nama: _nameController.text,
+        tanggalLahir: widget.userData.tanggalLahir,
+        email: _emailController.text,
+        nip: _nipController.text,
+        level: widget.userData.level,
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_data', json.encode(updatedUser.toJson()));
+
+      if (mounted) {
+        _showNotification('Profil berhasil diperbarui', Colors.green);
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      if (mounted) {
+        _showNotification('Gagal memperbarui profil: ${e.toString()}', Colors.red);
+      }
+    }
+  }
+
+  Future<void> _showConfirmationDialog() async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'Konfirmasi',
+          style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          'Apakah Anda yakin ingin menyimpan perubahan?',
+          style: GoogleFonts.poppins(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Batal',
+              style: GoogleFonts.poppins(),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _saveChanges();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+            ),
+            child: Text(
+              'Simpan',
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
