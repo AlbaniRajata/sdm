@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/pimpinan/homepimpinan_page.dart';
 import 'package:sdm/services/pimpinan/api_login.dart';
 import 'package:sdm/models/pimpinan/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class LoginpimpinanPage extends StatefulWidget {
   const LoginpimpinanPage({super.key});
@@ -14,6 +16,7 @@ class LoginpimpinanPage extends StatefulWidget {
 
 class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerProviderStateMixin {
   bool _isObscured = true;
+  bool _isLoading = false;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _opacityAnimation;
@@ -21,7 +24,6 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final ApiLogin _apiService = ApiLogin();
-  String errorMessage = '';
 
   @override
   void initState() {
@@ -53,6 +55,8 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
   @override
   void dispose() {
     _controller.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -84,46 +88,52 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
     );
 
     overlay.insert(overlayEntry);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
+    Future.delayed(const Duration(seconds: 2), overlayEntry.remove);
   }
 
-  void _login() async {
-    if (_usernameController.text.isEmpty) {
-      _showNotification('Field username tidak boleh kosong', Colors.red);
-      return;
-    }
-    if (_passwordController.text.isEmpty) {
-      _showNotification('Field password tidak boleh kosong', Colors.red);
+  Future<void> _login() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showNotification('Username dan password harus diisi', Colors.red);
       return;
     }
 
-    User user = User(
-      username: _usernameController.text,
-      password: _passwordController.text,
-    );
+    setState(() => _isLoading = true);
 
     try {
-      String result = await _apiService.login(user);
-      if (result == 'Login successful') {
-        _showNotification('Login berhasil', Colors.green);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const HomePimpinanPage(),
-          ),
-        );
-      } else if (result == 'Invalid username') {
-        _showNotification('Username salah', Colors.red);
-      } else if (result == 'Invalid password') {
-        _showNotification('Password salah', Colors.red);
+      final user = User(
+        username: _usernameController.text,
+        password: _passwordController.text,
+      );
+
+      final result = await _apiService.login(user);
+      
+      if (result['status']) {
+        // Store user data in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_data', json.encode(result['data']['user']));
+        
+        if (mounted) {
+          _showNotification('Login berhasil', Colors.green);
+          await Future.delayed(const Duration(milliseconds: 1500));
+          
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePimpinanPage()),
+          );
+        }
       } else {
-        _showNotification(result, Colors.red);
+        if (mounted) {
+          _showNotification(result['message'], Colors.red);
+        }
       }
     } catch (e) {
-      _showNotification('Login failed: $e', Colors.red);
+      if (mounted) {
+        _showNotification('Terjadi kesalahan: $e', Colors.red);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -306,7 +316,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: _login,
+                                onPressed: _isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
                                   padding: const EdgeInsets.symmetric(vertical: 15),
@@ -314,13 +324,22 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: Text(
-                                  'Masuk',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                child: _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : Text(
+                                      'Masuk',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                               ),
                             ),
                             const SizedBox(height: 15),

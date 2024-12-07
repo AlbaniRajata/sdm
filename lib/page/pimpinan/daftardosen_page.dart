@@ -1,5 +1,8 @@
+// lib/page/pimpinan/daftardosen_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/pimpinan/user_model.dart';
+import 'package:sdm/services/pimpinan/api_user.dart';
 import 'package:sdm/page/pimpinan/detaildosen_page.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
 import 'package:sdm/widget/pimpinan/dosen_sortoption.dart';
@@ -13,61 +16,80 @@ class DaftarDosenPage extends StatefulWidget {
 }
 
 class _DaftarDosenPageState extends State<DaftarDosenPage> {
-  final List<Map<String, String>> dosenData = [
-    {'name': 'Albani Rajata Malik', 'nip': '2024434343490314', 'email': '2024456@polinema.ac.id', 'poin': '7 Poin', 'tanggal': '2024-09-24'},
-    {'name': 'Nurhidayah Amin', 'nip': '2024434343490322', 'email': '2024457@polinema.ac.id', 'poin': '10 Poin', 'tanggal': '2024-09-23'},
-    {'name': 'Rizky Aditya', 'nip': '2024434343490333', 'email': '2024458@polinema.ac.id', 'poin': '5 Poin', 'tanggal': '2024-09-22'},
-    {'name': 'Siti Fatimah', 'nip': '2024434343490344', 'email': '2024459@polinema.ac.id', 'poin': '8 Poin', 'tanggal': '2024-09-21'},
-    {'name': 'Ahmad Fauzan', 'nip': '2024434343490355', 'email': '2024460@polinema.ac.id', 'poin': '6 Poin', 'tanggal': '2024-09-20'},
-    {'name': 'Dewi Sartika', 'nip': '2024434343490366', 'email': '2024461@polinema.ac.id', 'poin': '9 Poin', 'tanggal': '2024-09-19'},
-    {'name': 'Farhan Maulana', 'nip': '2024434343490377', 'email': '2024462@polinema.ac.id', 'poin': '4 Poin', 'tanggal': '2024-09-18'},
-    {'name': 'Aisyah Zahra', 'nip': '2024434343490388', 'email': '2024463@polinema.ac.id', 'poin': '12 Poin', 'tanggal': '2024-09-17'},
-  ];
-
-  List<Map<String, String>> filteredDosenList = [];
+  List<UserModel> dosenList = [];
+  List<UserModel> filteredDosenList = [];
   DosenSortOption selectedSortOption = DosenSortOption.abjadAZ;
   final TextEditingController _searchController = TextEditingController();
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    filteredDosenList = List.from(dosenData);
+    _loadDosen();
     _searchController.addListener(_searchDosen);
   }
 
-  void _searchDosen() {
-    setState(() {
-      filteredDosenList = dosenData.where((dosen) {
-        final searchLower = _searchController.text.toLowerCase();
-        final nameLower = dosen['name']!.toLowerCase();
-        return nameLower.contains(searchLower);
-      }).toList();
-    });
+  Future<void> _loadDosen() async {
+    try {
+      final dosen = await ApiUser.getAllDosen();
+      setState(() {
+        dosenList = dosen;
+        filteredDosenList = List.from(dosen);
+        isLoading = false;
+      });
+      _sortDosenList(selectedSortOption);
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  void _searchDosen() async {
+    if (_searchController.text.length >= 3) {
+      try {
+        final results = await ApiUser.searchDosen(_searchController.text);
+        setState(() {
+          filteredDosenList = results;
+        });
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.toString()}')),
+          );
+        }
+      }
+    } else {
+      setState(() {
+        filteredDosenList = List.from(dosenList);
+      });
+    }
+    _sortDosenList(selectedSortOption);
   }
 
   void _sortDosenList(DosenSortOption? option) {
     setState(() {
       selectedSortOption = option ?? selectedSortOption;
-      filteredDosenList = _sortDosenData(List.from(filteredDosenList));
+      switch (selectedSortOption) {
+        case DosenSortOption.abjadAZ:
+          filteredDosenList.sort((a, b) => a.nama.compareTo(b.nama));
+          break;
+        case DosenSortOption.abjadZA:
+          filteredDosenList.sort((a, b) => b.nama.compareTo(a.nama));
+          break;
+        case DosenSortOption.poinTerbanyak:
+          filteredDosenList.sort((a, b) => b.totalPoin.compareTo(a.totalPoin));
+          break;
+        case DosenSortOption.poinTersedikit:
+          filteredDosenList.sort((a, b) => a.totalPoin.compareTo(b.totalPoin));
+          break;
+      }
     });
-  }
-
-  List<Map<String, String>> _sortDosenData(List<Map<String, String>> data) {
-    switch (selectedSortOption) {
-      case DosenSortOption.abjadAZ:
-        data.sort((a, b) => a['name']!.compareTo(b['name']!));
-        break;
-      case DosenSortOption.abjadZA:
-        data.sort((a, b) => b['name']!.compareTo(a['name']!));
-        break;
-      case DosenSortOption.poinTerbanyak:
-        data.sort((a, b) => int.parse(b['poin']!.split(' ')[0]).compareTo(int.parse(a['poin']!.split(' ')[0])));
-        break;
-      case DosenSortOption.poinTersedikit:
-        data.sort((a, b) => int.parse(a['poin']!.split(' ')[0]).compareTo(int.parse(b['poin']!.split(' ')[0])));
-        break;
-    }
-    return data;
   }
 
   @override
@@ -100,32 +122,40 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
             controller: _searchController,
             onChanged: (value) => _searchDosen(),
             selectedSortOption: selectedSortOption,
-            onSortOptionChanged: (DosenSortOption? value) {
-              _sortDosenList(value);
-            },
+            onSortOptionChanged: _sortDosenList,
             sortOptions: DosenSortOption.values,
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: filteredDosenList.map((dosen) {
-                  return Column(
-                    children: [
-                      _buildDosenCard(
-                        context,
-                        name: dosen['name']!,
-                        nip: dosen['nip']!,
-                        email: dosen['email']!,
-                        poin: dosen['poin']!,
-                        screenWidth: screenWidth,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                }).toList(),
-              ),
+            child: RefreshIndicator(
+              onRefresh: _loadDosen,
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : filteredDosenList.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Tidak ada data dosen',
+                            style: GoogleFonts.poppins(),
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            children: filteredDosenList.map((dosen) {
+                              return Column(
+                                children: [
+                                  _buildDosenCard(
+                                    context,
+                                    dosen: dosen,
+                                    screenWidth: screenWidth,
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
             ),
           ),
         ],
@@ -138,10 +168,7 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
 
   Widget _buildDosenCard(
     BuildContext context, {
-    required String name,
-    required String nip,
-    required String email,
-    required String poin,
+    required UserModel dosen,
     required double screenWidth,
   }) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
@@ -163,7 +190,6 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
           Container(
             height: 45,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -177,16 +203,19 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  name,
-                  style: GoogleFonts.poppins(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: fontSize,
+                Expanded(
+                  child: Text(
+                    dosen.nama,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: fontSize,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 Text(
-                  poin,
+                  '${dosen.totalPoin} Poin',
                   style: GoogleFonts.poppins(
                     color: Colors.white,
                     fontSize: fontSize,
@@ -195,26 +224,29 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
               ],
             ),
           ),
-          // Isi Card
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                _buildRichText('NIP', nip, fontSize),
+                _buildRichText('NIP', dosen.nip, fontSize),
                 const Divider(),
-                _buildRichText('Email', email, fontSize),
+                _buildRichText('Email', dosen.email, fontSize),
                 const Divider(),
-                _buildRichText('Poin Saat Ini', poin, fontSize),
+                _buildRichText('Total Kegiatan', '${dosen.totalKegiatan} Kegiatan', fontSize),
+                const Divider(),
+                _buildRichText('Poin Saat Ini', '${dosen.totalPoin} Poin', fontSize),
                 const Divider(),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      Navigator.pushReplacement(
+                      Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const DetailDosenPage()),
+                        MaterialPageRoute(
+                          builder: (context) => DetailDosenPage(userId: dosen.idUser),
+                        ),
                       );
                     },
                     child: Text(
@@ -234,15 +266,22 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
     );
   }
 
-  Widget _buildRichText(String title, String? value, double fontSize) {
+  Widget _buildRichText(String title, String value, double fontSize) {
     return RichText(
       text: TextSpan(
         text: '$title\n',
-        style: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black),
+        style: GoogleFonts.poppins(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
         children: [
           TextSpan(
             text: value,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.normal, color: Colors.black),
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.normal,
+              color: Colors.black,
+            ),
           ),
         ],
       ),
