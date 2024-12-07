@@ -1,79 +1,119 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sdm/models/pimpinan/user.dart';
+import 'package:sdm/services/pimpinan/api_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiLogin {
-  final String _baseUrl = 'http://192.168.249.67:8000/api';
+  static const String baseUrl = ApiConfig.baseUrl;
+  String? token;
 
-  Future<String> login(User user) async {
-    final String apiUrl = '$_baseUrl/login';
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(user.toJson()),
-    );
-    
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      if (responseData.containsKey('token')) {
-        final token = responseData['token'];
+  ApiLogin({this.token});
 
-        // Save JWT token in SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('jwt_token', token);
-        return 'Login successful';
+  bool get hasValidToken => token != null && token!.isNotEmpty;
+
+  Future<void> _persistToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('token', token);
+    this.token = token;
+  }
+
+  Future<String?> _getToken() async {
+    if (token != null && token!.isNotEmpty) {
+      return token;
+    }
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('token');
+    return token;
+  }
+
+  Future<Map<String, dynamic>> login(User user) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(user.toJson()),
+      );
+
+      debugPrint('Login response status: ${response.statusCode}');
+      debugPrint('Login response body: ${response.body}');
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+
+      if (response.statusCode == 200 && responseData['token'] != null) {
+        await _persistToken(responseData['token']);
+        
+        return {
+          'status': true,
+          'message': 'Login successful',
+          'data': {
+            'token': responseData['token'],
+            'user': responseData['user'],
+          }
+        };
+      } else if (response.statusCode == 401) {
+        return {
+          'status': false,
+          'message': responseData['error'] ?? 'Authentication failed',
+        };
       } else {
-        return 'Failed to login: Token not found in response';
+        return {
+          'status': false,
+          'message': responseData['error'] ?? 'Failed to login',
+        };
       }
-    } else if (response.statusCode == 401) {
-      final responseData = jsonDecode(response.body);
-      if (responseData['error'] == 'Invalid username') {
-        return 'Invalid username';
-      } else if (responseData['error'] == 'Invalid password') {
-        return 'Invalid password';
-      } else {
-        return 'Failed to login: ${responseData['error']}';
-      }
-    } else {
-      try {
-        final responseData = jsonDecode(response.body);
-        return 'Failed to login: ${responseData['error']}';
-      } catch (e) {
-        return 'Failed to login: Unexpected error';
-      }
+    } catch (e) {
+      debugPrint('Error in login: $e');
+      return {
+        'status': false,
+        'message': 'An unexpected error occurred',
+      };
     }
   }
 
-  Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('jwt_token');
+  Future<http.Response> getData(String endpoint) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      return await http.get(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+    } catch (e) {
+      debugPrint('Error in getData: $e');
+      rethrow;
+    }
   }
 
-  Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
-  }
+  Future<http.Response> postData(String endpoint, Map<String, dynamic> data) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
 
-  Future<http.Response> getData(String apiUrl) async {
-    final String fullUrl = '$_baseUrl$apiUrl';
-    final token = await getToken();
-    return await http.get(
-      Uri.parse(fullUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
-  }
-
-  Future<http.Response> auth(Map<String, dynamic> data, String apiUrl) async {
-    final String fullUrl = '$_baseUrl$apiUrl';
-    return await http.post(
-      Uri.parse(fullUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(data),
-    );
+      return await http.post(
+        Uri.parse('$baseUrl$endpoint'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(data),
+      );
+    } catch (e) {
+      debugPrint('Error in postData: $e');
+      rethrow;
+    }
   }
 }
