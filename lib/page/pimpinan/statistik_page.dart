@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/pimpinan/statistik_error.dart';
+import 'package:sdm/models/pimpinan/statistik_model.dart';
+import 'package:sdm/services/pimpinan/api_statistik.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
 import 'package:sdm/widget/pimpinan/dosen_sortoption.dart';
 import 'package:sdm/widget/pimpinan/custom_filter.dart';
@@ -13,47 +16,58 @@ class StatistikPage extends StatefulWidget {
 
 class StatistikPageState extends State<StatistikPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> kegiatanList = [
-    {'title': 'Albani Rajata Malik', 'total kegiatan': '4', 'total poin': '10'},
-    {'title': 'Tasya Cantika Ristiyana', 'total kegiatan': '7', 'total poin': '8'},
-    {'title': 'Alya Rafani', 'total kegiatan': '6', 'total poin': '5'},
-    {'title': 'Altaf Rafandra', 'total kegiatan': '9', 'total poin': '3'},
-  ];
-  List<Map<String, String>> filteredKegiatanList = [];
+  List<StatistikPimpinan> statistikPimpinanList = [];
+  List<StatistikPimpinan> filteredStatistikPimpinanList = [];
   DosenSortOption selectedSortOption = DosenSortOption.abjadAZ;
+  final ApiStatistikPimpinan _apiStatistikPimpinan = ApiStatistikPimpinan();
 
   @override
   void initState() {
     super.initState();
-    filteredKegiatanList = kegiatanList;
-    _searchController.addListener(_searchKegiatan);
+    _fetchStatistikPimpinan();
   }
 
-  void _searchKegiatan() {
+  Future<void> _fetchStatistikPimpinan() async {
+    try {
+      final data = await _apiStatistikPimpinan.getStatistikPimpinan();
+      setState(() {
+        statistikPimpinanList = data;
+        filteredStatistikPimpinanList = data;
+      });
+    } catch (e) {
+      if (e is StatistikPimpinanError) {
+        print('Error: ${e.message}');
+      } else {
+        print('Error: $e');
+      }
+    }
+  }
+
+  void _searchStatistik() {
     setState(() {
-      filteredKegiatanList = kegiatanList.where((kegiatan) {
+      filteredStatistikPimpinanList = statistikPimpinanList.where((statistik) {
         final searchLower = _searchController.text.toLowerCase();
-        final titleLower = kegiatan['title']!.toLowerCase();
-        return titleLower.contains(searchLower);
+        final namaLower = statistik.nama.toLowerCase();
+        return namaLower.contains(searchLower);
       }).toList();
     });
   }
 
-  void _sortKegiatanList(DosenSortOption? option) {
+  void _sortStatistikList(DosenSortOption? option) {
     setState(() {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case DosenSortOption.abjadAZ:
-          filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          filteredStatistikPimpinanList.sort((a, b) => a.nama.compareTo(b.nama));
           break;
         case DosenSortOption.abjadZA:
-          filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          filteredStatistikPimpinanList.sort((a, b) => b.nama.compareTo(a.nama));
           break;
         case DosenSortOption.poinTerbanyak:
-          filteredKegiatanList.sort((a, b) => int.parse(b['total poin']!).compareTo(int.parse(a['total poin']!)));
+          filteredStatistikPimpinanList.sort((a, b) => b.totalPoin.compareTo(a.totalPoin));
           break;
         case DosenSortOption.poinTersedikit:
-          filteredKegiatanList.sort((a, b) => int.parse(a['total poin']!).compareTo(int.parse(b['total poin']!)));
+          filteredStatistikPimpinanList.sort((a, b) => a.totalPoin.compareTo(b.totalPoin));
           break;
         default:
           break;
@@ -89,23 +103,23 @@ class StatistikPageState extends State<StatistikPage> {
           const SizedBox(height: 20),
           CustomFilter(
             controller: _searchController,
-            onChanged: (value) => _searchKegiatan(),
+            onChanged: (value) => _searchStatistik(),
             selectedSortOption: selectedSortOption,
-            onSortOptionChanged: (option) => _sortKegiatanList(option),
+            onSortOptionChanged: (option) => _sortStatistikList(option),
             sortOptions: DosenSortOption.values.toList(),
           ),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                children: filteredKegiatanList.map((kegiatan) {
+                children: filteredStatistikPimpinanList.map((statistik) {
                   return Column(
                     children: [
-                      _buildKegiatanCard(
+                      _buildStatistikCard(
                         context,
-                        title: kegiatan['title']!,
-                        totalkegiatan: kegiatan['total kegiatan']!,
-                        totalpoin: kegiatan['total poin']!,
+                        nama: statistik.nama,
+                        totalKegiatan: statistik.totalKegiatan,
+                        totalPoin: statistik.totalPoin,
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -122,11 +136,11 @@ class StatistikPageState extends State<StatistikPage> {
     );
   }
 
-  Widget _buildKegiatanCard(
+  Widget _buildStatistikCard(
     BuildContext context, {
-    required String title,
-    required String totalkegiatan,
-    required String totalpoin,
+    required String nama,
+    required int totalKegiatan,
+    required double totalPoin,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -157,7 +171,7 @@ class StatistikPageState extends State<StatistikPage> {
               ),
             ),
             child: Text(
-              title,
+              nama,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -186,7 +200,7 @@ class StatistikPageState extends State<StatistikPage> {
                           ),
                         ),
                         Text(
-                          totalkegiatan,
+                          totalKegiatan.toString(),
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontStyle: FontStyle.italic,
@@ -206,7 +220,7 @@ class StatistikPageState extends State<StatistikPage> {
                           ),
                         ),
                         Text(
-                          totalpoin,
+                          totalPoin.toString(),
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontStyle: FontStyle.italic,
