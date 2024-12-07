@@ -1,11 +1,13 @@
+import 'dart:convert';
 import 'dart:ui';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/pimpinan/homepimpinan_page.dart';
 import 'package:sdm/services/pimpinan/api_login.dart';
 import 'package:sdm/models/pimpinan/user.dart';
+import 'package:sdm/models/pimpinan/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 
 class LoginpimpinanPage extends StatefulWidget {
   const LoginpimpinanPage({super.key});
@@ -36,18 +38,12 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.1, 0.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _opacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
     _controller.forward();
   }
@@ -71,7 +67,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
           color: Colors.transparent,
           child: Container(
             color: backgroundColor,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             child: SafeArea(
               child: Text(
                 message,
@@ -91,7 +87,7 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
     Future.delayed(const Duration(seconds: 2), overlayEntry.remove);
   }
 
-  Future<void> _login() async {
+  void _login() async {
     if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
       _showNotification('Username dan password harus diisi', Colors.red);
       return;
@@ -108,32 +104,30 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
       final result = await _apiService.login(user);
       
       if (result['status']) {
-        // Store user data in SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_data', json.encode(result['data']['user']));
         
+        _showNotification('Login berhasil', Colors.green);
+        await Future.delayed(const Duration(milliseconds: 1500));
+        
         if (mounted) {
-          _showNotification('Login berhasil', Colors.green);
-          await Future.delayed(const Duration(milliseconds: 1500));
-          
+          final userData = UserModel.fromJson(result['data']['user']);
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomePimpinanPage()),
+            MaterialPageRoute(
+              builder: (context) => HomePimpinanPage(user: userData),
+            ),
           );
         }
       } else {
-        if (mounted) {
-          _showNotification(result['message'], Colors.red);
-        }
+        _showNotification(result['message'], Colors.red);
       }
+    } on SocketException {
+      _showNotification('Terjadi kesalahan koneksi', Colors.red);
     } catch (e) {
-      if (mounted) {
-        _showNotification('Terjadi kesalahan: $e', Colors.red);
-      }
+      _showNotification('Terjadi kesalahan: $e', Colors.red);
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -153,200 +147,141 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SlideTransition(
-                  position: _slideAnimation,
-                  child: FadeTransition(
-                    opacity: _opacityAnimation,
-                    child: Column(
-                      children: [
-                        Text(
-                          'Selamat datang pimpinan',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w300,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'di ',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                              TextSpan(
-                                text: 'Sistem Manajemen SDM',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Silahkan isi formulir dibawah ini untuk masuk',
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                _buildHeader(),
+                const SizedBox(height: 32),
+                _buildLoginForm(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: FadeTransition(
+        opacity: _opacityAnimation,
+        child: Column(
+          children: [
+            Text(
+              'Selamat datang Pimpinan',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'di ',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w300,
                     ),
                   ),
+                  TextSpan(
+                    text: 'Sistem Manajemen SDM',
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Silahkan isi formulir dibawah ini untuk masuk',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginForm() {
+    return SlideTransition(
+      position: _slideAnimation,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+          child: Container(
+            width: 350,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    'Login Pimpinan',
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                const SizedBox(height: 32),
-                SlideTransition(
-                  position: _slideAnimation,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                      child: Container(
-                        width: 350,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.4),
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 10,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Login pimpinan',
-                              style: GoogleFonts.poppins(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Username Anda',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.white,
-                              ),
-                              child: TextField(
-                                controller: _usernameController,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  hintText: 'Isi Username Anda',
-                                  hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                ),
-                                style: GoogleFonts.poppins(color: Colors.black),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Password',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.white,
-                              ),
-                              child: TextField(
-                                controller: _passwordController,
-                                obscureText: _isObscured,
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  hintText: 'Isi Password Anda',
-                                  hintStyle: GoogleFonts.poppins(color: Colors.grey),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide.none,
-                                  ),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      _isObscured ? Icons.visibility_off : Icons.visibility,
-                                      color: Colors.grey[400],
-                                    ),
-                                    onPressed: () {
-                                      setState(() {
-                                        _isObscured = !_isObscured;
-                                      });
-                                    },
-                                  ),
-                                ),
-                                style: GoogleFonts.poppins(color: Colors.black),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _isLoading ? null : _login,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-                                  padding: const EdgeInsets.symmetric(vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: _isLoading
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        color: Colors.white,
-                                        strokeWidth: 2,
-                                      ),
-                                    )
-                                  : Text(
-                                      'Masuk',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                          ],
-                        ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  'Username Anda',
+                  _usernameController,
+                  'Isi Username Anda',
+                  false,
+                ),
+                const SizedBox(height: 20),
+                _buildTextField(
+                  'Password',
+                  _passwordController,
+                  'Isi Password Anda',
+                  true,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
+                    child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : Text(
+                          'Masuk',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
                   ),
                 ),
               ],
@@ -354,6 +289,49 @@ class LoginpimpinanPageState extends State<LoginpimpinanPage> with SingleTickerP
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller, String hint, bool isPassword) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(color: Colors.white),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: Colors.white,
+          ),
+          child: TextField(
+            controller: controller,
+            obscureText: isPassword && _isObscured,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              hintText: hint,
+              hintStyle: GoogleFonts.poppins(color: Colors.grey),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none,
+              ),
+              suffixIcon: isPassword
+                ? IconButton(
+                    icon: Icon(
+                      _isObscured ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey[400],
+                    ),
+                    onPressed: () => setState(() => _isObscured = !_isObscured),
+                  )
+                : null,
+            ),
+            style: GoogleFonts.poppins(color: Colors.black),
+          ),
+        ),
+      ],
     );
   }
 }

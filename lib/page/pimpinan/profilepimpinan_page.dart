@@ -1,110 +1,231 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/pimpinan/user_model.dart';
 import 'package:sdm/page/pimpinan/loginpimpinan_page.dart';
-import 'package:sdm/page/pimpinan/editprofile_page.dart';
+import 'package:sdm/page/pimpinan/detailprofile_page.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
-class ProfilePimpinanPage extends StatelessWidget {
+class ProfilePimpinanPage extends StatefulWidget {
   const ProfilePimpinanPage({super.key});
+
+  @override
+  State<ProfilePimpinanPage> createState() => _ProfilePimpinanPageState();
+}
+
+class _ProfilePimpinanPageState extends State<ProfilePimpinanPage> {
+  UserModel? userData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userString = prefs.getString('user_data');
+      if (userString != null) {
+        setState(() {
+          userData = UserModel.fromJson(json.decode(userString));
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading user data: $e');
+      setState(() => isLoading = false);
+    }
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    if (context.mounted) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LoginpimpinanPage()),
+        (route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Profil',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            fontSize: screenWidth * 0.05,
-          ),
-          textAlign: TextAlign.center,
+      appBar: _buildAppBar(screenWidth),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+            _buildProfileHeader(screenWidth),
+            const SizedBox(height: 20),
+            _buildEditButton(context, screenWidth),
+            const SizedBox(height: 20),
+            _buildDivider(),
+            _buildLogoutTile(context, screenWidth),
+          ],
         ),
-        backgroundColor: const Color.fromARGB(255, 103, 119, 239),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 30),
-          const CircleAvatar(
-            radius: 50,
-            backgroundImage: AssetImage('assets/images/pp.png'),
-          ),
-          const SizedBox(height: 15),
-          Text(
-            'Albani Rajata Malik',
-            style: GoogleFonts.poppins(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            'albanirajata@polinema.ac.id',
-            style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: screenWidth * 0.035),
-          ),
-          const SizedBox(height: 15),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const EditProfilePage(),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-            ),
-            child: Text(
-              'Edit Profil',
-              style: GoogleFonts.poppins(color: Colors.white, fontSize: screenWidth * 0.04),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Divider(
-            thickness: 0.5,
-            color: Colors.grey[300],
-            indent: 20,
-            endIndent: 20,
-          ),
-          const SizedBox(height: 10),
-          Divider(
-            thickness: 0.5,
-            color: Colors.grey[300],
-            indent: 20,
-            endIndent: 20,
-          ),
-          const SizedBox(height: 10),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              child: Icon(Icons.logout, color: Colors.white, size: screenWidth * 0.05),
-            ),
-            title: Text(
-              'Logout',
-              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-            ),
-            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginpimpinanPage(),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const CustomBottomAppBar(
-        currentPage: 'profile',
+      bottomNavigationBar: const CustomBottomAppBar(currentPage: 'profile'),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(double screenWidth) {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      title: Text(
+        'Profil',
+        style: GoogleFonts.poppins(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontSize: screenWidth * 0.05,
+        ),
+      ),
+      backgroundColor: const Color.fromARGB(255, 103, 119, 239),
+      centerTitle: true,
+      elevation: 2,
+    );
+  }
+
+  Widget _buildProfileHeader(double screenWidth) {
+    return Column(
+      children: [
+        Container(
+          width: 100,
+          height: 100,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Colors.black,
+              width: 2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
+        Text(
+          userData?.nama ?? 'Loading...',
+          style: GoogleFonts.poppins(
+            fontSize: screenWidth * 0.045,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          userData?.email ?? 'Loading...',
+          style: GoogleFonts.poppins(
+            color: Colors.grey[600],
+            fontSize: screenWidth * 0.035,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditButton(BuildContext context, double screenWidth) {
+    return ElevatedButton.icon(
+      onPressed: () {
+        if (userData != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => DetailprofilePage(userData: userData!),
+            ),
+          );
+        }
+      },
+      label: Text(
+        'Detail Profil',
+        style: GoogleFonts.poppins(
+          fontSize: screenWidth * 0.04,
+          color: Colors.white,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Column(
+      children: [
+        Divider(
+          thickness: 0.5,
+          color: Colors.grey[300],
+          indent: 20,
+          endIndent: 20,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogoutTile(BuildContext context, double screenWidth) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+        child: Icon(
+          Icons.logout,
+          color: Colors.white,
+          size: screenWidth * 0.05,
+        ),
+      ),
+      title: Text(
+        'Logout',
+        style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: screenWidth * 0.04,
+        color: Colors.black,
+      ),
+      onTap: () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin keluar?',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Batal',
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => _handleLogout(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+              ),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

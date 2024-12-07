@@ -107,7 +107,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             const SizedBox(height: 30),
             const CircleAvatar(
               radius: 50,
-              backgroundImage: AssetImage('assets/images/pp.png'),
             ),
             const SizedBox(height: 15),
             Text(

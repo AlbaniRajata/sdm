@@ -5,6 +5,7 @@ class UserModel {
   final String nama;
   final String email;
   final String nip;
+  final String level;
   final DateTime tanggalLahir;
   final int totalKegiatan;
   final double totalPoin;
@@ -17,6 +18,7 @@ class UserModel {
     required this.nama,
     required this.email,
     required this.nip,
+    required this.level,
     required this.tanggalLahir,
     this.totalKegiatan = 0,
     this.totalPoin = 0,
@@ -31,6 +33,7 @@ class UserModel {
       nama: json['nama'],
       email: json['email'],
       nip: json['NIP'],
+      level: json['level'],
       tanggalLahir: DateTime.parse(json['tanggal_lahir']),
       totalKegiatan: json['total_kegiatan'] ?? 0,
       totalPoin: double.tryParse(json['total_poin'].toString()) ?? 0.0,

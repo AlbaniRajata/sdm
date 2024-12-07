@@ -1,12 +1,31 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:sdm/models/pimpinan/user_model.dart';
 import 'package:sdm/page/pimpinan/homepimpinan_page.dart';
 import 'package:sdm/page/pimpinan/profilepimpinan_page.dart';
 import 'package:sdm/page/pimpinan/daftarkegiatan_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomBottomAppBar extends StatelessWidget {
   final String currentPage;
 
   const CustomBottomAppBar({Key? key, this.currentPage = ''}) : super(key: key);
+
+  Future<UserModel?> _getUserData() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userData = prefs.getString('user_data');
+      if (userData != null) {
+        final userMap = json.decode(userData);
+        return UserModel.fromJson(userMap);
+      }
+      return null;
+    } catch (e) {
+      debugPrint('Error getting user data: $e');
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,39 +36,72 @@ class CustomBottomAppBar extends StatelessWidget {
       child: Row(
         children: <Widget>[
           const Spacer(flex: 2),
-          IconButton(
-            icon: const Icon(Icons.home_rounded, size: 40),
-            color: currentPage == 'home' ? Colors.white : Colors.grey.shade400,
-            onPressed: () {
-              if (currentPage != 'home') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const HomePimpinanPage(),
-                  ),
-                );
-              }
-            },
-          ),
-          const Spacer(flex: 5),
-          IconButton(
-            icon: const Icon(Icons.person, size: 40),
-            color: currentPage == 'profile' ? Colors.white : Colors.grey.shade400,
-            onPressed: () {
-              if (currentPage != 'profile') {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ProfilePimpinanPage(),
-                  ),
-                );
-              }
-            },
-          ),
+          _buildNavButton(
+              context: context,
+              icon: Icons.home_rounded,
+              isSelected: currentPage == 'home',
+              onPressed: () => _navigateToPage(context, 'home'),
+            ),
+            const Spacer(flex: 5),
+            _buildNavButton(
+              context: context,
+              icon: Icons.person,
+              isSelected: currentPage == 'profile',
+              onPressed: () => _navigateToPage(context, 'profile'),
+            ),
           const Spacer(flex: 2),
         ],
       ),
     );
+  }
+
+  Widget _buildNavButton({
+    required BuildContext context,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onPressed,
+  }) {
+    return IconButton(
+      icon: Icon(icon, size: 30),
+      color: isSelected ? Colors.white : Colors.grey.shade400,
+      onPressed: onPressed,
+    );
+  }
+
+  void _navigateToPage(BuildContext context, String page) async {
+    if (currentPage != page) {
+      if (page == 'home') {
+        final user = await _getUserData();
+        if (user != null) {
+          if (context.mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => HomePimpinanPage(user: user),
+              ),
+            );
+          }
+        } else {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Error: Could not load user data'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } else {
+        if (context.mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ProfilePimpinanPage(),
+            ),
+          );
+        }
+      }
+    }
   }
 
   Widget buildFloatingActionButton(BuildContext context) {
