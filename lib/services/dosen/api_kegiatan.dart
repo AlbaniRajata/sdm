@@ -58,6 +58,63 @@ class ApiKegiatan {
     }
   }
 
+  Future<List<KegiatanModel>> getKegiatanJTIList() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      debugPrint('Requesting JTI List with token: $token');  // Debug token
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-dosen/jti'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kegiatan JTI List response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        debugPrint('Decoded response: $jsonResponse'); // Debug response
+
+        if (jsonResponse['status'] == true && jsonResponse['data'] != null) {
+          if (jsonResponse['data'] is List) {
+            final List<dynamic> kegiatanList = jsonResponse['data'];
+            return kegiatanList.map((json) {
+              try {
+                return KegiatanModel.fromJson(json);
+              } catch (e) {
+                debugPrint('Error parsing kegiatan: $e');
+                debugPrint('Problematic JSON: $json');
+                rethrow;
+              }
+            }).toList();
+          } else {
+            debugPrint('Data is not a List: ${jsonResponse['data']}');
+            return [];
+          }
+        } else if (jsonResponse['data'] == null) {
+          return [];
+        }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        final errorMessage = response.statusCode == 404 
+            ? 'Data not found'
+            : json.decode(response.body)['message'] ?? 'Failed to load kegiatan JTI list';
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      debugPrint('Error in getKegiatanJTIList: $e');
+      rethrow;
+    }
+  }
+
   Future<KegiatanModel> getKegiatanDetail(int idKegiatan) async {
     try {
       final token = await _getToken();
@@ -79,13 +136,17 @@ class ApiKegiatan {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == true) {
           if (jsonResponse['data'] != null) {
-            return KegiatanModel.fromJson(jsonResponse['data']);
+            try {
+              return KegiatanModel.fromJson(jsonResponse['data']);
+            } catch (e) {
+              debugPrint('Error parsing detail: $e');
+              debugPrint('Problematic JSON: ${jsonResponse['data']}');
+              rethrow;
+            }
           }
           throw Exception('Data not found');
         }
         throw Exception(jsonResponse['message'] ?? 'Invalid response format');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
       } else if (response.statusCode == 404) {
         throw Exception('Kegiatan tidak ditemukan');
       } else {

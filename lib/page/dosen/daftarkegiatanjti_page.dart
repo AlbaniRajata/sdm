@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/dosen/detailkegiatanjti_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
-import 'package:intl/intl.dart';
 import 'package:sdm/widget/dosen/sort_option.dart';
 import 'package:sdm/widget/dosen/custom_filter.dart';
+import 'package:sdm/services/dosen/api_kegiatan.dart';
+import 'package:sdm/models/dosen/kegiatan_model.dart';
 
 class DaftarKegiatanJTIPage extends StatefulWidget {
   const DaftarKegiatanJTIPage({super.key});
@@ -15,27 +16,47 @@ class DaftarKegiatanJTIPage extends StatefulWidget {
 
 class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
   final TextEditingController _searchController = TextEditingController();
-  List<Map<String, String>> kegiatanList = [
-    {'title': 'Seminar Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
-    {'title': 'Kuliah Tamu', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-03-03'},
-    {'title': 'Workshop Teknologi', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-04-12'},
-    {'title': 'Lokakarya Nasional', 'jabatan': 'Ketua Pelaksana', 'tanggal': '2022-05-20'},
-  ];
-  List<Map<String, String>> filteredKegiatanList = [];
+  final ApiKegiatan _apiKegiatan = ApiKegiatan();
+  
+  List<KegiatanModel> kegiatanList = [];
+  List<KegiatanModel> filteredKegiatanList = [];
   SortOption selectedSortOption = SortOption.abjadAZ;
+  bool isLoading = true;
+  String? error;
 
   @override
   void initState() {
     super.initState();
-    filteredKegiatanList = kegiatanList;
+    _loadKegiatan();
     _searchController.addListener(_searchKegiatan);
+  }
+
+  Future<void> _loadKegiatan() async {
+    try {
+      setState(() {
+        isLoading = true;
+        error = null;
+      });
+      
+      final data = await _apiKegiatan.getKegiatanJTIList();
+      setState(() {
+        kegiatanList = data;
+        filteredKegiatanList = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        isLoading = false;
+      });
+    }
   }
 
   void _searchKegiatan() {
     setState(() {
       filteredKegiatanList = kegiatanList.where((kegiatan) {
         final searchLower = _searchController.text.toLowerCase();
-        final titleLower = kegiatan['title']!.toLowerCase();
+        final titleLower = kegiatan.namaKegiatan.toLowerCase();
         return titleLower.contains(searchLower);
       }).toList();
     });
@@ -46,27 +67,21 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
       selectedSortOption = option ?? selectedSortOption;
       switch (selectedSortOption) {
         case SortOption.abjadAZ:
-          filteredKegiatanList.sort((a, b) => a['title']!.compareTo(b['title']!));
+          filteredKegiatanList.sort((a, b) => a.namaKegiatan.compareTo(b.namaKegiatan));
           break;
         case SortOption.abjadZA:
-          filteredKegiatanList.sort((a, b) => b['title']!.compareTo(a['title']!));
+          filteredKegiatanList.sort((a, b) => b.namaKegiatan.compareTo(a.namaKegiatan));
           break;
         case SortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(a['tanggal']!).compareTo(DateTime.parse(b['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => a.tanggalSelesai.compareTo(b.tanggalSelesai));
           break;
         case SortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateTime.parse(b['tanggal']!).compareTo(DateTime.parse(a['tanggal']!)));
+          filteredKegiatanList.sort((a, b) => b.tanggalSelesai.compareTo(a.tanggalSelesai));
           break;
         default:
           break;
       }
     });
-  }
-
-  String _formatDate(String date) {
-    final DateTime parsedDate = DateTime.parse(date);
-    final DateFormat formatter = DateFormat('d MMMM yyyy', 'id_ID');
-    return formatter.format(parsedDate);
   }
 
   @override
@@ -103,28 +118,33 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
             onChanged: (value) => _searchKegiatan(),
             selectedSortOption: selectedSortOption,
             onSortOptionChanged: (option) => _sortKegiatanList(option),
-            sortOptions: SortOption.values.where((option) => option != SortOption.poinTerbanyak && option != SortOption.poinTersedikit).toList(),
+            sortOptions: SortOption.values.where((option) => 
+              option != SortOption.poinTerbanyak && 
+              option != SortOption.poinTersedikit
+            ).toList(),
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: filteredKegiatanList.map((kegiatan) {
-                  return Column(
-                    children: [
-                      _buildKegiatanCard(
-                        context,
-                        title: kegiatan['title']!,
-                        jabatan: kegiatan['jabatan']!,
-                        tanggal: _formatDate(kegiatan['tanggal']!),
-                        screenWidth: screenWidth,
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
+            child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : error != null
+                ? Center(child: Text(error!))
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: filteredKegiatanList.map((kegiatan) {
+                        return Column(
+                          children: [
+                            _buildKegiatanCard(
+                              context,
+                              kegiatan: kegiatan,
+                              screenWidth: screenWidth,
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
           ),
         ],
       ),
@@ -136,9 +156,7 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
 
   Widget _buildKegiatanCard(
     BuildContext context, {
-    required String title,
-    required String jabatan,
-    required String tanggal,
+    required KegiatanModel kegiatan,
     required double screenWidth,
   }) {
     final fontSize = screenWidth < 500 ? 14.0 : 16.0;
@@ -160,9 +178,8 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Card
           Container(
-            width: double.infinity, 
+            width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: const BoxDecoration(
               color: Color.fromARGB(255, 5, 167, 170),
@@ -172,7 +189,7 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
               ),
             ),
             child: Text(
-              title,
+              kegiatan.namaKegiatan,
               style: GoogleFonts.poppins(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -180,7 +197,6 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
               ),
             ),
           ),
-          // Isi Card
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
@@ -201,7 +217,7 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
                           ),
                         ),
                         Text(
-                          jabatan,
+                          kegiatan.jabatanNama ?? '-',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontWeight: FontWeight.bold,
@@ -221,7 +237,7 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
                           ),
                         ),
                         Text(
-                          tanggal,
+                          (kegiatan.tanggalSelesai),
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontStyle: FontStyle.italic,
@@ -241,9 +257,7 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailKegiatanJTIPage(
-                            title: title,
-                            jabatan: jabatan,
-                            tanggal: tanggal,
+                            idKegiatan: kegiatan.idKegiatan,
                           ),
                         ),
                       );

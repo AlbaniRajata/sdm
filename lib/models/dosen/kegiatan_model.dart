@@ -1,3 +1,5 @@
+import 'package:sdm/models/dosen/anggota_model.dart';
+
 class KegiatanModel {
   final int idKegiatan;
   final String namaKegiatan;
@@ -8,6 +10,8 @@ class KegiatanModel {
   final String tempatKegiatan;
   final String jenisKegiatan;
   final int? progress;
+  final List<AnggotaModel>? anggota;
+  final String? jabatanNama;
 
   KegiatanModel({
     required this.idKegiatan,
@@ -19,6 +23,8 @@ class KegiatanModel {
     required this.tempatKegiatan,
     required this.jenisKegiatan,
     this.progress,
+    this.anggota,
+    this.jabatanNama,
   });
 
   factory KegiatanModel.fromJson(Map<String, dynamic> json) {
@@ -32,20 +38,10 @@ class KegiatanModel {
       tempatKegiatan: json['tempat_kegiatan'] ?? '',
       jenisKegiatan: json['jenis_kegiatan'] ?? '',
       progress: json['progress'],
+      jabatanNama: json['jabatan'],
+      anggota: (json['anggota'] as List<dynamic>?)
+          ?.map((e) => AnggotaModel.fromJson(e))
+          .toList(),
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id_kegiatan': idKegiatan,
-      'nama_kegiatan': namaKegiatan,
-      'deskripsi_kegiatan': deskripsiKegiatan,
-      'tanggal_mulai': tanggalMulai,
-      'tanggal_selesai': tanggalSelesai,
-      'tanggal_acara': tanggalAcara,
-      'tempat_kegiatan': tempatKegiatan,
-      'jenis_kegiatan': jenisKegiatan,
-      'progress': progress,
-    };
   }
 }
