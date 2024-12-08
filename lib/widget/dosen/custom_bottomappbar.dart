@@ -9,7 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class CustomBottomAppBar extends StatelessWidget {
   final String currentPage;
 
-  const CustomBottomAppBar({Key? key, this.currentPage = ''}) : super(key: key);
+  const CustomBottomAppBar({
+    Key? key, 
+    this.currentPage = ''
+  }) : super(key: key);
 
   Future<UserModel?> _getUserData() async {
     try {
@@ -33,21 +36,22 @@ class CustomBottomAppBar extends StatelessWidget {
       notchMargin: 8.0,
       color: const Color.fromARGB(255, 103, 119, 239),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           const Spacer(flex: 2),
           _buildNavButton(
-              context: context,
-              icon: Icons.home_rounded,
-              isSelected: currentPage == 'home',
-              onPressed: () => _navigateToPage(context, 'home'),
-            ),
-            const Spacer(flex: 5),
-            _buildNavButton(
-              context: context,
-              icon: Icons.person,
-              isSelected: currentPage == 'profile',
-              onPressed: () => _navigateToPage(context, 'profile'),
-            ),
+            context: context,
+            icon: Icons.home_rounded,
+            isSelected: currentPage == 'home',
+            onPressed: () => _navigateToPage(context, 'home'),
+          ),
+          const Spacer(flex: 5),
+          _buildNavButton(
+            context: context,
+            icon: Icons.person,
+            isSelected: currentPage == 'profile',
+            onPressed: () => _navigateToPage(context, 'profile'),
+          ),
           const Spacer(flex: 2),
         ],
       ),
@@ -61,27 +65,78 @@ class CustomBottomAppBar extends StatelessWidget {
     required VoidCallback onPressed,
   }) {
     return IconButton(
-      icon: Icon(icon, size: 30),
-      color: isSelected ? Colors.white : Colors.grey.shade400,
+      icon: Icon(
+        icon,
+        size: 30,
+        color: isSelected ? Colors.white : Colors.grey.shade400,
+      ),
       onPressed: onPressed,
     );
   }
 
-  void _navigateToPage(BuildContext context, String page) async {
-    if (currentPage != page) {
-      if (page == 'home') {
-        final user = await _getUserData();
-        if (user != null) {
-          if (context.mounted) {
-            Navigator.pushReplacement(
+  Future<void> _navigateToPage(BuildContext context, String page) async {
+    if (currentPage == page) return;
+
+    try {
+      final user = await _getUserData();
+      if (user == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Error: Could not load user data'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      if (!context.mounted) return;
+
+      switch (page) {
+        case 'home':
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomeDosenPage(user: user),
+            ),
+          );
+          break;
+        case 'profile':
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfiledosenPage(user: user),
+            ),
+          );
+          break;
+      }
+    } catch (e) {
+      debugPrint('Error navigating to $page: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error navigating to $page'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget buildFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () async {
+        try {
+          final user = await _getUserData();
+          if (user != null && context.mounted) {
+            Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => HomeDosenPage(user: user),
+                builder: (context) => DaftarKegiatanPage(),
               ),
             );
-          }
-        } else {
-          if (context.mounted) {
+          } else if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Error: Could not load user data'),
@@ -89,29 +144,17 @@ class CustomBottomAppBar extends StatelessWidget {
               ),
             );
           }
+        } catch (e) {
+          debugPrint('Error navigating to DaftarKegiatanPage: $e');
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Error accessing kegiatan page'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
         }
-      } else {
-        if (context.mounted) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ProfiledosenPage(),
-            ),
-          );
-        }
-      }
-    }
-  }
-
-  Widget buildFloatingActionButton(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const DaftarKegiatanPage(),
-          ),
-        );
       },
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -136,7 +179,11 @@ class CustomBottomAppBar extends StatelessWidget {
             ),
           ],
         ),
-        child: const Icon(Icons.calendar_today_rounded, color: Colors.white, size: 30),
+        child: const Icon(
+          Icons.calendar_today_rounded,
+          color: Colors.white,
+          size: 30,
+        ),
       ),
     );
   }
