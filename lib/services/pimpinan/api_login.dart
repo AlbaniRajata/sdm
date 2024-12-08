@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/pimpinan/user.dart';
-import 'package:sdm/services/pimpinan/api_config.dart';
+import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiLogin {

@@ -29,7 +29,8 @@ class _DetailDosenPageState extends State<DetailDosenPage> {
 
   Future<void> _loadDosenDetail() async {
     try {
-      final dosen = await ApiUser.getDosenDetail(widget.userId);
+      final apiUser = ApiUser();
+      final dosen = await apiUser.getDosenDetail(widget.userId);
       setState(() {
         dosenData = dosen;
         isLoading = false;
@@ -87,8 +88,7 @@ class _DetailDosenPageState extends State<DetailDosenPage> {
                           const SizedBox(height: 30),
                           const CircleAvatar(
                             radius: 50,
-                            backgroundImage: AssetImage('assets/images/pp.png'),
-                            backgroundColor: Colors.transparent,
+                            backgroundColor: Colors.grey,
                           ),
                           const SizedBox(height: 15),
                           Card(

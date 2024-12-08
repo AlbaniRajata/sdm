@@ -31,7 +31,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
 
   void _getKegiatanList() async {
     try {
-      final kegiatan = await _apiKegiatan.getKegiatan();
+      final kegiatan = await _apiKegiatan.getKegiatanList();
       setState(() {
         kegiatanList = kegiatan;
         filteredKegiatanList = kegiatan;

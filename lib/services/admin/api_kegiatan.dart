@@ -1,163 +1,275 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
 import 'package:sdm/models/admin/kegiatan_model.dart';
-import 'package:sdm/models/admin/kegiatan_model_error.dart';
-import 'package:sdm/models/admin/kegiatan_model_response.dart';
+import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
 import 'package:sdm/models/admin/user_model.dart';
-import 'api_config.dart';
+import 'package:sdm/models/admin/kegiatan_model_error.dart';
+import 'package:sdm/services/api_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiKegiatan {
-  final String _baseUrl = '${ApiConfig.baseUrl}/kegiatan-admin';
+  static const String baseUrl = ApiConfig.baseUrl;
+  String? token;
 
-  Future<List<KegiatanModel>> getKegiatan() async {
+  ApiKegiatan({this.token});
+
+  bool get hasValidToken => token != null && token!.isNotEmpty;
+
+  Future<String?> _getToken() async {
+    if (token != null && token!.isNotEmpty) return token;
+    final prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('token');
+    return token;
+  }
+
+  Future<List<KegiatanModel>> getKegiatanList() async {
     try {
-      final response = await http.get(Uri.parse(_baseUrl));
-      
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-admin'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kegiatan List response: ${response.body}');
+
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final kegiatanResponse = KegiatanListResponse.fromJson(responseData);
-        
-        return kegiatanResponse.data
-            .map((item) => KegiatanModel.fromJson(item))
-            .toList();
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          final List<dynamic> kegiatanList = jsonResponse['data'] ?? [];
+          return kegiatanList
+              .map((json) => KegiatanModel.fromJson(json))
+              .toList();
+        }
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw KegiatanError(message: 'Session expired. Please login again.');
       } else {
-        throw KegiatanError.fromJson(json.decode(response.body));
+        throw KegiatanError(
+            message: json.decode(response.body)['message'] ?? 
+                'Failed to load kegiatan list');
       }
     } catch (e) {
-      throw KegiatanError(message: 'Gagal mengambil data kegiatan: $e');
+      debugPrint('Error in getKegiatanList: $e');
+      rethrow;
     }
   }
 
-  Future<KegiatanModel> getDetailKegiatan(int id) async {
+  Future<KegiatanModel> getKegiatanDetail(int idKegiatan) async {
     try {
-      final response = await http.get(Uri.parse('$_baseUrl/$id'));
-      
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw KegiatanError(message: 'Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-admin/$idKegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kegiatan Detail response: ${response.body}');
+
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return KegiatanModel.fromJson(responseData['data']);
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          return KegiatanModel.fromJson(jsonResponse['data']);
+        }
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw KegiatanError(message: 'Session expired. Please login again.');
       } else {
-        throw KegiatanError.fromJson(json.decode(response.body));
+        throw KegiatanError(
+            message: json.decode(response.body)['message'] ?? 
+                'Failed to load kegiatan detail');
       }
     } catch (e) {
-      throw KegiatanError(message: 'Gagal mengambil detail kegiatan: $e');
+      debugPrint('Error in getKegiatanDetail: $e');
+      rethrow;
     }
   }
 
   Future<KegiatanModel> createKegiatan(KegiatanModel kegiatan) async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw KegiatanError(message: 'Token not available. Please login again.');
+      }
+
       final response = await http.post(
-        Uri.parse('$_baseUrl'),
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-admin'),
         headers: {
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: json.encode(kegiatan.toJson()),
       );
-      
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
-      
+
+      debugPrint('Create Kegiatan response: ${response.body}');
+
       if (response.statusCode == 201) {
-        final responseData = json.decode(response.body);
-        if (responseData['status'] == true) {
-          return KegiatanModel.fromJson(responseData['data']);
-        } else {
-          throw responseData['message'] ?? 'Gagal membuat kegiatan';
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          return KegiatanModel.fromJson(jsonResponse['data']);
         }
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Failed to create kegiatan');
+      } else if (response.statusCode == 401) {
+        throw KegiatanError(message: 'Session expired. Please login again.');
       } else {
-        final errorData = json.decode(response.body);
-        throw errorData['message'] ?? 'Gagal membuat kegiatan';
+        throw KegiatanError(
+            message: json.decode(response.body)['message'] ?? 
+                'Failed to create kegiatan');
       }
     } catch (e) {
-      print('Create kegiatan error: $e');
-      throw 'Gagal membuat kegiatan: $e';
+      debugPrint('Error in createKegiatan: $e');
+      rethrow;
     }
   }
 
   Future<KegiatanModel> updateKegiatan(int id, KegiatanModel kegiatan) async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw KegiatanError(message: 'Token not available. Please login again.');
+      }
+
       final response = await http.put(
-        Uri.parse('$_baseUrl/$id'),
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-admin/$id'),
         headers: {
+          'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
         body: json.encode(kegiatan.toJson()),
       );
-      
+
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return KegiatanModel.fromJson(responseData['data']);
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          return KegiatanModel.fromJson(jsonResponse['data']);
+        }
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Failed to update kegiatan');
+      } else if (response.statusCode == 401) {
+        throw KegiatanError(message: 'Session expired. Please login again.');
       } else {
-        throw KegiatanError.fromJson(json.decode(response.body));
+        throw KegiatanError(
+            message: json.decode(response.body)['message'] ?? 
+                'Failed to update kegiatan');
       }
     } catch (e) {
-      throw KegiatanError(message: 'Gagal mengupdate kegiatan: $e');
+      debugPrint('Error in updateKegiatan: $e');
+      rethrow;
     }
   }
 
   Future<bool> deleteKegiatan(int id) async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw KegiatanError(message: 'Token not available. Please login again.');
+      }
+
       final response = await http.delete(
-        Uri.parse('$_baseUrl/$id'),
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-admin/$id'),
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
       );
 
       if (response.statusCode == 200) {
-        return true;
+        final jsonResponse = json.decode(response.body);
+        return jsonResponse['status'] == true;
+      } else if (response.statusCode == 401) {
+        throw KegiatanError(message: 'Session expired. Please login again.');
       } else {
-        final errorData = json.decode(response.body);
-        throw KegiatanError(message: errorData['message'] ?? 'Gagal menghapus kegiatan');
+        throw KegiatanError(
+            message: json.decode(response.body)['message'] ?? 
+                'Failed to delete kegiatan');
       }
     } catch (e) {
-      throw KegiatanError(message: 'Gagal menghapus kegiatan: $e');
+      debugPrint('Error in deleteKegiatan: $e');
+      rethrow;
     }
   }
 
   Future<List<UserModel>> getDosen() async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw KegiatanError(message: 'Token not available. Please login again.');
+      }
+
       final response = await http.get(
-        Uri.parse('$_baseUrl/data/dosen'),
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-admin/data/dosen'),
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
       );
-      
+
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return (responseData['data'] as List)
-            .map((item) => UserModel.fromJson(item))
-            .toList();
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          final List<dynamic> dosenList = jsonResponse['data'] ?? [];
+          return dosenList.map((json) => UserModel.fromJson(json)).toList();
+        }
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw KegiatanError(message: 'Session expired. Please login again.');
       } else {
-        throw KegiatanError.fromJson(json.decode(response.body));
+        throw KegiatanError(
+            message: json.decode(response.body)['message'] ?? 
+                'Failed to load dosen list');
       }
     } catch (e) {
-      throw KegiatanError(message: 'Gagal mengambil data dosen: $e');
+      debugPrint('Error in getDosen: $e');
+      rethrow;
     }
   }
 
   Future<List<JabatanKegiatan>> getJabatan() async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw KegiatanError(message: 'Token not available. Please login again.');
+      }
+
       final response = await http.get(
-        Uri.parse('$_baseUrl/data/jabatan'),
+        Uri.parse('${ApiConfig.baseUrl}/kegiatan-admin/data/jabatan'),
         headers: {
+          'Authorization': 'Bearer $token',
           'Accept': 'application/json',
         },
       );
-      
+
       if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        return (responseData['data'] as List)
-            .map((item) => JabatanKegiatan.fromJson(item))
-            .toList();
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          final List<dynamic> jabatanList = jsonResponse['data'] ?? [];
+          return jabatanList.map((json) => JabatanKegiatan.fromJson(json)).toList();
+        }
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw KegiatanError(message: 'Session expired. Please login again.');
       } else {
-        throw KegiatanError.fromJson(json.decode(response.body));
+        throw KegiatanError(
+            message: json.decode(response.body)['message'] ?? 
+                'Failed to load jabatan list');
       }
     } catch (e) {
-      throw KegiatanError(message: 'Gagal mengambil data jabatan: $e');
+      debugPrint('Error in getJabatan: $e');
+      rethrow;
     }
   }
 }

@@ -31,7 +31,8 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
 
   Future<void> _loadDosen() async {
     try {
-      final dosen = await ApiUser.getAllDosen();
+      final apiUser = ApiUser();
+      final dosen = await apiUser.getAllDosen();
       setState(() {
         dosenList = dosen;
         filteredDosenList = List.from(dosen);
@@ -53,7 +54,8 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
   void _searchDosen() async {
     if (_searchController.text.length >= 3) {
       try {
-        final results = await ApiUser.searchDosen(_searchController.text);
+        final apiUser = ApiUser();
+        final results = await apiUser.searchDosen(_searchController.text);
         setState(() {
           filteredDosenList = results;
         });

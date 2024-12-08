@@ -1,71 +1,228 @@
-// lib/services/api_user.dart
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/pimpinan/user_model.dart';
-import 'package:sdm/services/pimpinan/api_config.dart';
+import 'package:sdm/services/api_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiUser {
-  static Future<List<UserModel>> getAllDosen() async {
+  static const String baseUrl = ApiConfig.baseUrl;
+  String? token;
+
+  ApiUser({this.token});
+
+  bool get hasValidToken => token != null && token!.isNotEmpty;
+
+  Future<String?> _getToken() async {
+    if (token != null && token!.isNotEmpty) return token;
+    final prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('token');
+    return token;
+  }
+
+  Future<List<UserModel>> getAllDosen() async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/user-pimpinan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
       );
 
+      debugPrint('Get All Dosen response: ${response.body}');
+
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        if (responseData['status'] == true && responseData['data'] != null) {
-          return List<UserModel>.from(
-            responseData['data'].map((x) => UserModel.fromJson(x)),
-          );
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['data'] != null) {
+          final List<dynamic> dosenList = jsonResponse['data'];
+          return dosenList.map((item) {
+            try {
+              // Ensure all required fields have default values
+              item['username'] = item['username'] ?? '';
+              item['nama'] = item['nama'] ?? '';
+              item['email'] = item['email'] ?? '';
+              item['NIP'] = item['NIP'] ?? '';
+              item['level'] = item['level'] ?? '';
+              item['tanggal_lahir'] = item['tanggal_lahir'] ?? DateTime.now().toIso8601String();
+              
+              return UserModel.fromJson(item);
+            } catch (e) {
+              debugPrint('Error parsing user data: $e');
+              debugPrint('Problematic JSON: $item');
+              // Return a default UserModel instead of throwing
+              return UserModel(
+                idUser: item['id_user'] ?? 0,
+                username: item['username'] ?? '',
+                nama: item['nama'] ?? '',
+                email: item['email'] ?? '',
+                nip: item['NIP'] ?? '',
+                level: item['level'] ?? '',
+                tanggalLahir: DateTime.now(),
+                totalKegiatan: 0,
+                totalPoin: 0.0,
+                jabatan: [],
+                kegiatan: [],
+              );
+            }
+          }).toList();
         }
+        return [];
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(json.decode(response.body)['message'] ?? 'Failed to load dosen list');
       }
-      throw Exception('Failed to load dosen data');
     } catch (e) {
-      throw Exception('Error: $e');
+      debugPrint('Error in getAllDosen: $e');
+      rethrow;
     }
   }
 
-  static Future<UserModel> getDosenDetail(int id) async {
+  Future<UserModel> getDosenDetail(int id) async {
     try {
-      print('Fetching detail for ID: $id'); // Debugging
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/user-pimpinan/detail/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
       );
 
-      print('Response status: ${response.statusCode}'); // Debugging
-      print('Response body: ${response.body}'); // Debugging
+      debugPrint('Dosen Detail response: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        if (responseData['status'] == true && responseData['data'] != null) {
-          return UserModel.fromJson(responseData['data']);
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['data'] != null) {
+          try {
+            final data = jsonResponse['data'];
+            
+            // Ensure all required fields have default values and proper types
+            final processedData = {
+              'id_user': data['id_user'] ?? 0,
+              'username': data['username']?.toString() ?? '',
+              'nama': data['nama']?.toString() ?? '',
+              'email': data['email']?.toString() ?? '',
+              'NIP': data['NIP']?.toString().trim() ?? '',  // Add trim() to handle whitespace
+              'level': data['level']?.toString() ?? '',
+              'tanggal_lahir': data['tanggal_lahir'] ?? DateTime.now().toIso8601String(),
+              'total_kegiatan': data['total_kegiatan'] ?? 0,
+              'total_poin': data['total_poin'] ?? 0.0,
+              'jabatan': (data['jabatan'] is List) 
+                  ? List<String>.from(data['jabatan'].map((e) => e.toString()))
+                  : <String>[],
+              'kegiatan': (data['kegiatan'] is List)
+                  ? List<String>.from(data['kegiatan'].map((e) => e.toString()))
+                  : <String>[],
+            };
+
+            return UserModel(
+              idUser: processedData['id_user'],
+              username: processedData['username'],
+              nama: processedData['nama'],
+              email: processedData['email'],
+              nip: processedData['NIP'],
+              level: processedData['level'],
+              tanggalLahir: DateTime.parse(processedData['tanggal_lahir']),
+              totalKegiatan: processedData['total_kegiatan'] is int 
+                  ? processedData['total_kegiatan'] 
+                  : int.tryParse(processedData['total_kegiatan'].toString()) ?? 0,
+              totalPoin: processedData['total_poin'] is double 
+                  ? processedData['total_poin'] 
+                  : double.tryParse(processedData['total_poin'].toString()) ?? 0.0,
+              jabatan: processedData['jabatan'],
+              kegiatan: processedData['kegiatan'],
+            );
+          } catch (e) {
+            debugPrint('Error parsing user detail: $e');
+            debugPrint('Problematic JSON: ${jsonResponse['data']}');
+            
+            // Return a default UserModel with the minimal required data
+            return UserModel(
+              idUser: jsonResponse['data']['id_user'] ?? 0,
+              username: jsonResponse['data']['username']?.toString() ?? '',
+              nama: jsonResponse['data']['nama']?.toString() ?? '',
+              email: jsonResponse['data']['email']?.toString() ?? '',
+              nip: jsonResponse['data']['NIP']?.toString().trim() ?? '',
+              level: jsonResponse['data']['level']?.toString() ?? '',
+              tanggalLahir: DateTime.now(),
+              totalKegiatan: 0,
+              totalPoin: 0.0,
+              jabatan: [],
+              kegiatan: [],
+            );
+          }
         }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        final errorMessage = response.statusCode == 404
+            ? 'Dosen not found'
+            : json.decode(response.body)['message'] ?? 'Failed to load dosen detail';
+        throw Exception(errorMessage);
       }
-      throw Exception('Failed to load dosen detail');
     } catch (e) {
-      print('Error detail: $e'); // Debugging
-      throw Exception('Failed to load dosen detail: $e');
+      debugPrint('Error in getDosenDetail: $e');
+      rethrow;
     }
   }
 
-  static Future<List<UserModel>> searchDosen(String keyword) async {
+  Future<List<UserModel>> searchDosen(String keyword) async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/user-pimpinan/search'),
-        body: {'keyword': keyword},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'keyword': keyword}),
       );
 
+      debugPrint('Search Dosen response: ${response.body}');
+
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        if (responseData['status'] == true && responseData['data'] != null) {
-          return List<UserModel>.from(
-            responseData['data'].map((x) => UserModel.fromJson(x)),
-          );
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true && jsonResponse['data'] != null) {
+          final List<dynamic> dosenList = jsonResponse['data'];
+          return dosenList.map((item) {
+            try {
+              return UserModel.fromJson(item);
+            } catch (e) {
+              debugPrint('Error parsing search result: $e');
+              debugPrint('Problematic JSON: $item');
+              rethrow;
+            }
+          }).toList();
         }
+        return [];
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        final errorMessage = response.statusCode == 404
+            ? 'No results found'
+            : json.decode(response.body)['message'] ?? 'Failed to search dosen';
+        throw Exception(errorMessage);
       }
-      return [];
     } catch (e) {
-      throw Exception('Error: $e');
+      debugPrint('Error in searchDosen: $e');
+      rethrow;
     }
   }
 }

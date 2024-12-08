@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
 import 'package:sdm/models/admin/jabatan_kegiatan_response.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'api_config.dart';
+import '../api_config.dart';
 
 class ApiJabatanKegiatan {
   static const String baseUrl = ApiConfig.baseUrl;

@@ -180,7 +180,7 @@ class _HomePimpinanPageState extends State<HomePimpinanPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Anda masuk sebagai Admin',
+                'Anda masuk sebagai Pimpinan',
                 style: GoogleFonts.poppins(
                   fontSize: screenWidth * 0.03,
                   fontStyle: FontStyle.italic,
