@@ -1,17 +1,27 @@
-// dashboard_model.dart
 class DashboardModel {
-  final int totalKegiatanJTI;
-  final int totalKegiatanNonJTI;
+  final int totalKegiatan;
+  final int totalKegiatanJti;
+  final int totalKegiatanNonJti;
 
   DashboardModel({
-    required this.totalKegiatanJTI,
-    required this.totalKegiatanNonJTI,
+    required this.totalKegiatan,
+    required this.totalKegiatanJti,
+    required this.totalKegiatanNonJti,
   });
 
   factory DashboardModel.fromJson(Map<String, dynamic> json) {
     return DashboardModel(
-      totalKegiatanJTI: json['data'] as int,
-      totalKegiatanNonJTI: json['data'] as int,
+      totalKegiatan: json['total_kegiatan'] ?? 0,
+      totalKegiatanJti: json['total_kegiatan_jti'] ?? 0,
+      totalKegiatanNonJti: json['total_kegiatan_non_jti'] ?? 0,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_kegiatan': totalKegiatan,
+      'total_kegiatan_jti': totalKegiatanJti,
+      'total_kegiatan_non_jti': totalKegiatanNonJti,
+    };
   }
 }

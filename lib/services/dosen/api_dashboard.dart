@@ -1,30 +1,102 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/services/dosen/api_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sdm/models/dosen/dashboard_model.dart';
 
 class ApiDashboard {
+  static const String baseUrl = ApiConfig.baseUrl;
+  String? token;
 
-  Future<int> getTotalKegiatanJTI() async {
+  ApiDashboard({this.token});
+
+  bool get hasValidToken => token != null && token!.isNotEmpty;
+
+  Future<String?> _getToken() async {
+    if (token != null && token!.isNotEmpty) return token;
+    final prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('token');
+    return token;
+  }
+
+  Future<DashboardModel> getDashboardData() async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/dashboard-dosen/total-kegiatan-jti'),
+        Uri.parse('${ApiConfig.baseUrl}/dashboard-dosen/total-kegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
       );
-      final data = json.decode(response.body);
-      return data['data'] as int;
+
+      debugPrint('Dashboard data response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          final Map<String, dynamic> dashboardData = {
+            'total_kegiatan': jsonResponse['data']['total_kegiatan'],
+            'total_kegiatan_jti': jsonResponse['data']['total_kegiatan_jti'],
+            'total_kegiatan_non_jti': jsonResponse['data']['total_kegiatan_non_jti'],
+          };
+
+          return DashboardModel.fromJson(dashboardData);
+        }
+        throw Exception(jsonResponse['message'] ?? 'Failed to load dashboard data');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        final errorMessage = response.statusCode == 404
+            ? 'Data not found'
+            : json.decode(response.body)['message'] ?? 'Failed to load dashboard data';
+        throw Exception(errorMessage);
+      }
     } catch (e) {
-      throw Exception('Failed to load total kegiatan: $e');
+      debugPrint('Error in getDashboardData: $e');
+      rethrow;
     }
   }
 
-  Future<int> getTotalKegiatanNonJTI() async {
+  Future<Map<String, dynamic>> getTotalKegiatan() async {
     try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/dashboard-dosen/total-kegiatan-non-jti'),
+        Uri.parse('${ApiConfig.baseUrl}/dashboard-dosen/total-kegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
       );
-      final data = json.decode(response.body);
-      return data['data'] as int;
+
+      debugPrint('Total Kegiatan response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          return jsonResponse['data'];
+        }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        final errorMessage = response.statusCode == 404
+            ? 'Data not found'
+            : json.decode(response.body)['message'] ?? 'Failed to load total kegiatan';
+        throw Exception(errorMessage);
+      }
     } catch (e) {
-      throw Exception('Failed to load total kegiatan non JTI: $e');
+      debugPrint('Error in getTotalKegiatan: $e');
+      rethrow;
     }
   }
 }

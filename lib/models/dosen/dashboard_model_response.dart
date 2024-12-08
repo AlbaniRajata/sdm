@@ -1,4 +1,3 @@
-// dashboard_model_response.dart
 class DashboardModelResponse {
   final bool status;
   final String message;
@@ -12,9 +11,25 @@ class DashboardModelResponse {
 
   factory DashboardModelResponse.fromJson(Map<String, dynamic> json) {
     return DashboardModelResponse(
-      status: json['status'] as bool,
-      message: json['message'] as String,
+      status: json['status'] ?? false,
+      message: json['message'] ?? '',
       data: json['data'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'status': status,
+      'message': message,
+      'data': data,
+    };
+  }
+
+  factory DashboardModelResponse.withError(String message) {
+    return DashboardModelResponse(
+      status: false,
+      message: message,
+      data: null,
     );
   }
 }

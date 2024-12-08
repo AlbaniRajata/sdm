@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/dosen/user_model.dart';
+import 'package:sdm/models/dosen/dashboard_model.dart';
 import 'package:sdm/services/dosen/api_dashboard.dart';
 import 'package:sdm/page/dosen/daftarkegiatan_page.dart';
 import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
@@ -24,8 +25,7 @@ class HomeDosenPage extends StatefulWidget {
 
 class _HomeDosenPageState extends State<HomeDosenPage> {
   final ApiDashboard _apiDashboard = ApiDashboard();
-  int _totalKegiatanJTI = 0;
-  int _totalKegiatanNonJTI = 0;
+  DashboardModel? _dashboardData;
   bool _isLoading = true;
   String _error = '';
 
@@ -38,13 +38,11 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
   Future<void> _loadDashboardData() async {
     try {
       setState(() => _isLoading = true);
-      final totalKegiatanJTI = await _apiDashboard.getTotalKegiatanJTI();
-      final totalKegiatanNonJTI = await _apiDashboard.getTotalKegiatanNonJTI();
+      final dashboardData = await _apiDashboard.getDashboardData();
 
       if (mounted) {
         setState(() {
-          _totalKegiatanJTI = totalKegiatanJTI;
-          _totalKegiatanNonJTI = totalKegiatanNonJTI;
+          _dashboardData = dashboardData;
           _error = '';
           _isLoading = false;
         });
@@ -56,6 +54,7 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
           _isLoading = false;
         });
       }
+      debugPrint('Error loading dashboard data: $e');
     }
   }
 
@@ -86,7 +85,9 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
               _buildHeaderText(screenWidth),
               Padding(
                 padding: const EdgeInsets.symmetric(
-                    vertical: 15.0, horizontal: 15.0),
+                  vertical: 15.0,
+                  horizontal: 15.0,
+                ),
                 child: _buildMainContent(context, screenWidth),
               ),
             ],
@@ -230,32 +231,58 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
-                _buildMenuButton(context, 'Kegiatan JTI', Icons.event, const DaftarKegiatanJTIPage(), screenWidth),
-                _buildMenuButton(context, 'Kegiatan Non-JTI', Icons.event, const DaftarKegiatanNonJTIPage(), screenWidth),
+                _buildMenuButton(
+                  context,
+                  'Kegiatan',
+                  Icons.event,
+                  const DaftarKegiatanPage(),
+                  screenWidth,
+                ),
+                _buildMenuButton(
+                  context,
+                  'Kegiatan JTI',
+                  Icons.event,
+                  const DaftarKegiatanJTIPage(),
+                  screenWidth,
+                ),
+                _buildMenuButton(
+                  context,
+                  'Kegiatan Non-JTI',
+                  Icons.event,
+                  const DaftarKegiatanNonJTIPage(),
+                  screenWidth,
+                ),
               ],
             ),
             SizedBox(height: screenWidth * 0.04),
-            _buildMenuButton(context, 'Statistik', Icons.bar_chart, const StatistikPage(), screenWidth),
+            _buildMenuButton(
+              context,
+              'Statistik',
+              Icons.bar_chart,
+              const StatistikPage(),
+              screenWidth,
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMenuButton(BuildContext context, String title, IconData icon, Widget page, double screenWidth) {
+  Widget _buildMenuButton(BuildContext context, String title, IconData icon,
+      Widget page, double screenWidth) {
     return Column(
       children: [
         SizedBox(
           width: screenWidth * 0.22,
           height: screenWidth * 0.16,
           child: ElevatedButton(
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => page)),
+            onPressed: () =>
+                Navigator.push(context, MaterialPageRoute(builder: (_) => page)),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0)),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
             ),
             child: Icon(icon, color: Colors.white, size: screenWidth * 0.1),
           ),
@@ -264,7 +291,9 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
         Text(
           title,
           style: GoogleFonts.poppins(
-              color: Colors.black, fontSize: screenWidth * 0.03),
+            color: Colors.black,
+            fontSize: screenWidth * 0.03,
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -318,7 +347,7 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
                 const SizedBox(height: 20),
                 _buildInfoSection(
                   'Jumlah Kegiatan JTI',
-                  _totalKegiatanJTI.toString(),
+                  _dashboardData?.totalKegiatanJti.toString() ?? '0',
                   'Kegiatan JTI',
                   'yang terdaftar dalam sistem',
                   screenWidth,
@@ -326,7 +355,7 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
                 const SizedBox(height: 20),
                 _buildInfoSection(
                   'Jumlah Kegiatan Non JTI',
-                  _totalKegiatanNonJTI.toString(),
+                  _dashboardData?.totalKegiatanNonJti.toString() ?? '0',
                   'Kegiatan Non JTI',
                   'yang terdaftar dalam sistem',
                   screenWidth,
