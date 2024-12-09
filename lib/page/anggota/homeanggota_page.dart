@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/page/anggota/daftarkegiatan_page.dart';
 import 'package:sdm/page/anggota/daftarkegiatanagenda_page.dart';
 import 'package:sdm/page/anggota/notifikasi_page.dart';
@@ -7,7 +8,8 @@ import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
 import 'package:sdm/widget/anggota/custom_content.dart';
 
 class HomeanggotaPage extends StatelessWidget {
-  const HomeanggotaPage({super.key});
+  final UserModel user;
+  const HomeanggotaPage({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +124,7 @@ class HomeanggotaPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 45),
                           Text(
-                            'Hai, Albani Rajata',
+                            'Hai, ${user.nama}',
                             style: GoogleFonts.poppins(
                               fontSize: screenWidth * 0.07,
                               fontWeight: FontWeight.bold,

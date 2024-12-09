@@ -153,8 +153,7 @@ class StatistikPageState extends State<StatistikPage> {
           ),
         ],
       ),
-      floatingActionButton:
-          CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );

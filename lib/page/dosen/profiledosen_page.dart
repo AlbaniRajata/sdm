@@ -177,7 +177,6 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
                     MaterialPageRoute(
                       builder: (context) => DetailprofilePage(
                         userData: widget.user,
-                        statistikData: _statistikData,
                       ),
                     ),
                   );
@@ -211,44 +210,54 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
                 ],
               ),
               const SizedBox(height: 10),
-              if (widget.user.level.toLowerCase().contains('pic')) ...[
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-                    child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
-                  ),
-                  title: Text(
-                    'Masuk sebagai PIC',
-                    style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HomepicPage()),
-                    );
-                  },
+              Divider(
+                thickness: 0.5,
+                color: Colors.grey[300],
+                indent: 20,
+                endIndent: 20,
+              ),
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+                  child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
                 ),
-              ],
-              if (widget.user.level.toLowerCase().contains('anggota')) ...[
-                ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-                    child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
-                  ),
-                  title: Text(
-                    'Masuk sebagai Anggota',
-                    style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HomeanggotaPage()),
-                    );
-                  },
+                title: Text(
+                  'Masuk Sebagai PIC',
+                  style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
                 ),
-              ],
+                trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => HomepicPage(user: widget.user),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              Divider(
+                thickness: 0.5,
+                color: Colors.grey[300],
+                indent: 20,
+                endIndent: 20,
+              ),
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+                  child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
+                ),
+                title: Text(
+                  'Masuk Sebagai Anggota',
+                  style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
+                ),
+                trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => HomeanggotaPage(user: widget.user)),
+                  );
+                },
+              ),
               const SizedBox(height: 10),
               Divider(
                 thickness: 0.5,

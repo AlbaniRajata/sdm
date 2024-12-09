@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/page/pic/daftarkegiatan_page.dart';
 import 'package:sdm/page/pic/daftarkegiatanagenda_page.dart';
 import 'package:sdm/page/pic/notifikasi_page.dart';
@@ -7,7 +8,9 @@ import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:sdm/widget/pic/custom_content.dart';
 
 class HomepicPage extends StatelessWidget {
-  const HomepicPage({super.key});
+  final UserModel user;
+
+  const HomepicPage({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -116,71 +119,71 @@ class HomepicPage extends StatelessWidget {
                             style: GoogleFonts.poppins(
                               fontSize: screenWidth * 0.03,
                               fontStyle: FontStyle.italic,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                            ),
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
-                          const SizedBox(height: 45),
-                          Text(
-                            'Hai, Albani Rajata',
-                            style: GoogleFonts.poppins(
-                              fontSize: screenWidth * 0.07,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                            overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 45),
+                        Text(
+                          'Hai, ${user.nama}',
+                          style: GoogleFonts.poppins(
+                            fontSize: screenWidth * 0.07,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
-                          const SizedBox(height: 5),
-                          Container(
-                            height: screenWidth * 0.31,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 3),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 5),
+                        Container(
+                          height: screenWidth * 0.31,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(18.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
+                                    _buildMenuButton(context, 'Progres Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
+                                    _buildMenuButton(context, 'Agenda Anggota', Icons.bar_chart, const DaftarKegiatanAgendaPage(), screenWidth),
+                                  ],
                                 ),
                               ],
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(18.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
-                                      _buildMenuButton(context, 'Progres Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
-                                      _buildMenuButton(context, 'Agenda Anggota', Icons.bar_chart, const DaftarKegiatanAgendaPage(), screenWidth),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          CustomContent(screenWidth: screenWidth), 
+            ),
           ],
         ),
-      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const CustomBottomAppBar(
-        currentPage: 'home',
-      ),
-    );
-  }
+        const SizedBox(height: 5),
+        CustomContent(screenWidth: screenWidth), 
+      ],
+    ),
+    floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
+    floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    bottomNavigationBar: const CustomBottomAppBar(
+      currentPage: 'home',
+    ),
+  );
+}
 
   Widget _buildMenuButton(BuildContext context, String title, IconData icon, Widget page, double screenWidth) {
     final screenWidth = MediaQuery.of(context).size.width;

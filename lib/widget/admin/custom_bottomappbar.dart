@@ -64,7 +64,7 @@ class CustomBottomAppBar extends StatelessWidget {
     required VoidCallback onPressed,
   }) {
     return IconButton(
-      icon: Icon(icon, size: 30),
+      icon: Icon(icon, size: 40),
       color: isSelected ? Colors.white : Colors.grey.shade400,
       onPressed: onPressed,
     );

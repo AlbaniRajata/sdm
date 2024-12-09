@@ -1,13 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sdm/models/dosen/user_model.dart';
+import 'package:sdm/page/anggota/homeanggota_page.dart';
+import 'package:sdm/page/pic/detailprofile_page.dart';
 import 'package:sdm/page/dosen/homedosen_page.dart';
 import 'package:sdm/page/dosen/logindosen_page.dart';
-import 'package:sdm/page/pic/editprofile_page.dart';
-import 'package:sdm/page/anggota/homeanggota_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilepicPage extends StatelessWidget {
-  const ProfilepicPage({super.key});
+  final UserModel user;
+
+  const ProfilepicPage({super.key, required this.user});
+
+  Future<void> _handleLogout(BuildContext context) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginDosenPage()),
+        (route) => false,
+      );
+    } catch (e) {
+      debugPrint('Error during logout: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal melakukan logout. Silahkan coba lagi.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,24 +58,24 @@ class ProfilepicPage extends StatelessWidget {
           const SizedBox(height: 30),
           const CircleAvatar(
             radius: 50,
-            backgroundImage: AssetImage('assets/images/pp.png'),
+            backgroundColor: Colors.grey,
           ),
           const SizedBox(height: 15),
           Text(
-            'Albani Rajata Malik',
+            user.nama,
             style: GoogleFonts.poppins(fontSize: screenWidth * 0.045, fontWeight: FontWeight.bold),
           ),
           Text(
-            'albanirajata@polinema.ac.id',
+            user.email,
             style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: screenWidth * 0.035),
           ),
           const SizedBox(height: 15),
           ElevatedButton(
             onPressed: () {
-              Navigator.pushReplacement(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const EditProfilePage(),
+                  builder: (context) => DetailProfilePage(user: user),
                 ),
               );
             },
@@ -63,7 +87,7 @@ class ProfilepicPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
             ),
             child: Text(
-              'Edit Profil',
+              'Detail Profil',
               style: GoogleFonts.poppins(color: Colors.white, fontSize: screenWidth * 0.04),
             ),
           ),
@@ -74,58 +98,35 @@ class ProfilepicPage extends StatelessWidget {
               Icon(Icons.emoji_events, color: const Color.fromRGBO(255, 175, 3, 1), size: screenWidth * 0.05),
               const SizedBox(width: 8),
               Text(
-                '14 Poin',
+                'panggil Poin',
                 style: GoogleFonts.poppins(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Divider(
-            thickness: 0.5,
-            color: Colors.grey[300],
-            indent: 20,
-            endIndent: 20,
-          ),
           const SizedBox(height: 10),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
-            ),
-            title: Text(
-              'Masuk sebagai PIC',
-              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-            ),
-            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-            onTap: () {},
-          ),
-          const SizedBox(height: 10),
-          ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-              child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
-            ),
-            title: Text(
-              'Masuk sebagai Anggota',
-              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-            ),
-            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HomeanggotaPage(),
+              Divider(
+                thickness: 0.5,
+                color: Colors.grey[300],
+                indent: 20,
+                endIndent: 20,
+              ),
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+                  child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
                 ),
-              );
-            },
-          ),
-          const SizedBox(height: 10),
-          Divider(
-            thickness: 0.5,
-            color: Colors.grey[300],
-            indent: 20,
-            endIndent: 20,
-          ),
+                title: Text(
+                  'Masuk Sebagai Anggota',
+                  style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
+                ),
+                trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => HomeanggotaPage(user: user)),
+                  );
+                },
+              ),
           const SizedBox(height: 10),
           ListTile(
             leading: CircleAvatar(
@@ -138,12 +139,12 @@ class ProfilepicPage extends StatelessWidget {
             ),
             trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
             onTap: () {
-              // Navigator.pushReplacement(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => const HomeDosenPage(),
-              //   ),
-              // );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomeDosenPage(user: user),
+                ),
+              );
             },
           ),
           const SizedBox(height: 10),
@@ -164,14 +165,7 @@ class ProfilepicPage extends StatelessWidget {
               style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
             ),
             trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginDosenPage(),
-                ),
-              );
-            },
+            onTap: () => _handleLogout(context),
           ),
         ],
       ),
