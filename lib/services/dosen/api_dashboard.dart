@@ -101,7 +101,7 @@ class ApiDashboard {
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getDashboardData: $e');
+      debugPrint('Error in getDashboardPIC: $e');
       rethrow;
     }
   }
