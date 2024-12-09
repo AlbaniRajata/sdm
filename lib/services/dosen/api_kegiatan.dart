@@ -204,4 +204,95 @@ class ApiKegiatan {
       rethrow;
     }
   }
+
+  // pic
+  Future<List<KegiatanModel>> getKegiatanPICList() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/pic-kegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kegiatan PIC List response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        debugPrint('Decoded response: $jsonResponse');
+
+        if (jsonResponse['status'] == true && jsonResponse['data'] != null) {
+          if (jsonResponse['data'] is List) {
+            final List<dynamic> kegiatanList = jsonResponse['data'];
+            return kegiatanList.map((json) {
+              try {
+                return KegiatanModel.fromJson(json);
+              } catch (e) {
+                debugPrint('Error parsing kegiatan: $e');
+                debugPrint('Problematic JSON: $json');
+                rethrow;
+              }
+            }).toList();
+          } else {
+            debugPrint('Data is not a List: ${jsonResponse['data']}');
+            return [];
+          }
+        } else if (jsonResponse['data'] == null) {
+          return [];
+        }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        final errorMessage = response.statusCode == 404
+            ? 'Data not found'
+            : json.decode(response.body)['message'] ?? 'Failed to load kegiatan PIC list';
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      debugPrint('Error in getKegiatanPICList: $e');
+      rethrow;
+    }
+  }
+
+  Future<KegiatanModel> getKegiatanPICDetail(int idKegiatan) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/pic-kegiatan/$idKegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kegiatan PIC Detail response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          return KegiatanModel.fromJson(jsonResponse['data']);
+        }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(json.decode(response.body)['message'] ??
+            'Failed to load kegiatan PIC detail');
+      }
+    } catch (e) {
+      debugPrint('Error in getKegiatanPICDetail: $e');
+      rethrow;
+    }
+  }
 }
