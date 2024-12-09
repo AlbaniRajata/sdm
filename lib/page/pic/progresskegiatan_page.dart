@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
-import 'package:sdm/page/pic/detailkegiatan_page.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
@@ -234,21 +233,6 @@ class ProgressKegiatanPageState extends State<ProgressKegiatanPage> {
                         child: Text(
                           kegiatan.jenisKegiatan,
                           style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => DetailKegiatanPage(kegiatanId: kegiatan.idKegiatan)),
-                          );
-                        },
-                        child: Text(
-                          'Lihat Detail',
-                          style: GoogleFonts.poppins(
-                            color: const Color(0xFF00796B),
-                            fontSize: fontSize,
-                          ),
                         ),
                       ),
                     ],

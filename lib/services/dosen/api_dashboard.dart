@@ -63,6 +63,49 @@ class ApiDashboard {
     }
   }
 
+  Future<DashboardModel> getDashboardPIC() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/dashboard-dosen/pic'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Dashboard data response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          final Map<String, dynamic> dashboardData = {
+            'total_kegiatan': jsonResponse['data']['total_kegiatan'],
+            'total_kegiatan_jti': jsonResponse['data']['total_kegiatan_jti'],
+            'total_kegiatan_non_jti': jsonResponse['data']['total_kegiatan_non_jti'],
+          };
+
+          return DashboardModel.fromJson(dashboardData);
+        }
+        throw Exception(jsonResponse['message'] ?? 'Failed to load dashboard data');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        final errorMessage = response.statusCode == 404
+            ? 'Data not found'
+            : json.decode(response.body)['message'] ?? 'Failed to load dashboard data';
+        throw Exception(errorMessage);
+      }
+    } catch (e) {
+      debugPrint('Error in getDashboardData: $e');
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> getTotalKegiatan() async {
     try {
       final token = await _getToken();
