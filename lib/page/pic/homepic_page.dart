@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/page/pic/daftarkegiatan_page.dart';
+import 'package:sdm/page/pic/progresskegiatan_page.dart';
 import 'package:sdm/page/pic/daftarkegiatanagenda_page.dart';
 import 'package:sdm/page/pic/notifikasi_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
@@ -157,7 +158,7 @@ class HomepicPage extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     _buildMenuButton(context, 'Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
-                                    _buildMenuButton(context, 'Progres Kegiatan', Icons.event, const DaftarKegiatanPage(), screenWidth),
+                                    _buildMenuButton(context, 'Progres Kegiatan', Icons.event, const ProgressKegiatanPage(), screenWidth),
                                     _buildMenuButton(context, 'Agenda Anggota', Icons.bar_chart, const DaftarKegiatanAgendaPage(), screenWidth),
                                   ],
                                 ),

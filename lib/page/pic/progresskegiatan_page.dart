@@ -8,14 +8,14 @@ import 'package:intl/intl.dart';
 import 'package:sdm/widget/pic/custom_filter.dart';
 import 'package:sdm/widget/pic/kegiatan_sortoption.dart';
 
-class DaftarKegiatanPage extends StatefulWidget {
-  const DaftarKegiatanPage({super.key});
+class ProgressKegiatanPage extends StatefulWidget {
+  const ProgressKegiatanPage({super.key});
 
   @override
-  DaftarKegiatanPageState createState() => DaftarKegiatanPageState();
+  ProgressKegiatanPageState createState() => ProgressKegiatanPageState();
 }
 
-class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
+class ProgressKegiatanPageState extends State<ProgressKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<KegiatanModel> kegiatanList = [];
   List<KegiatanModel> filteredKegiatanList = [];
@@ -88,7 +88,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text(
-          'Daftar Kegiatan',
+          'Progress Kegiatan',
           style: GoogleFonts.poppins(
             fontWeight: FontWeight.bold,
             color: Colors.white,
@@ -200,34 +200,14 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tempat Kegiatan',
+                          'Progress',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          kegiatan.tempatKegiatan,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tanggal',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          kegiatan.tanggalAcara,
+                          '${kegiatan.progress}%',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontStyle: FontStyle.italic,
@@ -238,7 +218,8 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Divider(), // Garis pembatas
+                const Divider(),
+                const SizedBox(height: 10),
                 Align(
                   alignment: Alignment.centerRight,
                   child: Row(
