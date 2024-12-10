@@ -126,6 +126,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                               _buildDetailField('Tanggal Acara', kegiatan!.tanggalAcara),
                               _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
                               _buildDetailField('Jenis Kegiatan', kegiatan!.jenisKegiatan),
+                              _buildDetailField('Jabatan', kegiatan!.jabatanNama ?? 'Tidak ada jabatan'),
                               const SizedBox(height: 16.0),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,

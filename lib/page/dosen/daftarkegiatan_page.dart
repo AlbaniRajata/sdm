@@ -215,6 +215,26 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
+                          'Jabatan',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          kegiatan.jabatanNama ?? '-',
+                          style: GoogleFonts.poppins(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
                           'Tanggal Acara',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
