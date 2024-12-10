@@ -80,10 +80,10 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           filteredKegiatanList.sort((a, b) => b.tanggalAcara.compareTo(a.tanggalAcara));
           break;
         case KegiatanSortOption.jti:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'JTI').toList();
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan JTI').toList();
           break;
         case KegiatanSortOption.nonJTI:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Non JTI').toList();
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan Non-JTI').toList();
           break;
       }
     });
@@ -281,7 +281,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: kegiatan.jenisKegiatan == 'JTI'
+                        color: kegiatan.jenisKegiatan == 'Kegiatan JTI'
                           ? const Color(0xFF2196F3)
                           : const Color(0xFFFF9800),
                         borderRadius: BorderRadius.circular(4),
