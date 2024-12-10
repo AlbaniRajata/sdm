@@ -7,7 +7,7 @@ import 'package:sdm/page/admin/daftarpengguna_page.dart';
 import 'package:sdm/page/admin/daftarjabatan_page.dart';
 import 'package:sdm/page/admin/statistik_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
-import 'package:sdm/widget/admin/custom_calendar.dart';
+import 'package:sdm/widget/admin/custom_content.dart';
 
 class HomeAdminPage extends StatefulWidget {
   final UserModel user;
@@ -231,186 +231,13 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
   }
 
   Widget _buildDashboardContent(double screenWidth) {
-    if (_isLoading) {
-      return const Expanded(
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (_error.isNotEmpty) {
-      return Expanded(
-        child: RefreshIndicator(
-          onRefresh: _loadDashboardData,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.7,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(_error),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _loadDashboardData,
-                      child: const Text('Coba Lagi'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Expanded(
-      child: RefreshIndicator(
-        onRefresh: _loadDashboardData,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInfoSection(
-                  'Jumlah Dosen',
-                  _totalDosen.toString(),
-                  'Dosen',
-                  'yang terdaftar dalam sistem',
-                  screenWidth,
-                ),
-                const SizedBox(height: 20),
-                _buildInfoSection(
-                  'Jumlah Kegiatan JTI',
-                  _totalKegiatanJTI.toString(),
-                  'Kegiatan JTI',
-                  'yang terdaftar dalam sistem',
-                  screenWidth,
-                ),
-                const SizedBox(height: 20),
-                _buildInfoSection(
-                  'Jumlah Kegiatan Non JTI',
-                  _totalKegiatanNonJTI.toString(),
-                  'Kegiatan Non JTI',
-                  'yang terdaftar dalam sistem',
-                  screenWidth,
-                ),
-                const SizedBox(height: 20),
-                CustomCalendar(
-                  focusedDay: DateTime.now(),
-                  selectedDay: DateTime.now(),
-                  onDaySelected: (selectedDay) {},
-                ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoSection(String title, String count, String subtitle, String description, double screenWidth) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.poppins(
-            fontSize: screenWidth * 0.04,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
-        ),
-        const SizedBox(height: 10),
-        _buildGradientContainer(count, subtitle, description, screenWidth),
-      ],
-    );
-  }
-
-  Widget _buildGradientContainer(String count, String subtitle, String description, double screenWidth) {
-    return Container(
-      width: screenWidth * 0.96,
-      height: screenWidth * 0.4,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: Colors.grey.shade200,
-      ),
-      child: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: const LinearGradient(
-                colors: [Color(0xFFF44708), Color(0xFF6777EF)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-          ),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              'assets/images/img-min.png',
-              fit: BoxFit.cover,
-              width: screenWidth * 0.96,
-              height: screenWidth * 0.4,
-              color: Colors.black.withOpacity(0.2),
-              colorBlendMode: BlendMode.dstATop,
-            ),
-          ),
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Container(
-              width: screenWidth * 0.32,
-              height: screenWidth * 0.29,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white, width: 1),
-              ),
-              child: Center(
-                child: Text(
-                  count,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 50,
-            left: 165,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  subtitle,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.06,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                Text(
-                  description,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.03,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return CustomContent(
+      isLoading: _isLoading,
+      error: _error,
+      totalDosen: _totalDosen,
+      totalKegiatanJTI: _totalKegiatanJTI,
+      totalKegiatanNonJTI: _totalKegiatanNonJTI,
+      onRefresh: _loadDashboardData,
     );
   }
 }

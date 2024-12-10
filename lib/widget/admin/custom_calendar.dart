@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:sdm/services/admin/api_kegiatan.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CustomCalendar extends StatefulWidget {
@@ -23,12 +24,49 @@ class _CustomCalendarState extends State<CustomCalendar> {
   late DateTime _focusedDay;
   DateTime? _selectedDay;
   String? _selectedEvent;
+  Map<DateTime, String> _events = {};
+  bool _isLoading = false;
+  final ApiKegiatan _apiKegiatan = ApiKegiatan();
 
   @override
   void initState() {
     super.initState();
     _focusedDay = widget.focusedDay;
     _selectedDay = widget.selectedDay;
+    _loadEvents();
+  }
+
+  Future<void> _loadEvents() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final events = await _apiKegiatan.getKalenderKegiatan();
+      setState(() {
+        _events = events;
+        if (_selectedDay != null) {
+          _selectedEvent = _fetchEventForDay(_selectedDay!);
+        }
+      });
+    } catch (e) {
+      debugPrint('Error loading events: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Gagal memuat data kegiatan: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  String? _fetchEventForDay(DateTime day) {
+    final normalizedDate = DateTime(day.year, day.month, day.day);
+    return _events[normalizedDate];
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -40,18 +78,6 @@ class _CustomCalendarState extends State<CustomCalendar> {
     widget.onDaySelected(selectedDay);
   }
 
-  String? _fetchEventForDay(DateTime day) {
-  // Data dummy
-  if (day.year == 2024 && day.month == 12 && day.day == 10) {
-    return 'Meeting with team';
-  } else if (day.year == 2024 && day.month == 12 && day.day == 15) {
-    return 'Project deadline';
-  } else if (day.year == 2024 && day.month == 12 && day.day == 20) {
-    return 'Company event';
-  }
-  return null;
-}
-
   Future<void> _selectMonthYear(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -59,13 +85,19 @@ class _CustomCalendarState extends State<CustomCalendar> {
       firstDate: DateTime(2010),
       lastDate: DateTime(2030),
       initialEntryMode: DatePickerEntryMode.calendarOnly,
-      selectableDayPredicate: (DateTime val) => true, 
+      selectableDayPredicate: (DateTime val) => true,
+      locale: const Locale('id', 'ID'),
     );
     if (picked != null && picked != _focusedDay) {
       setState(() {
         _focusedDay = DateTime(picked.year, picked.month);
       });
     }
+  }
+
+  List<dynamic> _getEventsForDay(DateTime day) {
+    final event = _fetchEventForDay(day);
+    return event != null ? [event] : [];
   }
 
   @override
@@ -129,89 +161,83 @@ class _CustomCalendarState extends State<CustomCalendar> {
               ],
             ),
           ),
-          TableCalendar(
-            locale: 'id_ID',
-            firstDay: DateTime.utc(2010, 10, 16),
-            lastDay: DateTime.utc(2030, 3, 14),
-            focusedDay: _focusedDay,
-            selectedDayPredicate: (day) {
-              return isSameDay(_selectedDay, day);
-            },
-            onDaySelected: _onDaySelected,
-            calendarStyle: const CalendarStyle(
-              selectedDecoration: BoxDecoration(
-                color: Color.fromARGB(255, 5, 167, 170),
-                shape: BoxShape.circle,
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            )
+          else
+            TableCalendar(
+              locale: 'id_ID',
+              firstDay: DateTime.utc(2010, 10, 16),
+              lastDay: DateTime.utc(2030, 3, 14),
+              focusedDay: _focusedDay,
+              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+              eventLoader: _getEventsForDay,
+              onDaySelected: _onDaySelected,
+              calendarStyle: const CalendarStyle(
+                selectedDecoration: BoxDecoration(
+                  color: Color.fromARGB(255, 5, 167, 170),
+                  shape: BoxShape.circle,
+                ),
+                todayDecoration: BoxDecoration(
+                  color: Colors.grey,
+                  shape: BoxShape.circle,
+                ),
+                selectedTextStyle: TextStyle(color: Colors.white),
+                todayTextStyle: TextStyle(color: Colors.white),
+                defaultDecoration: BoxDecoration(
+                  color: Colors.transparent,
+                ),
+                weekendDecoration: BoxDecoration(
+                  color: Colors.transparent,
+                ),
+                markerDecoration: BoxDecoration(
+                  color: Color.fromARGB(255, 5, 167, 170),
+                  shape: BoxShape.circle,
+                ),
               ),
-              todayDecoration: BoxDecoration(
-                color: Colors.grey,
-                shape: BoxShape.circle,
+              headerStyle: const HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                leftChevronVisible: false,
+                rightChevronVisible: false,
               ),
-              selectedTextStyle: TextStyle(color: Colors.white),
-              todayTextStyle: TextStyle(color: Colors.white),
-              defaultDecoration: BoxDecoration(
-                color: Colors.transparent,
-              ),
-              weekendDecoration: BoxDecoration(
-                color: Colors.transparent,
+              calendarBuilders: CalendarBuilders(
+                headerTitleBuilder: (context, day) {
+                  return Container();
+                },
+                markerBuilder: (context, day, events) {
+                  if (events.isNotEmpty) {
+                    return Positioned(
+                      bottom: 1,
+                      child: Container(
+                        height: 6,
+                        width: 6,
+                        decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 5, 167, 170),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    );
+                  }
+                  return null;
+                },
               ),
             ),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false,
-              titleCentered: true,
-              leftChevronVisible: false,
-              rightChevronVisible: false,
-            ),
-            calendarBuilders: CalendarBuilders(
-              headerTitleBuilder: (context, day) {
-                return Container();
-              },
-            ),
-          ),
-          if (_selectedEvent != null) ...[
+          if (_selectedDay != null) ...[
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Kegiatan: $_selectedEvent',
+                'Kegiatan: ${_selectedEvent ?? 'Tidak ada kegiatan'}',
                 style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle detail view navigation
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              child: Text(
-                'Lihat Detail',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontSize: 16,
                 ),
               ),
             ),
             const SizedBox(height: 16),
-          ] else if (_selectedDay != null) ...[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Kegiatan: Tidak ada kegiatan',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
           ],
         ],
       ),

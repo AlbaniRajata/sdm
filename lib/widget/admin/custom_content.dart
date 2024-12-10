@@ -1,69 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:sdm/services/admin/api_dashboard.dart';
 import 'package:sdm/widget/admin/custom_calendar.dart';
 
-class CustomContent extends StatefulWidget {
-  final double screenWidth;
+class CustomContent extends StatelessWidget {
+  final bool isLoading;
+  final String error;
+  final int totalDosen;
+  final int totalKegiatanJTI;
+  final int totalKegiatanNonJTI;
+  final Future<void> Function() onRefresh;
 
-  const CustomContent({Key? key, required this.screenWidth}) : super(key: key);
-
-  @override
-  State<CustomContent> createState() => _CustomContentState();
-}
-
-class _CustomContentState extends State<CustomContent> {
-  final ApiDashboard _apiDashboard = ApiDashboard();
-  int _totalDosen = 0;
-  int _totalKegiatanJTI = 0;
-  int _totalKegiatanNonJTI = 0;
-  bool _isLoading = true;
-  String _error = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadDashboardData();
-  }
-
-  Future<void> _loadDashboardData() async {
-    try {
-      setState(() => _isLoading = true);
-      final totalDosen = await _apiDashboard.getTotalDosen();
-      final totalKegiatanJTI = await _apiDashboard.getTotalKegiatanJTI();
-      final totalKegiatanNonJTI = await _apiDashboard.getTotalKegiatanNonJTI();
-      
-      if (mounted) {
-        setState(() {
-          _totalDosen = totalDosen;
-          _totalKegiatanJTI = totalKegiatanJTI;
-          _totalKegiatanNonJTI = totalKegiatanNonJTI;
-          _error = '';
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _error = e.toString();
-          _isLoading = false;
-        });
-      }
-    }
-  }
+  const CustomContent({
+    Key? key,
+    required this.isLoading,
+    required this.error,
+    required this.totalDosen,
+    required this.totalKegiatanJTI,
+    required this.totalKegiatanNonJTI,
+    required this.onRefresh,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (isLoading) {
       return const Expanded(
         child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (_error.isNotEmpty) {
+    if (error.isNotEmpty) {
       return Expanded(
         child: RefreshIndicator(
-          onRefresh: _loadDashboardData,
+          onRefresh: onRefresh,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: SizedBox(
@@ -72,10 +42,10 @@ class _CustomContentState extends State<CustomContent> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(_error),
+                    Text(error),
                     const SizedBox(height: 16),
                     ElevatedButton(
-                      onPressed: _loadDashboardData,
+                      onPressed: onRefresh,
                       child: const Text('Coba Lagi'),
                     ),
                   ],
@@ -89,7 +59,7 @@ class _CustomContentState extends State<CustomContent> {
 
     return Expanded(
       child: RefreshIndicator(
-        onRefresh: _loadDashboardData,
+        onRefresh: onRefresh,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
@@ -99,23 +69,26 @@ class _CustomContentState extends State<CustomContent> {
               children: [
                 _buildInfoSection(
                   'Jumlah Dosen',
-                  _totalDosen.toString(),
+                  totalDosen.toString(),
                   'Dosen',
                   'yang terdaftar dalam sistem',
+                  screenWidth,
                 ),
                 const SizedBox(height: 20),
                 _buildInfoSection(
                   'Jumlah Kegiatan JTI',
-                  _totalKegiatanJTI.toString(),
+                  totalKegiatanJTI.toString(),
                   'Kegiatan JTI',
                   'yang terdaftar dalam sistem',
+                  screenWidth,
                 ),
                 const SizedBox(height: 20),
                 _buildInfoSection(
                   'Jumlah Kegiatan Non JTI',
-                  _totalKegiatanNonJTI.toString(),
+                  totalKegiatanNonJTI.toString(),
                   'Kegiatan Non JTI',
                   'yang terdaftar dalam sistem',
+                  screenWidth,
                 ),
                 const SizedBox(height: 20),
                 CustomCalendar(
@@ -132,28 +105,28 @@ class _CustomContentState extends State<CustomContent> {
     );
   }
 
-  Widget _buildInfoSection(String title, String count, String subtitle, String description) {
+  Widget _buildInfoSection(String title, String count, String subtitle, String description, double screenWidth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           title,
           style: GoogleFonts.poppins(
-            fontSize: widget.screenWidth * 0.04,
+            fontSize: screenWidth * 0.04,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
         const SizedBox(height: 10),
-        _buildGradientContainer(count, subtitle, description),
+        _buildGradientContainer(count, subtitle, description, screenWidth),
       ],
     );
   }
 
-  Widget _buildGradientContainer(String count, String subtitle, String description) {
+  Widget _buildGradientContainer(String count, String subtitle, String description, double screenWidth) {
     return Container(
-      width: widget.screenWidth * 0.96,
-      height: widget.screenWidth * 0.4,
+      width: screenWidth * 0.96,
+      height: screenWidth * 0.4,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         color: Colors.grey.shade200,
@@ -170,75 +143,63 @@ class _CustomContentState extends State<CustomContent> {
               ),
             ),
           ),
-          _buildBackgroundImage(),
-          _buildCountDisplay(count),
-          _buildSubtitleDescription(subtitle, description),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBackgroundImage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: Image.asset(
-        'assets/images/img-min.png',
-        fit: BoxFit.cover,
-        width: widget.screenWidth * 0.96,
-        height: widget.screenWidth * 0.4,
-        color: Colors.black.withOpacity(0.2),
-        colorBlendMode: BlendMode.dstATop,
-      ),
-    );
-  }
-
-  Widget _buildCountDisplay(String count) {
-    return Positioned(
-      top: 20,
-      left: 20,
-      child: Container(
-        width: widget.screenWidth * 0.32,
-        height: widget.screenWidth * 0.29,
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.4),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.white, width: 1),
-        ),
-        child: Center(
-          child: Text(
-            count,
-            style: GoogleFonts.poppins(
-              fontSize: widget.screenWidth * 0.22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              'assets/images/img-min.png',
+              fit: BoxFit.cover,
+              width: screenWidth * 0.96,
+              height: screenWidth * 0.4,
+              color: Colors.black.withOpacity(0.2),
+              colorBlendMode: BlendMode.dstATop,
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubtitleDescription(String subtitle, String description) {
-    return Positioned(
-      bottom: 50,
-      left: 165,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            subtitle,
-            style: GoogleFonts.poppins(
-              fontSize: widget.screenWidth * 0.06,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          Positioned(
+            top: 20,
+            left: 20,
+            child: Container(
+              width: screenWidth * 0.32,
+              height: screenWidth * 0.29,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.white, width: 1),
+              ),
+              child: Center(
+                child: Text(
+                  count,
+                  style: GoogleFonts.poppins(
+                    fontSize: screenWidth * 0.22,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ),
-          Text(
-            description,
-            style: GoogleFonts.poppins(
-              fontSize: widget.screenWidth * 0.03,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
+          Positioned(
+            bottom: 50,
+            left: 165,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  subtitle,
+                  style: GoogleFonts.poppins(
+                    fontSize: screenWidth * 0.06,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  description,
+                  style: GoogleFonts.poppins(
+                    fontSize: screenWidth * 0.03,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
