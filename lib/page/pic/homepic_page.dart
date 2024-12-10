@@ -6,7 +6,6 @@ import 'package:sdm/services/dosen/api_dashboard.dart';
 import 'package:sdm/page/pic/daftarkegiatan_page.dart';
 import 'package:sdm/page/pic/progresskegiatan_page.dart';
 import 'package:sdm/page/pic/daftarkegiatanagenda_page.dart';
-import 'package:sdm/page/pic/notifikasi_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:sdm/widget/pic/custom_calendar.dart';
 
@@ -80,7 +79,6 @@ class _HomepicPageState extends State<HomepicPage> {
                   height: 250,
                 ),
               ),
-              _buildNotificationButton(screenWidth),
               _buildHeaderText(screenWidth),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -99,43 +97,6 @@ class _HomepicPageState extends State<HomepicPage> {
           const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(currentPage: 'home'),
-    );
-  }
-
-  Widget _buildNotificationButton(double screenWidth) {
-    return Positioned(
-      top: 28,
-      right: 0,
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Color.fromRGBO(255, 175, 3, 1),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            bottomLeft: Radius.circular(16),
-          ),
-        ),
-        child: TextButton(
-          onPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const NotifikasiPage()),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.notifications, color: Colors.white),
-              const SizedBox(width: 5),
-              Text(
-                'Notifikasi',
-                style: GoogleFonts.poppins(
-                  fontSize: screenWidth * 0.035,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 

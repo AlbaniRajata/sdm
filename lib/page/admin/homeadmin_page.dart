@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/services/admin/api_dashboard.dart';
 import 'package:sdm/page/admin/daftarkegiatan_page.dart';
-import 'package:sdm/page/admin/notifikasi_page.dart';
 import 'package:sdm/page/admin/daftarpengguna_page.dart';
 import 'package:sdm/page/admin/daftarjabatan_page.dart';
 import 'package:sdm/page/admin/statistik_page.dart';
@@ -85,7 +84,6 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
                   height: 250,
                 ),
               ),
-              _buildNotificationButton(screenWidth),
               _buildHeaderText(screenWidth),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 15.0),
@@ -100,43 +98,6 @@ class _HomeAdminPageState extends State<HomeAdminPage> {
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(currentPage: 'home'),
-    );
-  }
-
-  Widget _buildNotificationButton(double screenWidth) {
-    return Positioned(
-      top: 28,
-      right: 0,
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Color.fromRGBO(255, 175, 3, 1),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(16),
-            bottomLeft: Radius.circular(16),
-          ),
-        ),
-        child: TextButton(
-          onPressed: () => Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const NotifikasiPage()),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.notifications, color: Colors.white),
-              const SizedBox(width: 5),
-              Text(
-                'Notifikasi',
-                style: GoogleFonts.poppins(
-                  fontSize: screenWidth * 0.035,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
