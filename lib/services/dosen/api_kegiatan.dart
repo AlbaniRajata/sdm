@@ -295,4 +295,77 @@ class ApiKegiatan {
       rethrow;
     }
   }
+
+  Future<List<KegiatanModel>> getKegiatanAnggotaList() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/anggota-kegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kegiatan List response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          final List<dynamic> kegiatanList = jsonResponse['data'] ?? [];
+          return kegiatanList
+              .map((json) => KegiatanModel.fromJson(json))
+              .toList();
+        }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(json.decode(response.body)['message'] ?? 
+            'Failed to load kegiatan list');
+      }
+    } catch (e) {
+      debugPrint('Error in getKegiatanList: $e');
+      rethrow;
+    }
+  }
+
+  Future<KegiatanModel> getKegiatanAnggotaDetail(int idKegiatan) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/anggota-kegiatan/$idKegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kegiatan Detail response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true) {
+          return KegiatanModel.fromJson(jsonResponse['data']);
+        }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(json.decode(response.body)['message'] ?? 
+            'Failed to load kegiatan detail');
+      }
+    } catch (e) {
+      debugPrint('Error in getKegiatanDetail: $e');
+      rethrow;
+    }
+  }
 }
