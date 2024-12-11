@@ -111,7 +111,7 @@ class ProfilepicPage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => HomeanggotaPage(user: user)),
+                    MaterialPageRoute(builder: (_) => HomeAnggotaPage(user: user)),
                   );
                 },
               ),

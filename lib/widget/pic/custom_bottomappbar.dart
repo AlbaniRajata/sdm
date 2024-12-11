@@ -96,7 +96,7 @@ class CustomBottomAppBar extends StatelessWidget {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => HomepicPage(user: user),
+              builder: (context) => HomePICPage(user: user),
             ),
           );
           break;
