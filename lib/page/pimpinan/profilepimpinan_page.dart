@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/pimpinan/user_model.dart';
-import 'package:sdm/page/pimpinan/loginpimpinan_page.dart';
+import 'package:sdm/welcome_page.dart';
 import 'package:sdm/page/pimpinan/detailprofile_page.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,7 +46,7 @@ class _ProfilePimpinanPageState extends State<ProfilePimpinanPage> {
 
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginpimpinanPage()),
+        MaterialPageRoute(builder: (_) => const WelcomePage()),
         (route) => false,
       );
     }

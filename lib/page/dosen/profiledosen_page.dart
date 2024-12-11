@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/models/dosen/statistik_model.dart';
 import 'package:sdm/services/dosen/api_statistik.dart';
-import 'package:sdm/page/dosen/logindosen_page.dart';
+import 'package:sdm/welcome_page.dart';
 import 'package:sdm/page/dosen/detailprofile_page.dart';
 import 'package:sdm/page/pic/homepic_page.dart';
 import 'package:sdm/page/anggota/homeanggota_page.dart';
@@ -64,7 +64,7 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
       
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LoginDosenPage()),
+        MaterialPageRoute(builder: (_) => const WelcomePage()),
         (route) => false,
       );
     } catch (e) {

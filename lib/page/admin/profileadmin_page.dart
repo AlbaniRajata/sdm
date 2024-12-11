@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/admin/user_model.dart';
-import 'package:sdm/page/admin/loginadmin_page.dart';
+import 'package:sdm/welcome_page.dart';
 import 'package:sdm/page/admin/editprofile_page.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,7 +46,7 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
 
     if (context.mounted) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const LoginAdminPage()),
+        MaterialPageRoute(builder: (_) => const WelcomePage()),
         (route) => false,
       );
     }

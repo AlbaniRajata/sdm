@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/page/dosen/homedosen_page.dart';
-import 'package:sdm/page/dosen/logindosen_page.dart';
+import 'package:sdm/welcome_page.dart';
 import 'package:sdm/page/anggota/detailprofile_page.dart';
 import 'package:sdm/page/pic/homepic_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
@@ -18,7 +18,7 @@ class ProfileanggotaPage extends StatelessWidget {
       await prefs.clear();
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LoginDosenPage()),
+        MaterialPageRoute(builder: (_) => const WelcomePage()),
         (route) => false,
       );
     } catch (e) {
@@ -159,7 +159,7 @@ class ProfileanggotaPage extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const LoginDosenPage(),
+                  builder: (context) => const WelcomePage(),
                 ),
               );
             },

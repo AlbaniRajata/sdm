@@ -4,7 +4,7 @@ import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/page/anggota/homeanggota_page.dart';
 import 'package:sdm/page/pic/detailprofile_page.dart';
 import 'package:sdm/page/dosen/homedosen_page.dart';
-import 'package:sdm/page/dosen/logindosen_page.dart';
+import 'package:sdm/welcome_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -19,7 +19,7 @@ class ProfilepicPage extends StatelessWidget {
       await prefs.clear();
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const LoginDosenPage()),
+        MaterialPageRoute(builder: (_) => const WelcomePage()),
         (route) => false,
       );
     } catch (e) {
