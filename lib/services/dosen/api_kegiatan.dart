@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
 import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -365,6 +366,174 @@ class ApiKegiatan {
       }
     } catch (e) {
       debugPrint('Error in getKegiatanDetail: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<DateTime, String>> getKalenderKegiatanDosen() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/kalender-dosen/kegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kalender Kegiatan response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true && jsonResponse['data'] != null) {
+          final Map<DateTime, String> kegiatanMap = {};
+          
+          for (var item in jsonResponse['data']) {
+            try {
+              final String dateStr = item['tanggal_acara'].toString();
+              final DateTime date = DateFormat('dd-MM-yyyy').parse(dateStr);
+              
+              final DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+              final String namaKegiatan = item['nama_kegiatan'].toString();
+              
+              kegiatanMap[normalizedDate] = namaKegiatan;
+              debugPrint('Successfully parsed date: $dateStr to $normalizedDate');
+            } catch (e) {
+              debugPrint('Error parsing date or event: $e');
+              debugPrint('Problematic date string: ${item['tanggal_acara']}');
+              continue;
+            }
+          }
+          
+          return kegiatanMap;
+        }
+        return {};
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(
+          json.decode(response.body)['message'] ?? 
+          'Failed to load calendar events'
+        );
+      }
+    } catch (e) {
+      debugPrint('Error in getKalenderKegiatan: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<DateTime, String>> getKalenderKegiatanPIC() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/kalender-pic/kegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kalender Kegiatan response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true && jsonResponse['data'] != null) {
+          final Map<DateTime, String> kegiatanMap = {};
+          
+          for (var item in jsonResponse['data']) {
+            try {
+              final String dateStr = item['tanggal_acara'].toString();
+              final DateTime date = DateFormat('dd-MM-yyyy').parse(dateStr);
+              
+              final DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+              final String namaKegiatan = item['nama_kegiatan'].toString();
+              
+              kegiatanMap[normalizedDate] = namaKegiatan;
+              debugPrint('Successfully parsed date: $dateStr to $normalizedDate');
+            } catch (e) {
+              debugPrint('Error parsing date or event: $e');
+              debugPrint('Problematic date string: ${item['tanggal_acara']}');
+              continue;
+            }
+          }
+          
+          return kegiatanMap;
+        }
+        return {};
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(
+          json.decode(response.body)['message'] ?? 
+          'Failed to load calendar events'
+        );
+      }
+    } catch (e) {
+      debugPrint('Error in getKalenderKegiatan: $e');
+      rethrow;
+    }
+  }
+
+  Future<Map<DateTime, String>> getKalenderKegiatanAnggota() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/kalender-anggota/kegiatan'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Kalender Kegiatan response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == true && jsonResponse['data'] != null) {
+          final Map<DateTime, String> kegiatanMap = {};
+          
+          for (var item in jsonResponse['data']) {
+            try {
+              final String dateStr = item['tanggal_acara'].toString();
+              final DateTime date = DateFormat('dd-MM-yyyy').parse(dateStr);
+              
+              final DateTime normalizedDate = DateTime(date.year, date.month, date.day);
+              final String namaKegiatan = item['nama_kegiatan'].toString();
+              
+              kegiatanMap[normalizedDate] = namaKegiatan;
+              debugPrint('Successfully parsed date: $dateStr to $normalizedDate');
+            } catch (e) {
+              debugPrint('Error parsing date or event: $e');
+              debugPrint('Problematic date string: ${item['tanggal_acara']}');
+              continue;
+            }
+          }
+          
+          return kegiatanMap;
+        }
+        return {};
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(
+          json.decode(response.body)['message'] ?? 
+          'Failed to load calendar events'
+        );
+      }
+    } catch (e) {
+      debugPrint('Error in getKalenderKegiatan: $e');
       rethrow;
     }
   }

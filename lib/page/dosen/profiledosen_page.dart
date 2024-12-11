@@ -229,7 +229,7 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => HomepicPage(user: widget.user),
+                    MaterialPageRoute(builder: (_) => HomePICPage(user: widget.user),
                     ),
                   );
                 },
@@ -254,7 +254,7 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => HomeanggotaPage(user: widget.user)),
+                    MaterialPageRoute(builder: (_) => HomeAnggotaPage(user: widget.user)),
                   );
                 },
               ),
