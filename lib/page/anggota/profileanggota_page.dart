@@ -112,7 +112,7 @@ class ProfileanggotaPage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => HomepicPage(user: user),
+                  builder: (context) => HomePICPage(user: user),
                 ),
               );
             },
