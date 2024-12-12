@@ -100,7 +100,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
     return event != null ? [event] : [];
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
@@ -115,131 +115,145 @@ class _CustomCalendarState extends State<CustomCalendar> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          Container(
-            height: 60,
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 5, 167, 170),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_left, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
-                    });
-                  },
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header tetap (tidak scroll)
+            Container(
+              height: 60,
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 5, 167, 170),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
                 ),
-                GestureDetector(
-                  onTap: () => _selectMonthYear(context),
-                  child: Text(
-                    DateFormat.yMMMM('id_ID').format(_focusedDay),
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chevron_left, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        _focusedDay = DateTime(_focusedDay.year, _focusedDay.month - 1);
+                      });
+                    },
+                  ),
+                  GestureDetector(
+                    onTap: () => _selectMonthYear(context),
+                    child: Text(
+                      DateFormat.yMMMM('id_ID').format(_focusedDay),
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right, color: Colors.white),
-                  onPressed: () {
-                    setState(() {
-                      _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
-                    });
-                  },
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.chevron_right, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        _focusedDay = DateTime(_focusedDay.year, _focusedDay.month + 1);
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
-            )
-          else
-            TableCalendar(
-              locale: 'id_ID',
-              firstDay: DateTime.utc(2010, 10, 16),
-              lastDay: DateTime.utc(2030, 3, 14),
-              focusedDay: _focusedDay,
-              selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              eventLoader: _getEventsForDay,
-              onDaySelected: _onDaySelected,
-              calendarStyle: const CalendarStyle(
-                selectedDecoration: BoxDecoration(
-                  color: Color.fromARGB(255, 5, 167, 170),
-                  shape: BoxShape.circle,
-                ),
-                todayDecoration: BoxDecoration(
-                  color: Colors.grey,
-                  shape: BoxShape.circle,
-                ),
-                selectedTextStyle: TextStyle(color: Colors.white),
-                todayTextStyle: TextStyle(color: Colors.white),
-                defaultDecoration: BoxDecoration(
-                  color: Colors.transparent,
-                ),
-                weekendDecoration: BoxDecoration(
-                  color: Colors.transparent,
-                ),
-                markerDecoration: BoxDecoration(
-                  color: Color.fromARGB(255, 5, 167, 170),
-                  shape: BoxShape.circle,
-                ),
-              ),
-              headerStyle: const HeaderStyle(
-                formatButtonVisible: false,
-                titleCentered: true,
-                leftChevronVisible: false,
-                rightChevronVisible: false,
-              ),
-              calendarBuilders: CalendarBuilders(
-                headerTitleBuilder: (context, day) {
-                  return Container();
-                },
-                markerBuilder: (context, day, events) {
-                  if (events.isNotEmpty) {
-                    return Positioned(
-                      bottom: 1,
-                      child: Container(
-                        height: 6,
-                        width: 6,
-                        decoration: const BoxDecoration(
+            // Content yang bisa di-scroll
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(),
+              )
+            else
+              SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    TableCalendar(
+                      locale: 'id_ID',
+                      firstDay: DateTime.utc(2010, 10, 16),
+                      lastDay: DateTime.utc(2030, 3, 14),
+                      focusedDay: _focusedDay,
+                      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+                      eventLoader: _getEventsForDay,
+                      onDaySelected: _onDaySelected,
+                      availableGestures: AvailableGestures.all,
+                      calendarStyle: const CalendarStyle(
+                        selectedDecoration: BoxDecoration(
+                          color: Color.fromARGB(255, 5, 167, 170),
+                          shape: BoxShape.circle,
+                        ),
+                        todayDecoration: BoxDecoration(
+                          color: Colors.grey,
+                          shape: BoxShape.circle,
+                        ),
+                        selectedTextStyle: TextStyle(color: Colors.white),
+                        todayTextStyle: TextStyle(color: Colors.white),
+                        defaultDecoration: BoxDecoration(
+                          color: Colors.transparent,
+                        ),
+                        weekendDecoration: BoxDecoration(
+                          color: Colors.transparent,
+                        ),
+                        markerDecoration: BoxDecoration(
                           color: Color.fromARGB(255, 5, 167, 170),
                           shape: BoxShape.circle,
                         ),
                       ),
-                    );
-                  }
-                  return null;
-                },
-              ),
-            ),
-          if (_selectedDay != null) ...[
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                'Kegiatan: ${_selectedEvent ?? 'Tidak ada kegiatan'}',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                      headerStyle: const HeaderStyle(
+                        formatButtonVisible: false,
+                        titleCentered: true,
+                        leftChevronVisible: false,
+                        rightChevronVisible: false,
+                      ),
+                      calendarBuilders: CalendarBuilders(
+                        headerTitleBuilder: (context, day) {
+                          return Container();
+                        },
+                        markerBuilder: (context, day, events) {
+                          if (events.isNotEmpty) {
+                            return Positioned(
+                              bottom: 1,
+                              child: Container(
+                                height: 6,
+                                width: 6,
+                                decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 5, 167, 170),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            );
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    if (_selectedDay != null) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          'Kegiatan: ${_selectedEvent ?? 'Tidak ada kegiatan'}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ],
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
           ],
-        ],
+        ),
       ),
     );
   }

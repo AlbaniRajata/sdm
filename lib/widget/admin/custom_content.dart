@@ -60,46 +60,47 @@ class CustomContent extends StatelessWidget {
     return Expanded(
       child: RefreshIndicator(
         onRefresh: onRefresh,
-        child: SingleChildScrollView(
+        child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInfoSection(
-                  'Jumlah Dosen',
-                  totalDosen.toString(),
-                  'Dosen',
-                  'yang terdaftar dalam sistem',
-                  screenWidth,
-                ),
-                const SizedBox(height: 20),
-                _buildInfoSection(
-                  'Jumlah Kegiatan JTI',
-                  totalKegiatanJTI.toString(),
-                  'Kegiatan JTI',
-                  'yang terdaftar dalam sistem',
-                  screenWidth,
-                ),
-                const SizedBox(height: 20),
-                _buildInfoSection(
-                  'Jumlah Kegiatan Non JTI',
-                  totalKegiatanNonJTI.toString(),
-                  'Kegiatan Non JTI',
-                  'yang terdaftar dalam sistem',
-                  screenWidth,
-                ),
-                const SizedBox(height: 20),
-                CustomCalendar(
-                  focusedDay: DateTime.now(),
-                  selectedDay: DateTime.now(),
-                  onDaySelected: (selectedDay) {},
-                ),
-                const SizedBox(height: 20),
-              ],
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 15.0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  _buildInfoSection(
+                    'Jumlah Dosen',
+                    totalDosen.toString(),
+                    'Dosen',
+                    'yang terdaftar dalam sistem',
+                    screenWidth,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInfoSection(
+                    'Jumlah Kegiatan JTI',
+                    totalKegiatanJTI.toString(),
+                    'Kegiatan JTI',
+                    'yang terdaftar dalam sistem',
+                    screenWidth,
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInfoSection(
+                    'Jumlah Kegiatan Non JTI',
+                    totalKegiatanNonJTI.toString(),
+                    'Kegiatan Non JTI',
+                    'yang terdaftar dalam sistem',
+                    screenWidth,
+                  ),
+                  const SizedBox(height: 20),
+                  CustomCalendar(
+                    focusedDay: DateTime.now(),
+                    selectedDay: DateTime.now(),
+                    onDaySelected: (selectedDay) {},
+                  ),
+                  const SizedBox(height: 20),
+                ]),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -148,55 +149,71 @@ class CustomContent extends StatelessWidget {
             child: Image.asset(
               'assets/images/img-min.png',
               fit: BoxFit.cover,
-              width: screenWidth * 0.96,
-              height: screenWidth * 0.4,
+              width: double.infinity,
+              height: double.infinity,
               color: Colors.black.withOpacity(0.2),
               colorBlendMode: BlendMode.dstATop,
             ),
           ),
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Container(
-              width: screenWidth * 0.32,
-              height: screenWidth * 0.29,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.4),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.white, width: 1),
-              ),
-              child: Center(
-                child: Text(
-                  count,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 50,
-            left: 165,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: EdgeInsets.all(screenWidth * 0.05),
+            child: Row(
               children: [
-                Text(
-                  subtitle,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.06,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                Container(
+                  width: screenWidth * 0.32,
+                  height: screenWidth * 0.29,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.4),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.white, width: 1),
+                  ),
+                  child: Center(
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: Padding(
+                        padding: EdgeInsets.all(screenWidth * 0.02),
+                        child: Text(
+                          count,
+                          style: GoogleFonts.poppins(
+                            fontSize: screenWidth * 0.15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                Text(
-                  description,
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.03,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                SizedBox(width: screenWidth * 0.04),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          subtitle,
+                          style: GoogleFonts.poppins(
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: screenWidth * 0.01),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          description,
+                          style: GoogleFonts.poppins(
+                            fontSize: screenWidth * 0.03,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

@@ -41,6 +41,15 @@ dependencies:
     sdk: flutter
   intl: ^0.19.0
   path_provider: ^2.0.5
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "si_sdm"
+  ios: true
+  image_path: "assets/images/logo.png"
+  min_sdk_android: 21
+  remove_alpha: true
+  remove_alpha_ios: true
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -2,7 +2,7 @@
     <application
         android:label="sdm"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/si_sdm">
         <activity
             android:name=".MainActivity"
             android:exported="true"
