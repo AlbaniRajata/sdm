@@ -14,22 +14,63 @@ class ProfilepicPage extends StatelessWidget {
   const ProfilepicPage({super.key, required this.user});
 
   Future<void> _handleLogout(BuildContext context) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const WelcomePage()),
-        (route) => false,
-      );
-    } catch (e) {
-      debugPrint('Error during logout: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Gagal melakukan logout. Silahkan coba lagi.'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin keluar?',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(
+                'Batal',
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+              ),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout == true) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        if (!context.mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const WelcomePage()),
+          (route) => false,
+        );
+      } catch (e) {
+        debugPrint('Error during logout: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Gagal melakukan logout. Silahkan coba lagi.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -92,29 +133,29 @@ class ProfilepicPage extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-              Divider(
-                thickness: 0.5,
-                color: Colors.grey[300],
-                indent: 20,
-                endIndent: 20,
-              ),
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-                  child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
-                ),
-                title: Text(
-                  'Masuk Sebagai Anggota',
-                  style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
-                ),
-                trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => HomeAnggotaPage(user: user)),
-                  );
-                },
-              ),
+          Divider(
+            thickness: 0.5,
+            color: Colors.grey[300],
+            indent: 20,
+            endIndent: 20,
+          ),
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+              child: Icon(Icons.person, color: Colors.white, size: screenWidth * 0.05),
+            ),
+            title: Text(
+              'Masuk Sebagai Anggota',
+              style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
+            ),
+            trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => HomeAnggotaPage(user: user)),
+              );
+            },
+          ),
           const SizedBox(height: 10),
           ListTile(
             leading: CircleAvatar(

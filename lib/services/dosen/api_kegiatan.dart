@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
+import 'package:sdm/models/dosen/notifikasi_model.dart';
 import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -537,4 +538,80 @@ class ApiKegiatan {
       rethrow;
     }
   }
+
+  Future<List<NotifikasiModel>> getNotifikasiDosen() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available. Please login again.');
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/notifikasi-dosen'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      debugPrint('Notifikasi Dosen response: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+        if (jsonResponse['status'] == 'success') {
+          final List<dynamic> notifikasiList = jsonResponse['data'] ?? [];
+          return notifikasiList
+              .map((json) => NotifikasiModel.fromJson(json))
+              .toList();
+        }
+        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else {
+        throw Exception(json.decode(response.body)['message'] ??
+            'Failed to load notifikasi');
+      }
+    } catch (e) {
+      debugPrint('Error in getNotifikasiDosen: $e');
+      rethrow;
+    }
+  }
+
+  Future<bool> hasUnreadNotifications() async {
+  try {
+    final notifications = await getNotifikasiDosen();
+    final prefs = await SharedPreferences.getInstance();
+    final readNotifications = prefs.getStringList('read_notifications') ?? [];
+    
+    return notifications.any((notification) => 
+      !readNotifications.contains(notification.idAnggota.toString()));
+  } catch (e) {
+    debugPrint('Error checking unread notifications: $e');
+    return false;
+  }
+}
+
+Future<void> markNotificationAsRead(int notificationId) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final readNotifications = prefs.getStringList('read_notifications') ?? [];
+    if (!readNotifications.contains(notificationId.toString())) {
+      readNotifications.add(notificationId.toString());
+      await prefs.setStringList('read_notifications', readNotifications);
+    }
+  } catch (e) {
+    debugPrint('Error marking notification as read: $e');
+  }
+}
+
+Future<bool> isNotificationRead(int notificationId) async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final readNotifications = prefs.getStringList('read_notifications') ?? [];
+    return readNotifications.contains(notificationId.toString());
+  } catch (e) {
+    debugPrint('Error checking notification status: $e');
+    return false;
+  }
+}
 }

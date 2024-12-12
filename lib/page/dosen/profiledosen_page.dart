@@ -56,26 +56,63 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
     }
   }
 
-  Future<void> _handleLogout() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
-      if (!mounted) return;
-      
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const WelcomePage()),
-        (route) => false,
-      );
-    } catch (e) {
-      debugPrint('Error during logout: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Gagal melakukan logout. Silahkan coba lagi.'),
-            backgroundColor: Colors.red,
+  Future<void> _handleLogout(BuildContext context) async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
           ),
+          content: Text(
+            'Apakah Anda yakin ingin keluar?',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(
+                'Batal',
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+              ),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            ),
+          ],
         );
+      },
+    );
+
+    if (shouldLogout == true) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+        if (!mounted) return;
+
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (_) => const WelcomePage()),
+          (route) => false,
+        );
+      } catch (e) {
+        debugPrint('Error during logout: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Gagal melakukan logout. Silahkan coba lagi.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -229,8 +266,7 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => HomePICPage(user: widget.user),
-                    ),
+                    MaterialPageRoute(builder: (_) => HomePICPage(user: widget.user)),
                   );
                 },
               ),
@@ -276,7 +312,7 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
                   style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
                 ),
                 trailing: Icon(Icons.arrow_forward_ios, size: screenWidth * 0.04, color: Colors.black),
-                onTap: _handleLogout,
+                onTap: () => _handleLogout(context),
               ),
               const SizedBox(height: 20),
             ],
@@ -286,6 +322,60 @@ class _ProfiledosenPageState extends State<ProfiledosenPage> {
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(currentPage: 'profile'),
+    );
+  }
+
+  Widget _buildLogoutTile(BuildContext context, double screenWidth) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+        child: Icon(
+          Icons.logout,
+          color: Colors.white,
+          size: screenWidth * 0.05,
+        ),
+      ),
+      title: Text(
+        'Logout',
+        style: GoogleFonts.poppins(fontSize: screenWidth * 0.04),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: screenWidth * 0.04,
+        color: Colors.black,
+      ),
+      onTap: () => showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Apakah Anda yakin ingin keluar?',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(
+                'Batal',
+                style: GoogleFonts.poppins(),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => _handleLogout(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+              ),
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
