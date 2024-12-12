@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/services/admin/api_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -27,6 +28,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isOldPasswordVisible = false;
   bool _isNewPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
+  bool _isLoading = false;
+
+  final ApiProfile _apiProfile = ApiProfile();
 
   void _showNotification(String message, Color backgroundColor) {
     final overlay = Overlay.of(context);
@@ -101,156 +105,175 @@ class _EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: const Color.fromARGB(255, 103, 119, 239),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 30),
+                const CircleAvatar(
+                  radius: 50,
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  widget.userData.nama,
+                  style: GoogleFonts.poppins(
+                    fontSize: screenWidth * 0.045,
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+                Text(
+                  widget.userData.email,
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey[600],
+                    fontSize: screenWidth * 0.035
+                  ),
+                ),
+                const SizedBox(height: 30),
+                _buildProfileForm(screenWidth),
+              ],
+            ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+        ],
+      ),
+      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: const CustomBottomAppBar(currentPage: 'profile'),
+    );
+  }
+
+  Widget _buildProfileForm(double screenWidth) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        elevation: 4,
+        color: Colors.white,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 30),
-            const CircleAvatar(
-              radius: 50,
-            ),
-            const SizedBox(height: 15),
-            Text(
-              widget.userData.nama,
-              style: GoogleFonts.poppins(
-                fontSize: screenWidth * 0.045,
-                fontWeight: FontWeight.bold
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              decoration: const BoxDecoration(
+                color: Color.fromARGB(255, 5, 167, 170),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(12),
+                  topRight: Radius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Edit Profil',
+                style: GoogleFonts.poppins(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
-            Text(
-              widget.userData.email,
-              style: GoogleFonts.poppins(
-                color: Colors.grey[600],
-                fontSize: screenWidth * 0.035
-              ),
-            ),
-            const SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                elevation: 4,
-                color: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: const BoxDecoration(
-                        color: Color.fromARGB(255, 5, 167, 170),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(12),
-                          topRight: Radius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        'Edit Profil',
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildDetailField('Nama Lengkap', _nameController),
-                          const SizedBox(height: 16),
-                          _buildDetailField('Email', _emailController),
-                          const SizedBox(height: 16),
-                          _buildDetailField('NIP', _nipController),
-                          const SizedBox(height: 16),
-                          _buildReadOnlyField('Jabatan', widget.userData.level),
-                          const SizedBox(height: 16),
-                          _buildPasswordField(
-                            'Password Lama',
-                            _oldPasswordController,
-                            _isOldPasswordVisible,
-                            (value) => setState(() => _isOldPasswordVisible = value),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildPasswordField(
-                            'Password Baru',
-                            _newPasswordController,
-                            _isNewPasswordVisible,
-                            (value) => setState(() => _isNewPasswordVisible = value),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildPasswordField(
-                            'Konfirmasi Password',
-                            _confirmPasswordController,
-                            _isConfirmPasswordVisible,
-                            (value) => setState(() => _isConfirmPasswordVisible = value),
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Kembali',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12), // Space between buttons
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (_validateInputs()) {
-                                    _showConfirmationDialog();
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color.fromARGB(255, 5, 167, 170),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Simpan',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildDetailField('Nama Lengkap', _nameController),
+                  const SizedBox(height: 16),
+                  _buildDetailField('Email', _emailController),
+                  const SizedBox(height: 16),
+                  _buildDetailField('NIP', _nipController),
+                  const SizedBox(height: 16),
+                  _buildReadOnlyField('Jabatan', widget.userData.level),
+                  const SizedBox(height: 16),
+                  _buildPasswordField(
+                    'Password Lama',
+                    _oldPasswordController,
+                    _isOldPasswordVisible,
+                    (value) => setState(() => _isOldPasswordVisible = value),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildPasswordField(
+                    'Password Baru',
+                    _newPasswordController,
+                    _isNewPasswordVisible,
+                    (value) => setState(() => _isNewPasswordVisible = value),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildPasswordField(
+                    'Konfirmasi Password',
+                    _confirmPasswordController,
+                    _isConfirmPasswordVisible,
+                    (value) => setState(() => _isConfirmPasswordVisible = value),
+                  ),
+                  const SizedBox(height: 24),
+                  _buildActionButtons(),
+                ],
               ),
             ),
           ],
         ),
       ),
-      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const CustomBottomAppBar(currentPage: 'profile'),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromRGBO(255, 175, 3, 1),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: Text(
+            'Kembali',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        ElevatedButton(
+          onPressed: _isLoading ? null : () {
+            if (_validateInputs()) {
+              _showConfirmationDialog();
+            }
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color.fromARGB(255, 5, 167, 170),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 12,
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: Text(
+            'Simpan',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -379,15 +402,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _saveChanges() async {
+    setState(() => _isLoading = true);
+    
     try {
-      final updatedUser = UserModel(
-        idUser: widget.userData.idUser,
-        username: widget.userData.username,
+      final updatedUser = await _apiProfile.updateProfile(
+        widget.userData.idUser,
         nama: _nameController.text,
-        tanggalLahir: widget.userData.tanggalLahir,
         email: _emailController.text,
         nip: _nipController.text,
-        level: widget.userData.level,
+        oldPassword: _newPasswordController.text.isNotEmpty ? _oldPasswordController.text : null,
+        newPassword: _newPasswordController.text.isNotEmpty ? _newPasswordController.text : null,
+        confirmPassword: _newPasswordController.text.isNotEmpty ? _confirmPasswordController.text : null,
       );
 
       final prefs = await SharedPreferences.getInstance();
@@ -395,11 +420,19 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       if (mounted) {
         _showNotification('Profil berhasil diperbarui', Colors.green);
-        Navigator.pop(context);
+        Navigator.pop(context, updatedUser);
       }
     } catch (e) {
       if (mounted) {
-        _showNotification('Gagal memperbarui profil: ${e.toString()}', Colors.red);
+        String errorMessage = 'Gagal memperbarui profil';
+        if (e is Exception) {
+          errorMessage = e.toString().replaceAll('Exception: ', '');
+        }
+        _showNotification(errorMessage, Colors.red);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
       }
     }
   }
