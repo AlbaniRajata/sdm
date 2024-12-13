@@ -291,7 +291,7 @@ class NotifikasiPageState extends State<NotifikasiPage> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    DetailKegiatanPage(idKegiatan: notifikasi.idAnggota),
+                    DetailKegiatanPage(idKegiatan: notifikasi.idKegiatan),
               ),
             ).catchError((error) {
               if (mounted) {

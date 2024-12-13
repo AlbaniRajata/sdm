@@ -30,15 +30,22 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
   Future<void> _fetchDetailKegiatan() async {
     try {
       final data = await _apiAgenda.getDetailAgenda(widget.idKegiatan);
-      setState(() {
-        kegiatan = data;
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          kegiatan = data;
+          isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      if (mounted) {
+        setState(() => isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -73,27 +80,7 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
                       const SizedBox(height: 16),
                       _buildAgendaCard(),
                       const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              'Kembali',
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      _buildBackButton(),
                     ],
                   ),
                 ),
@@ -114,25 +101,7 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
       ),
       child: Column(
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 5, 167, 170),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: Text(
-              'Detail Kegiatan',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ),
+          _buildCardHeader('Detail Kegiatan'),
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
@@ -142,8 +111,12 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
                 _buildDetailField('Tempat Kegiatan', kegiatan?.tempatKegiatan ?? ''),
                 _buildDetailField('Tanggal Mulai', kegiatan?.tanggalMulai ?? ''),
                 _buildDetailField('Tanggal Selesai', kegiatan?.tanggalSelesai ?? ''),
-                _buildDetailField('Deskripsi', kegiatan?.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia', 
-                  isDescription: true),
+                _buildDetailField('Tanggal Acara', kegiatan?.tanggalAcara ?? ''),
+                _buildDetailField(
+                  'Deskripsi', 
+                  kegiatan?.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia',
+                  isDescription: true
+                ),
               ],
             ),
           ),
@@ -153,6 +126,34 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
   }
 
   Widget _buildAgendaCard() {
+    if (kegiatan?.agenda == null || kegiatan!.agenda.isEmpty) {
+      return Card(
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          children: [
+            _buildCardHeader('Daftar Agenda Saya'),
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: Text(
+                  'Tidak ada agenda',
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Card(
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.5),
@@ -161,36 +162,68 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
       ),
       child: Column(
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 5, 167, 170),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(12),
-                topRight: Radius.circular(12),
-              ),
-            ),
-            child: Text(
-              'Daftar Agenda Saya',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ),
+          _buildCardHeader('Daftar Agenda Saya'),
           Container(
             color: Colors.white,
             padding: const EdgeInsets.all(16),
             child: Column(
-              children: kegiatan?.agenda?.asMap().entries.map((entry) {
+              children: kegiatan!.agenda.asMap().entries.map((entry) {
                 final agenda = entry.value;
                 return _buildDetailField(
                   'Agenda ${entry.key + 1}',
-                  agenda.namaAgenda ?? '',
+                  agenda.namaAgenda,
                 );
-              }).toList() ?? [],
+              }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCardHeader(String title) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: Color.fromARGB(255, 5, 167, 170),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(12),
+        ),
+      ),
+      child: Text(
+        title,
+        style: GoogleFonts.poppins(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyCard(String title, String message) {
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          _buildCardHeader(title),
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                  color: Colors.grey,
+                  fontSize: 14,
+                ),
+              ),
             ),
           ),
         ],
@@ -233,52 +266,27 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
     );
   }
 
-  Widget _buildAgendaItem(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          title,
-          style: GoogleFonts.poppins(fontSize: 14),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnggotaItem(String jabatan, String nama) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                jabatan,
-                style: GoogleFonts.poppins(
-                  color: Colors.black54,
-                  fontSize: 12,
-                ),
-              ),
-            ],
+  Widget _buildBackButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orange,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            nama,
+          child: Text(
+            'Kembali',
             style: GoogleFonts.poppins(
-              fontSize: 14,
+              color: Colors.white,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const Divider(),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -92,45 +92,6 @@ class ApiAgenda {
     }
   }
 
-  Future<List<AgendaModel>> getUpcomingKegiatan() async {
-    try {
-      final token = await _getToken();
-      if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
-      }
-
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/agenda-kegiatan/upcoming'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
-
-      debugPrint('Upcoming Agenda response: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        if (jsonResponse['status'] == 'success' && jsonResponse['data'] != null) {
-          if (jsonResponse['data'] is List) {
-            final List<dynamic> agendaList = jsonResponse['data'];
-            return agendaList.map((json) => AgendaModel.fromJson(json)).toList();
-          }
-          return [];
-        }
-        return [];
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else {
-        throw Exception(json.decode(response.body)['message'] ?? 
-            'Failed to load upcoming agenda');
-      }
-    } catch (e) {
-      debugPrint('Error in getUpcomingKegiatan: $e');
-      rethrow;
-    }
-  }
-
   Future<List<KegiatanModel>> getKegiatanAgendaList() async {
     try {
       final token = await _getToken();
