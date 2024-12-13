@@ -1,4 +1,5 @@
 import 'package:sdm/models/dosen/anggota_model.dart';
+import 'package:sdm/models/dosen/dokumen_model.dart';
 
 class KegiatanModel {
   final int idKegiatan;
@@ -11,6 +12,7 @@ class KegiatanModel {
   final String jenisKegiatan;
   final int? progress;
   final List<AnggotaModel>? anggota;
+  final List<DokumenModel>? dokumen;
   final String? jabatanNama;
 
   KegiatanModel({
@@ -24,6 +26,7 @@ class KegiatanModel {
     required this.jenisKegiatan,
     this.progress,
     this.anggota,
+    this.dokumen,
     this.jabatanNama,
   });
 
@@ -41,6 +44,9 @@ class KegiatanModel {
       jabatanNama: json['jabatan'],
       anggota: (json['anggota'] as List<dynamic>?)
           ?.map((e) => AnggotaModel.fromJson(e))
+          .toList(),
+      dokumen: (json['dokumen'] as List<dynamic>?)
+          ?.map((e) => DokumenModel.fromJson(e))
           .toList(),
     );
   }

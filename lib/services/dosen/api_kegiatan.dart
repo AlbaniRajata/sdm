@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
 import 'package:sdm/models/dosen/notifikasi_model.dart';
 import 'package:sdm/services/api_config.dart';
@@ -578,40 +581,91 @@ class ApiKegiatan {
   }
 
   Future<bool> hasUnreadNotifications() async {
-  try {
-    final notifications = await getNotifikasiDosen();
-    final prefs = await SharedPreferences.getInstance();
-    final readNotifications = prefs.getStringList('read_notifications') ?? [];
-    
-    return notifications.any((notification) => 
-      !readNotifications.contains(notification.idAnggota.toString()));
-  } catch (e) {
-    debugPrint('Error checking unread notifications: $e');
-    return false;
-  }
-}
-
-Future<void> markNotificationAsRead(int notificationId) async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final readNotifications = prefs.getStringList('read_notifications') ?? [];
-    if (!readNotifications.contains(notificationId.toString())) {
-      readNotifications.add(notificationId.toString());
-      await prefs.setStringList('read_notifications', readNotifications);
+    try {
+      final notifications = await getNotifikasiDosen();
+      final prefs = await SharedPreferences.getInstance();
+      final readNotifications = prefs.getStringList('read_notifications') ?? [];
+      
+      return notifications.any((notification) => 
+        !readNotifications.contains(notification.idAnggota.toString()));
+    } catch (e) {
+      debugPrint('Error checking unread notifications: $e');
+      return false;
     }
-  } catch (e) {
-    debugPrint('Error marking notification as read: $e');
   }
-}
 
-Future<bool> isNotificationRead(int notificationId) async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    final readNotifications = prefs.getStringList('read_notifications') ?? [];
-    return readNotifications.contains(notificationId.toString());
-  } catch (e) {
-    debugPrint('Error checking notification status: $e');
-    return false;
+  Future<void> markNotificationAsRead(int notificationId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final readNotifications = prefs.getStringList('read_notifications') ?? [];
+      if (!readNotifications.contains(notificationId.toString())) {
+        readNotifications.add(notificationId.toString());
+        await prefs.setStringList('read_notifications', readNotifications);
+      }
+    } catch (e) {
+      debugPrint('Error marking notification as read: $e');
+    }
   }
-}
+
+  Future<bool> isNotificationRead(int notificationId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final readNotifications = prefs.getStringList('read_notifications') ?? [];
+      return readNotifications.contains(notificationId.toString());
+    } catch (e) {
+      debugPrint('Error checking notification status: $e');
+      return false;
+    }
+  }
+
+  Future<void> downloadDokumen(int idDokumen, String namaDokumen, BuildContext context) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token not available');
+      }
+
+      // Show download progress
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Mengunduh $namaDokumen...')),
+      );
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/download-dokumen/$idDokumen'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Get application directory
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/$namaDokumen';
+        
+        // Save file
+        File file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        
+        // Show success message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('$namaDokumen berhasil diunduh')),
+          );
+        }
+        
+        // Open file
+        await OpenFile.open(filePath);
+      } else {
+        throw Exception('Gagal mengunduh file');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+      rethrow;
+    }
+  }
 }

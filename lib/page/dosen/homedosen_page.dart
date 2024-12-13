@@ -191,7 +191,7 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
 
   Widget _buildHeaderText(double screenWidth) {
     return Positioned(
-      top: 65,
+      top: 80,
       right: 10,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -199,7 +199,7 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
           Text(
             'SI',
             style: GoogleFonts.poppins(
-              fontSize: screenWidth * 0.08,
+              fontSize: screenWidth * 0.06,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.bold,
               color: Colors.white.withOpacity(0.7),
@@ -209,7 +209,7 @@ class _HomeDosenPageState extends State<HomeDosenPage> {
           Text(
             'SDM',
             style: GoogleFonts.poppins(
-              fontSize: screenWidth * 0.08,
+              fontSize: screenWidth * 0.06,
               fontStyle: FontStyle.italic,
               fontWeight: FontWeight.bold,
               color: Colors.white.withOpacity(0.7),

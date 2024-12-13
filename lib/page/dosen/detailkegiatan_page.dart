@@ -73,7 +73,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Card Header
+                        // Card Header Detail Kegiatan
                         Container(
                           height: 40,
                           width: double.infinity,
@@ -94,7 +94,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                             ),
                           ),
                         ),
-                        // Card Body
+                        // Card Body Detail Kegiatan
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -119,14 +119,72 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                               const SizedBox(height: 8),
                               _buildDetailField('Nama Kegiatan', kegiatan!.namaKegiatan),
                               _buildDetailField('Deskripsi Kegiatan', 
-                                kegiatan!.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia',
-                                isDescription: true),
-                              _buildDetailField('Tanggal Mulai', kegiatan!.tanggalMulai),
-                              _buildDetailField('Tanggal Selesai', kegiatan!.tanggalSelesai),
-                              _buildDetailField('Tanggal Acara', kegiatan!.tanggalAcara),
+                                  kegiatan!.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia',
+                                  isDescription: true),
+                              _buildDetailField('Tanggal Mulai', (kegiatan!.tanggalMulai)),
+                              _buildDetailField('Tanggal Selesai', (kegiatan!.tanggalSelesai)),
                               _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
-                              _buildDetailField('Jenis Kegiatan', kegiatan!.jenisKegiatan),
-                              _buildDetailField('Jabatan', kegiatan!.jabatanNama ?? 'Tidak ada jabatan'),
+                              _buildDetailField('Tanggal Kegiatan', (kegiatan!.tanggalAcara)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16.0),
+                        // Card Header Daftar Anggota
+                        Container(
+                          height: 40,
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 5, 167, 170),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            'Daftar Anggota',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
+                            ),
+                          ),
+                        ),
+                        // Card Body Daftar Anggota
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.only(
+                              bottomLeft: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 1,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 8.0),
+                              if (kegiatan!.anggota != null)
+                                ...kegiatan!.anggota!.map((anggota) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildDetailField('Nama Anggota', anggota.nama),
+                                      _buildDetailField('Jabatan', anggota.jabatanNama),
+                                      _buildDetailField('Poin', anggota.poin.toString()),
+                                      const SizedBox(height: 8.0),
+                                    ],
+                                  );
+                                }).toList(),
                               const SizedBox(height: 16.0),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,

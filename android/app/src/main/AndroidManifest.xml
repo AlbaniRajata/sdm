@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="sdm"
+        android:label="SI-SDM"
         android:name="${applicationName}"
         android:icon="@mipmap/si_sdm">
         <activity
