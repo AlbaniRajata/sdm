@@ -47,7 +47,7 @@ class EditJabatanPageState extends State<EditJabatanPage> {
         );
 
         if (mounted) {
-          CustomTopSnackBar.show(context, 'Jabatan berhasil diupdate');
+          CustomTopSnackBar.show(context, 'Jabatan berhasil diupdate', isError: false);
           Navigator.pop(context, true);
         }
       } catch (e) {

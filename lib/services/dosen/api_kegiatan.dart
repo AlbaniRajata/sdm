@@ -628,7 +628,7 @@ class ApiKegiatan {
         throw Exception('Token tidak tersedia');
       }
 
-      CustomTopSnackBar.show(context, 'Mengunduh $namaDokumen...'); // Menggunakan CustomTopSnackBar
+      CustomTopSnackBar.show(context, 'Mengunduh $namaDokumen...', isError: false);
 
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/download-dokumen/$idDokumen'),
@@ -646,7 +646,7 @@ class ApiKegiatan {
         await file.writeAsBytes(response.bodyBytes);
         
         if (context.mounted) {
-          CustomTopSnackBar.show(context, '$namaDokumen berhasil diunduh');
+          CustomTopSnackBar.show(context, '$namaDokumen berhasil diunduh', isError: false);
         }
         
         await OpenFile.open(filePath);

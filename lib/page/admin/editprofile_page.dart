@@ -388,7 +388,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await prefs.setString('user_data', json.encode(updatedUser.toJson()));
 
       if (mounted) {
-        CustomTopSnackBar.show(context, 'Profil berhasil diperbarui');
+        CustomTopSnackBar.show(context, 'Profil berhasil diperbarui', isError: false);
         Navigator.pop(context, updatedUser);
       }
     } catch (e) {

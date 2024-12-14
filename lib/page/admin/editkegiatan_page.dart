@@ -154,7 +154,7 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
 
         if (!mounted) return;
         
-        CustomTopSnackBar.show(context, 'Berhasil menyimpan perubahan');
+        CustomTopSnackBar.show(context, 'Berhasil menyimpan perubahan', isError: false);
         Navigator.pop(context, savedKegiatan);
       } catch (e) {
         if (!mounted) return;

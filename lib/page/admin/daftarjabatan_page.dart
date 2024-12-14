@@ -80,7 +80,7 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
     try {
       final success = await _apiJabatanKegiatan.deleteJabatanKegiatan(id);
       if (success) {
-        CustomTopSnackBar.show(context, 'Jabatan berhasil dihapus');
+        CustomTopSnackBar.show(context, 'Jabatan berhasil dihapus', isError: false);
         _loadJabatan();
       }
     } catch (e) {

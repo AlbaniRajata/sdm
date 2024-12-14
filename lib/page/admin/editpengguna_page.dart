@@ -79,7 +79,7 @@ class EditPenggunaPageState extends State<EditPenggunaPage> {
 
         if (response.isSuccess) {
           if (!mounted) return;
-          CustomTopSnackBar.show(context, 'Data pengguna berhasil diperbarui');
+          CustomTopSnackBar.show(context, 'Data pengguna berhasil diperbarui', isError: false);
           Navigator.pop(context, response.data);
         }
       } catch (e) {

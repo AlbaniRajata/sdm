@@ -65,7 +65,7 @@ class TambahPenggunaPageState extends State<TambahPenggunaPage> {
 
         if (response.isSuccess) {
           if (!mounted) return;
-          CustomTopSnackBar.show(context, 'Pengguna berhasil ditambahkan');
+          CustomTopSnackBar.show(context, 'Pengguna berhasil ditambahkan', isError: false);
           Navigator.pop(context, response.data);
         }
       } catch (e) {

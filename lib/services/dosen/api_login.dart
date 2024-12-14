@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/dosen/user.dart';
@@ -30,6 +31,20 @@ class ApiLogin {
 
   Future<Map<String, dynamic>> login(User user) async {
     try {
+      if (user.username.isEmpty) {
+        return {
+          'status': false,
+          'message': 'Username harus diisi',
+        };
+      }
+
+      if (user.password.isEmpty) {
+        return {
+          'status': false,
+          'message': 'Password harus diisi',
+        };
+      }
+
       final response = await http.post(
         Uri.parse('$baseUrl/login'),
         headers: {
@@ -46,29 +61,44 @@ class ApiLogin {
 
       if (response.statusCode == 200 && responseData['token'] != null) {
         await _persistToken(responseData['token']);
-        
-        // Return user data along with token
         return {
           'status': true,
           'message': 'Login berhasil',
           'data': {
             'token': responseData['token'],
-            'user': responseData['user'],  // Assuming the API returns user data
+            'user': responseData['user'],
           }
         };
       } else if (response.statusCode == 401) {
+        final errorMessage = responseData['error']?.toString().toLowerCase() ?? '';
+        if (errorMessage.contains('username')) {
+          return {
+            'status': false,
+            'message': 'Username yang Anda masukkan salah',
+          };
+        } else if (errorMessage.contains('password')) {
+          return {
+            'status': false,
+            'message': 'Password yang Anda masukkan salah',
+          };
+        }
         return {
           'status': false,
-          'message': responseData['error'] ?? 'Autentikasi gagal',
+          'message': 'Username atau password salah',
         };
       } else {
         return {
           'status': false,
-          'message': responseData['error'] ?? 'Gagal login',
+          'message': 'Gagal melakukan login. Silakan coba lagi',
         };
       }
+    } on SocketException {
+      return {
+        'status': false,
+        'message': 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda',
+      };
     } catch (e) {
-      debugPrint('Error in login: $e');
+      debugPrint('Error di login: $e');
       return {
         'status': false,
         'message': 'Terjadi kesalahan yang tidak terduga',

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomTopSnackBar {
-  static void show(BuildContext context, String message) {
+  static void show(BuildContext context, String message, {bool isError = true}) {
     // Hapus snackbar yang sedang ditampilkan (jika ada)
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
@@ -19,7 +19,7 @@ class CustomTopSnackBar {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: isError ? Colors.red : Colors.green,
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: const [
                   BoxShadow(
@@ -31,7 +31,10 @@ class CustomTopSnackBar {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.error_outline, color: Colors.white),
+                  Icon(
+                    isError ? Icons.error_outline : Icons.check_circle_outline,
+                    color: Colors.white,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(

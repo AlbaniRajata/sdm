@@ -95,7 +95,7 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
       final response = await _apiService.deleteUser(id);
       if (response.isSuccess) {
         await _loadUsers();
-        CustomTopSnackBar.show(context, 'Pengguna berhasil dihapus');
+        CustomTopSnackBar.show(context, 'Pengguna berhasil dihapus', isError: false);
       }
     } catch (e) {
       CustomTopSnackBar.show(context, 'Error: ${e.toString()}');

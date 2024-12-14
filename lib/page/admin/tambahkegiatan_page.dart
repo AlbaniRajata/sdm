@@ -157,7 +157,7 @@ class TambahKegiatanPageState extends State<TambahKegiatanPage> {
 
         if (!mounted) return;
         
-        CustomTopSnackBar.show(context, 'Berhasil menambahkan kegiatan');
+        CustomTopSnackBar.show(context, 'Berhasil menambahkan kegiatan', isError: false);
         Navigator.pop(context, createdKegiatan);
       } catch (e) {
         if (!mounted) return;

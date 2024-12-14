@@ -68,6 +68,11 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
         case KegiatanSortOption.tanggalTerjauh:
           filteredKegiatanList.sort((a, b) => DateFormat('dd-MM-yyyy').parse(b.tanggalAcara).compareTo(DateFormat('dd-MM-yyyy').parse(a.tanggalAcara)));
           break;
+        case KegiatanSortOption.jti:
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan JTI').toList();
+          break;
+        case KegiatanSortOption.nonJTI:
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan Non-JTI').toList();
         default:
           break;
       }

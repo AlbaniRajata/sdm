@@ -106,7 +106,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           _searchKegiatan();
         });
         if (!mounted) return;
-        CustomTopSnackBar.show(context, 'Kegiatan berhasil dihapus');
+        CustomTopSnackBar.show(context, 'Kegiatan berhasil dihapus', isError: false);
       }
     } catch (e) {
       if (!mounted) return;

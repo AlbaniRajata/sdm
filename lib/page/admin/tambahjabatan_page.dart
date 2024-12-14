@@ -36,7 +36,7 @@ class TambahJabatanPageState extends State<TambahJabatanPage> {
         );
 
         if (mounted) {
-          CustomTopSnackBar.show(context, 'Jabatan berhasil ditambahkan');
+          CustomTopSnackBar.show(context, 'Jabatan berhasil ditambahkan', isError: false);
           Navigator.pop(context, true);
         }
       } catch (e) {

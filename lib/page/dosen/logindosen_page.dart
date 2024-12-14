@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:ui';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/dosen/homedosen_page.dart';
@@ -58,8 +57,18 @@ class LoginDosenPageState extends State<LoginDosenPage> with SingleTickerProvide
   }
 
   void _login() async {
-    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
-      CustomTopSnackBar.show(context, 'Username dan password harus diisi');
+    String? errorMessage;
+    
+    if (_usernameController.text.isEmpty && _passwordController.text.isEmpty) {
+      errorMessage = 'Username dan password harus diisi';
+    } else if (_usernameController.text.isEmpty) {
+      errorMessage = 'Username harus diisi';
+    } else if (_passwordController.text.isEmpty) {
+      errorMessage = 'Password harus diisi';
+    }
+
+    if (errorMessage != null) {
+      CustomTopSnackBar.show(context, errorMessage);
       return;
     }
 
@@ -77,10 +86,10 @@ class LoginDosenPageState extends State<LoginDosenPage> with SingleTickerProvide
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_data', json.encode(result['data']['user']));
         
-        CustomTopSnackBar.show(context, 'Login berhasil');
-        await Future.delayed(const Duration(milliseconds: 1500));
-        
         if (mounted) {
+          CustomTopSnackBar.show(context, 'Login berhasil', isError: false);
+          await Future.delayed(const Duration(milliseconds: 1500));
+          
           final userData = UserModel.fromJson(result['data']['user']);
           Navigator.pushReplacement(
             context,
@@ -90,12 +99,14 @@ class LoginDosenPageState extends State<LoginDosenPage> with SingleTickerProvide
           );
         }
       } else {
-        CustomTopSnackBar.show(context, result['message']);
+        if (mounted) {
+          CustomTopSnackBar.show(context, result['message']);
+        }
       }
-    } on SocketException {
-      CustomTopSnackBar.show(context, 'Terjadi kesalahan koneksi');
     } catch (e) {
-      CustomTopSnackBar.show(context, 'Terjadi kesalahan: $e');
+      if (mounted) {
+        CustomTopSnackBar.show(context, 'Terjadi kesalahan. Silakan coba lagi');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

@@ -82,10 +82,10 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           filteredKegiatanList.sort((a, b) => b.tanggalAcara.compareTo(a.tanggalAcara));
           break;
         case KegiatanSortOption.jti:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'JTI').toList();
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan JTI').toList();
           break;
         case KegiatanSortOption.nonJTI:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Non JTI').toList();
+          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan Non-JTI').toList();
           break;
       }
     });
