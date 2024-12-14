@@ -4,6 +4,7 @@ import 'package:sdm/models/dosen/notifikasi_model.dart';
 import 'package:sdm/page/dosen/detailkegiatan_page.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NotifikasiPage extends StatefulWidget {
@@ -101,12 +102,7 @@ class NotifikasiPageState extends State<NotifikasiPage> {
       debugPrint('Error fetching notifikasi: $e');
       if (mounted) {
         setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CustomTopSnackBar.show(context, 'Error: $e');
       }
     }
   }
@@ -214,7 +210,8 @@ class NotifikasiPageState extends State<NotifikasiPage> {
     );
   }
 
-  Widget _buildNotificationTile(double screenWidth, NotifikasiModel notifikasi) {
+  Widget _buildNotificationTile(
+      double screenWidth, NotifikasiModel notifikasi) {
     bool isRead = _readNotifications.contains(notifikasi.idAnggota);
 
     return Container(
@@ -295,12 +292,7 @@ class NotifikasiPageState extends State<NotifikasiPage> {
               ),
             ).catchError((error) {
               if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: $error'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                CustomTopSnackBar.show(context, 'Error: $error');
               }
             });
           }

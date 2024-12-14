@@ -5,6 +5,7 @@ import 'package:sdm/models/admin/anggota_model.dart';
 import 'package:sdm/models/admin/jabatan_kegiatan_model.dart';
 import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/models/admin/kegiatan_model.dart';
 import 'package:sdm/services/admin/api_kegiatan.dart';
 
@@ -48,7 +49,6 @@ class TambahKegiatanPageState extends State<TambahKegiatanPage> {
         dosenList = dosens;
         jabatanList = jabatans;
         
-        // Initialize with one empty member
         if (dosenList.isNotEmpty && jabatanList.isNotEmpty) {
           anggotaList.add(AnggotaModel(
             idUser: dosenList.first.idUser,
@@ -62,9 +62,7 @@ class TambahKegiatanPageState extends State<TambahKegiatanPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error mengambil data: $e')),
-      );
+      CustomTopSnackBar.show(context, 'Error mengambil data: $e');
       setState(() => isLoading = false);
     }
   }
@@ -114,9 +112,7 @@ class TambahKegiatanPageState extends State<TambahKegiatanPage> {
 
   void _addAnggota() {
     if (dosenList.isEmpty || jabatanList.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data dosen atau jabatan belum tersedia')),
-      );
+      CustomTopSnackBar.show(context, 'Data dosen atau jabatan belum tersedia');
       return;
     }
 
@@ -136,16 +132,13 @@ class TambahKegiatanPageState extends State<TambahKegiatanPage> {
         anggotaList.removeAt(index);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Minimal harus ada satu anggota')),
-      );
+      CustomTopSnackBar.show(context, 'Minimal harus ada satu anggota');
     }
   }
 
   Future<void> _saveKegiatan() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Parse tanggal dari format display ke DateTime
         final DateFormat displayFormat = DateFormat('dd MMMM yyyy');
         
         final newKegiatan = KegiatanModel(
@@ -164,16 +157,11 @@ class TambahKegiatanPageState extends State<TambahKegiatanPage> {
 
         if (!mounted) return;
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Berhasil menambahkan kegiatan')),
-        );
-
+        CustomTopSnackBar.show(context, 'Berhasil menambahkan kegiatan');
         Navigator.pop(context, createdKegiatan);
       } catch (e) {
-        print('Error detail: $e'); // Untuk debugging
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambahkan kegiatan: $e')),
-        );
+        if (!mounted) return;
+        CustomTopSnackBar.show(context, 'Gagal menambahkan kegiatan: $e');
       }
     }
   }

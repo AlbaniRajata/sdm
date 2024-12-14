@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/dosen/daftarkegiatanjti_page.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
 
@@ -42,6 +43,8 @@ class _DetailKegiatanJTIPageState extends State<DetailKegiatanJTIPage> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       setState(() {
         error = e.toString();
         isLoading = false;

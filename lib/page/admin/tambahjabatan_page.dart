@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/services/admin/api_jabatankegiatan.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class TambahJabatanPage extends StatefulWidget {
   const TambahJabatanPage({super.key});
@@ -35,15 +36,13 @@ class TambahJabatanPageState extends State<TambahJabatanPage> {
         );
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Jabatan berhasil ditambahkan')),
-          );
+          CustomTopSnackBar.show(context, 'Jabatan berhasil ditambahkan');
           Navigator.pop(context, true);
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        if (mounted) {
+          CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
+        }
       } finally {
         if (mounted) {
           setState(() => _isLoading = false);

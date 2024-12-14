@@ -1,8 +1,9 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/anggota/detailkegiatan_page.dart';
 import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
-import 'package:intl/intl.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/widget/anggota/custom_filter.dart';
 import 'package:sdm/widget/anggota/kegiatan_sortoption.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
@@ -46,6 +47,8 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       setState(() {
         error = e.toString();
         isLoading = false;

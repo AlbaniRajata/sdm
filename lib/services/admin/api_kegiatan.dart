@@ -28,7 +28,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -39,26 +39,24 @@ class ApiKegiatan {
         },
       );
 
-      debugPrint('Kegiatan List response: ${response.body}');
+      debugPrint('Kegiatan List respon: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == true) {
           final List<dynamic> kegiatanList = jsonResponse['data'] ?? [];
           return kegiatanList
-              .map((json) => KegiatanModel.fromJson(json))
-              .toList();
+            .map((json) => KegiatanModel.fromJson(json))
+            .toList();
         }
-        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw KegiatanError(message: 'Session expired. Please login again.');
+        throw KegiatanError(message: 'Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw KegiatanError(
-            message: json.decode(response.body)['message'] ?? 
-                'Failed to load kegiatan list');
+        throw KegiatanError(message: json.decode(response.body)['message'] ?? 'Gagal memuat daftar kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in getKegiatanList: $e');
+      debugPrint('Error di getKegiatanList: $e');
       rethrow;
     }
   }
@@ -67,7 +65,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw KegiatanError(message: 'Token not available. Please login again.');
+        throw KegiatanError(message: 'Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -85,13 +83,13 @@ class ApiKegiatan {
         if (jsonResponse['status'] == true) {
           return KegiatanModel.fromJson(jsonResponse['data']);
         }
-        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw KegiatanError(message: 'Session expired. Please login again.');
+        throw KegiatanError(message: 'Sesi telah berakhir. Silakan login kembali.');
       } else {
         throw KegiatanError(
             message: json.decode(response.body)['message'] ?? 
-                'Failed to load kegiatan detail');
+                'Gagal memuat detail kegiatan');
       }
     } catch (e) {
       debugPrint('Error in getKegiatanDetail: $e');
@@ -103,7 +101,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw KegiatanError(message: 'Token not available. Please login again.');
+        throw KegiatanError(message: 'Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.post(
@@ -116,23 +114,21 @@ class ApiKegiatan {
         body: json.encode(kegiatan.toJson()),
       );
 
-      debugPrint('Create Kegiatan response: ${response.body}');
+      debugPrint('Membuat Kegiatan respon: ${response.body}');
 
       if (response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == true) {
           return KegiatanModel.fromJson(jsonResponse['data']);
         }
-        throw KegiatanError(message: jsonResponse['message'] ?? 'Failed to create kegiatan');
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Gagal membuat kegiatan');
       } else if (response.statusCode == 401) {
-        throw KegiatanError(message: 'Session expired. Please login again.');
+        throw KegiatanError(message: 'Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw KegiatanError(
-            message: json.decode(response.body)['message'] ?? 
-                'Failed to create kegiatan');
+        throw KegiatanError(message: json.decode(response.body)['message'] ?? 'Gagal membuat kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in createKegiatan: $e');
+      debugPrint('Error di createKegiatan: $e');
       rethrow;
     }
   }
@@ -141,7 +137,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw KegiatanError(message: 'Token not available. Please login again.');
+        throw KegiatanError(message: 'Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.put(
@@ -159,16 +155,14 @@ class ApiKegiatan {
         if (jsonResponse['status'] == true) {
           return KegiatanModel.fromJson(jsonResponse['data']);
         }
-        throw KegiatanError(message: jsonResponse['message'] ?? 'Failed to update kegiatan');
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Gagal memperbarui kegiatan');
       } else if (response.statusCode == 401) {
-        throw KegiatanError(message: 'Session expired. Please login again.');
+        throw KegiatanError(message: 'Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw KegiatanError(
-            message: json.decode(response.body)['message'] ?? 
-                'Failed to update kegiatan');
+        throw KegiatanError(message: json.decode(response.body)['message'] ?? 'Gagal memperbarui kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in updateKegiatan: $e');
+      debugPrint('Error di updateKegiatan: $e');
       rethrow;
     }
   }
@@ -177,7 +171,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw KegiatanError(message: 'Token not available. Please login again.');
+        throw KegiatanError(message: 'Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.delete(
@@ -192,14 +186,12 @@ class ApiKegiatan {
         final jsonResponse = json.decode(response.body);
         return jsonResponse['status'] == true;
       } else if (response.statusCode == 401) {
-        throw KegiatanError(message: 'Session expired. Please login again.');
+        throw KegiatanError(message: 'Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw KegiatanError(
-            message: json.decode(response.body)['message'] ?? 
-                'Failed to delete kegiatan');
+        throw KegiatanError(message: json.decode(response.body)['message'] ?? 'Gagal menghapus kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in deleteKegiatan: $e');
+      debugPrint('Error di deleteKegiatan: $e');
       rethrow;
     }
   }
@@ -208,7 +200,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw KegiatanError(message: 'Token not available. Please login again.');
+        throw KegiatanError(message: 'Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -225,16 +217,14 @@ class ApiKegiatan {
           final List<dynamic> dosenList = jsonResponse['data'] ?? [];
           return dosenList.map((json) => UserModel.fromJson(json)).toList();
         }
-        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw KegiatanError(message: 'Session expired. Please login again.');
+        throw KegiatanError(message: 'Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw KegiatanError(
-            message: json.decode(response.body)['message'] ?? 
-                'Failed to load dosen list');
+        throw KegiatanError(message: json.decode(response.body)['message'] ?? 'Gagal memuat daftar dosen');
       }
     } catch (e) {
-      debugPrint('Error in getDosen: $e');
+      debugPrint('Error di getDosen: $e');
       rethrow;
     }
   }
@@ -243,7 +233,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw KegiatanError(message: 'Token not available. Please login again.');
+        throw KegiatanError(message: 'Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -260,16 +250,14 @@ class ApiKegiatan {
           final List<dynamic> jabatanList = jsonResponse['data'] ?? [];
           return jabatanList.map((json) => JabatanKegiatan.fromJson(json)).toList();
         }
-        throw KegiatanError(message: jsonResponse['message'] ?? 'Invalid response format');
+        throw KegiatanError(message: jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw KegiatanError(message: 'Session expired. Please login again.');
+        throw KegiatanError(message: 'Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw KegiatanError(
-            message: json.decode(response.body)['message'] ?? 
-                'Failed to load jabatan list');
+        throw KegiatanError(message: json.decode(response.body)['message'] ?? 'Gagal memuat daftar jabatan');
       }
     } catch (e) {
-      debugPrint('Error in getJabatan: $e');
+      debugPrint('Error di getJabatan: $e');
       rethrow;
     }
   }
@@ -278,7 +266,7 @@ class ApiKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -289,7 +277,7 @@ class ApiKegiatan {
         },
       );
 
-      debugPrint('Kalender Kegiatan response: ${response.body}');
+      debugPrint('Kalender Kegiatan respon: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -305,9 +293,9 @@ class ApiKegiatan {
               final String namaKegiatan = item['nama_kegiatan'].toString();
               
               kegiatanMap[normalizedDate] = namaKegiatan;
-              debugPrint('Successfully parsed date: $dateStr to $normalizedDate');
+              debugPrint('Berhasil menguraikan tanggal: $dateStr ke $normalizedDate');
             } catch (e) {
-              debugPrint('Error parsing date or event: $e');
+              debugPrint('Gagal menguraikan tanggal atau acara: $e');
               debugPrint('Problematic date string: ${item['tanggal_acara']}');
               continue;
             }
@@ -317,15 +305,15 @@ class ApiKegiatan {
         }
         return {};
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         throw Exception(
           json.decode(response.body)['message'] ?? 
-          'Failed to load calendar events'
+          'Gagal memuat acara kalender'
         );
       }
     } catch (e) {
-      debugPrint('Error in getKalenderKegiatan: $e');
+      debugPrint('Error di getKalenderKegiatan: $e');
       rethrow;
     }
   }

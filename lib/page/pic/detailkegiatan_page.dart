@@ -4,6 +4,7 @@ import 'package:sdm/models/dosen/kegiatan_model.dart';
 import 'package:sdm/models/dosen/dokumen_model.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/page/pic/daftarkegiatan_page.dart';
 
 class DetailKegiatanPage extends StatefulWidget {
@@ -36,9 +37,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
       });
     } catch (e) {
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
     }
   }
 
@@ -53,9 +52,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
       setState(() => isLoading = false);
     } catch (e) {
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal mengunduh dokumen: ${e.toString()}')),
-      );
+      CustomTopSnackBar.show(context, 'Gagal mengunduh dokumen: ${e.toString()}');
     }
   }
 

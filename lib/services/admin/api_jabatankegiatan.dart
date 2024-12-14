@@ -21,15 +21,14 @@ class ApiJabatanKegiatan {
     return token;
   }
 
-  // Mengambil semua data jabatan kegiatan
   Future<List<JabatanKegiatan>> getAllJabatanKegiatan() async {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
-      debugPrint('Fetching jabatan kegiatan with token: $token');
+      debugPrint('Mengambil jabatan kegiatan dengan token: $token');
 
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/jabatan-kegiatan'),
@@ -47,15 +46,14 @@ class ApiJabatanKegiatan {
             JabatanKegiatanResponse.fromJson(json.decode(response.body));
         return jabatanResponse.jabatanKegiatanList;
       } else {
-        throw Exception('Failed to load jabatan kegiatan');
+        throw Exception('Gagal memuat jabatan kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in getAllJabatanKegiatan: $e');
+      debugPrint('Error di getAllJabatanKegiatan: $e');
       rethrow;
     }
   }
 
-  // Membuat jabatan kegiatan baru
   Future<JabatanKegiatan> createJabatanKegiatan({
     required String jabatanNama,
     required double poin,
@@ -63,7 +61,7 @@ class ApiJabatanKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.post(
@@ -87,19 +85,18 @@ class ApiJabatanKegiatan {
             JabatanKegiatanResponse.fromJson(json.decode(response.body));
         final jabatan = jabatanResponse.jabatanKegiatan;
         if (jabatan == null) {
-          throw Exception('Failed to create jabatan kegiatan');
+          throw Exception('Gagal membuat jabatan kegiatan');
         }
         return jabatan;
       } else {
-        throw Exception('Failed to create jabatan kegiatan');
+        throw Exception('Gagal membuat jabatan kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in createJabatanKegiatan: $e');
+      debugPrint('Error di createJabatanKegiatan: $e');
       rethrow;
     }
   }
 
-  // Mengupdate jabatan kegiatan
   Future<JabatanKegiatan> updateJabatanKegiatan({
     required int id,
     required String jabatanNama,
@@ -108,7 +105,7 @@ class ApiJabatanKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.put(
@@ -132,14 +129,14 @@ class ApiJabatanKegiatan {
             JabatanKegiatanResponse.fromJson(json.decode(response.body));
         final jabatan = jabatanResponse.jabatanKegiatan;
         if (jabatan == null) {
-          throw Exception('Failed to update jabatan kegiatan');
+          throw Exception('Gagal memperbarui jabatan kegiatan');
         }
         return jabatan;
       } else {
-        throw Exception('Failed to update jabatan kegiatan');
+        throw Exception('Gagal memperbarui jabatan kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in updateJabatanKegiatan: $e');
+      debugPrint('Error di updateJabatanKegiatan: $e');
       rethrow;
     }
   }
@@ -149,7 +146,7 @@ class ApiJabatanKegiatan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.delete(
@@ -168,10 +165,10 @@ class ApiJabatanKegiatan {
             JabatanKegiatanResponse.fromJson(json.decode(response.body));
         return jabatanResponse.status;
       } else {
-        throw Exception('Failed to delete jabatan kegiatan');
+        throw Exception('Gagal menghapus jabatan kegiatan');
       }
     } catch (e) {
-      debugPrint('Error in deleteJabatanKegiatan: $e');
+      debugPrint('Error di deleteJabatanKegiatan: $e');
       rethrow;
     }
   }

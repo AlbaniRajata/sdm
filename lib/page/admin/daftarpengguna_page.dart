@@ -8,6 +8,7 @@ import 'package:sdm/services/admin/api_user.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/pengguna_sortoption.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DaftarPenggunaPage extends StatefulWidget {
   const DaftarPenggunaPage({super.key});
@@ -47,9 +48,7 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
       }
     } catch (e) {
       debugPrint('Load users error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
     } finally {
       setState(() => isLoading = false);
     }
@@ -96,14 +95,10 @@ class DaftarPenggunaPageState extends State<DaftarPenggunaPage> {
       final response = await _apiService.deleteUser(id);
       if (response.isSuccess) {
         await _loadUsers();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pengguna berhasil dihapus')),
-        );
+        CustomTopSnackBar.show(context, 'Pengguna berhasil dihapus');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
     }
   }
 

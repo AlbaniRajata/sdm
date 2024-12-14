@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/page/dosen/daftarkegiatan_page.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
 
@@ -15,7 +16,7 @@ class DetailKegiatanPage extends StatefulWidget {
 }
 
 class DetailKegiatanPageState extends State<DetailKegiatanPage> {
-  final ApiKegiatan _apiKegiatan = ApiKegiatan(); // Replace with actual token
+  final ApiKegiatan _apiKegiatan = ApiKegiatan();
   bool isLoading = true;
   String? error;
   KegiatanModel? kegiatan;
@@ -39,6 +40,8 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       setState(() {
         error = e.toString();
         isLoading = false;

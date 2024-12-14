@@ -7,6 +7,7 @@ import 'package:sdm/services/pimpinan/api_kegiatan.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
 import 'package:sdm/widget/pimpinan/custom_filter.dart';
 import 'package:sdm/widget/pimpinan/kegiatan_sortoption.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DaftarKegiatanPage extends StatefulWidget {
   const DaftarKegiatanPage({super.key});
@@ -37,9 +38,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
         filteredKegiatanList = kegiatan;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
     }
   }
 

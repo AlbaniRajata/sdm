@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/services/admin/api_user.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:intl/intl.dart';
 
 class DetailPenggunaPage extends StatefulWidget {
@@ -36,9 +37,8 @@ class DetailPenggunaPageState extends State<DetailPenggunaPage> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      debugPrint('Load users error: $e');
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       setState(() => isLoading = false);
     }
   }

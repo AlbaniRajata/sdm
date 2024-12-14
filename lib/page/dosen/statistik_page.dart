@@ -5,6 +5,7 @@ import 'package:sdm/services/dosen/api_statistik.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:sdm/widget/dosen/sort_option.dart';
 import 'package:sdm/widget/dosen/custom_filter.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class StatistikPage extends StatefulWidget {
   const StatistikPage({super.key});
@@ -38,9 +39,7 @@ class StatistikPageState extends State<StatistikPage> {
         totalPoin = statistikModel.totalPoin ?? 0.0;
       });
     } catch (e) {
-      // Handle error
-      print('Error: $e');
-      // Show error message to the user or perform any necessary action
+      CustomTopSnackBar.show(context, 'Error: $e');
     }
   }
 

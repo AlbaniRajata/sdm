@@ -24,7 +24,7 @@ class ApiStatistik {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -42,12 +42,12 @@ class ApiStatistik {
         if (jsonResponse['status'] == true) {
           return StatistikModel.fromJson(jsonResponse['data']);
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         throw Exception(json.decode(response.body)['message'] ?? 
-            'Failed to load statistik dosen');
+            'Gagal memuat statistik dosen');
       }
     } catch (e) {
       debugPrint('Error in getStatistikDosen: $e');

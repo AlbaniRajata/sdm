@@ -7,6 +7,7 @@ import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/widget/pic/custom_filter.dart';
 import 'package:sdm/widget/pic/kegiatan_sortoption.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DaftarKegiatanAgendaPage extends StatefulWidget {
   const DaftarKegiatanAgendaPage({super.key});
@@ -37,7 +38,7 @@ class DaftarKegiatanAgendaPageState extends State<DaftarKegiatanAgendaPage> {
         filteredKegiatanList = kegiatan;
       });
     } catch (e) {
-      print('Error mengambil daftar kegiatan: $e');
+      CustomTopSnackBar.show(context, 'Error mengambil daftar kegiatan: $e');
     }
   }
 

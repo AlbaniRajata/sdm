@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/models/admin/kegiatan_model.dart';
 import 'package:sdm/models/admin/anggota_model.dart';
@@ -67,9 +68,7 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error mengambil data: $e')),
-      );
+      CustomTopSnackBar.show(context, 'Error mengambil data: $e');
       setState(() => isLoading = false);
     }
   }
@@ -106,9 +105,7 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
 
   void _addAnggota() {
     if (dosenList.isEmpty || jabatanList.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Data dosen atau jabatan belum tersedia')),
-      );
+      CustomTopSnackBar.show(context, 'Data dosen atau jabatan belum tersedia');
       return;
     }
 
@@ -128,9 +125,7 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
         anggotaList.removeAt(index);
       });
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Minimal harus ada satu anggota')),
-      );
+      CustomTopSnackBar.show(context, 'Minimal harus ada satu anggota');
     }
   }
 
@@ -159,16 +154,11 @@ class EditKegiatanPageState extends State<EditKegiatanPage> {
 
         if (!mounted) return;
         
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Berhasil menyimpan perubahan')),
-        );
-
+        CustomTopSnackBar.show(context, 'Berhasil menyimpan perubahan');
         Navigator.pop(context, savedKegiatan);
       } catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menyimpan perubahan: $e')),
-        );
+        CustomTopSnackBar.show(context, 'Gagal menyimpan perubahan: $e');
       }
     }
   }

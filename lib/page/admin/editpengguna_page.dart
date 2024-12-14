@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/services/admin/api_user.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:intl/intl.dart';
 
 class EditPenggunaPage extends StatefulWidget {
@@ -77,17 +78,17 @@ class EditPenggunaPageState extends State<EditPenggunaPage> {
         );
 
         if (response.isSuccess) {
+          if (!mounted) return;
+          CustomTopSnackBar.show(context, 'Data pengguna berhasil diperbarui');
           Navigator.pop(context, response.data);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Data pengguna berhasil diperbarui')),
-          );
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        if (!mounted) return;
+        CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       } finally {
-        setState(() => isLoading = false);
+        if (mounted) {
+          setState(() => isLoading = false);
+        }
       }
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/services/admin/api_profile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -31,37 +32,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   bool _isLoading = false;
 
   final ApiProfile _apiProfile = ApiProfile();
-
-  void _showNotification(String message, Color backgroundColor) {
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            color: backgroundColor,
-            padding: const EdgeInsets.all(12),
-            child: SafeArea(
-              child: Text(
-                message,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    overlay.insert(overlayEntry);
-    Future.delayed(const Duration(seconds: 2), overlayEntry.remove);
-  }
 
   @override
   void initState() {
@@ -375,29 +345,28 @@ class _EditProfilePageState extends State<EditProfilePage> {
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _nipController.text.isEmpty) {
-      _showNotification('Semua field harus diisi', Colors.red);
+      CustomTopSnackBar.show(context, 'Semua field harus diisi');
       return false;
     }
 
     if (_newPasswordController.text.isNotEmpty ||
         _confirmPasswordController.text.isNotEmpty) {
       if (_oldPasswordController.text.isEmpty) {
-        _showNotification(
-          'Password lama harus diisi untuk mengubah password',
-          Colors.red
+        CustomTopSnackBar.show(
+          context,
+          'Password lama harus diisi untuk mengubah password'
         );
         return false;
       }
 
       if (_newPasswordController.text != _confirmPasswordController.text) {
-        _showNotification(
-          'Password baru dan konfirmasi password tidak cocok',
-          Colors.red
+        CustomTopSnackBar.show(
+          context,
+          'Password baru dan konfirmasi password tidak cocok'
         );
         return false;
       }
     }
-
     return true;
   }
 
@@ -419,7 +388,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await prefs.setString('user_data', json.encode(updatedUser.toJson()));
 
       if (mounted) {
-        _showNotification('Profil berhasil diperbarui', Colors.green);
+        CustomTopSnackBar.show(context, 'Profil berhasil diperbarui');
         Navigator.pop(context, updatedUser);
       }
     } catch (e) {
@@ -428,7 +397,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         if (e is Exception) {
           errorMessage = e.toString().replaceAll('Exception: ', '');
         }
-        _showNotification(errorMessage, Colors.red);
+        CustomTopSnackBar.show(context, errorMessage);
       }
     } finally {
       if (mounted) {

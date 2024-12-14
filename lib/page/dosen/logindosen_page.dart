@@ -7,6 +7,7 @@ import 'package:sdm/page/dosen/homedosen_page.dart';
 import 'package:sdm/services/dosen/api_login.dart';
 import 'package:sdm/models/dosen/user.dart';
 import 'package:sdm/models/dosen/user_model.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginDosenPage extends StatefulWidget {
@@ -56,40 +57,9 @@ class LoginDosenPageState extends State<LoginDosenPage> with SingleTickerProvide
     super.dispose();
   }
 
-  void _showNotification(String message, Color backgroundColor) {
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            color: backgroundColor,
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-            child: SafeArea(
-              child: Text(
-                message,
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    overlay.insert(overlayEntry);
-    Future.delayed(const Duration(seconds: 2), overlayEntry.remove);
-  }
-
   void _login() async {
     if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
-      _showNotification('Username dan password harus diisi', Colors.red);
+      CustomTopSnackBar.show(context, 'Username dan password harus diisi');
       return;
     }
 
@@ -107,7 +77,7 @@ class LoginDosenPageState extends State<LoginDosenPage> with SingleTickerProvide
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_data', json.encode(result['data']['user']));
         
-        _showNotification('Login berhasil', Colors.green);
+        CustomTopSnackBar.show(context, 'Login berhasil');
         await Future.delayed(const Duration(milliseconds: 1500));
         
         if (mounted) {
@@ -120,12 +90,12 @@ class LoginDosenPageState extends State<LoginDosenPage> with SingleTickerProvide
           );
         }
       } else {
-        _showNotification(result['message'], Colors.red);
+        CustomTopSnackBar.show(context, result['message']);
       }
     } on SocketException {
-      _showNotification('Terjadi kesalahan koneksi', Colors.red);
+      CustomTopSnackBar.show(context, 'Terjadi kesalahan koneksi');
     } catch (e) {
-      _showNotification('Terjadi kesalahan: $e', Colors.red);
+      CustomTopSnackBar.show(context, 'Terjadi kesalahan: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

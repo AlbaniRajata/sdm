@@ -6,6 +6,7 @@ import 'package:sdm/page/pic/detailprofile_page.dart';
 import 'package:sdm/page/dosen/homedosen_page.dart';
 import 'package:sdm/welcome_page.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilepicPage extends StatelessWidget {
@@ -55,20 +56,11 @@ class ProfilepicPage extends StatelessWidget {
         await prefs.clear();
         if (!context.mounted) return;
 
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (_) => const WelcomePage()),
-          (route) => false,
-        );
+        Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (_) => const WelcomePage()),(route) => false,);
       } catch (e) {
-        debugPrint('Error during logout: $e');
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Gagal melakukan logout. Silahkan coba lagi.'),
-              backgroundColor: Colors.red,
-            ),
-          );
+      debugPrint('Error selama logout: $e');
+      if (context.mounted) {
+        CustomTopSnackBar.show(context, 'Gagal melakukan logout. Silahkan coba lagi.');
         }
       }
     }

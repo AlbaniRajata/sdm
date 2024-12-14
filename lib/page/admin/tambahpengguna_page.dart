@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/services/admin/api_user.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:intl/intl.dart';
 
 class TambahPenggunaPage extends StatefulWidget {
@@ -63,17 +64,17 @@ class TambahPenggunaPageState extends State<TambahPenggunaPage> {
         );
 
         if (response.isSuccess) {
+          if (!mounted) return;
+          CustomTopSnackBar.show(context, 'Pengguna berhasil ditambahkan');
           Navigator.pop(context, response.data);
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Pengguna berhasil ditambahkan')),
-          );
         }
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        if (!mounted) return;
+        CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       } finally {
-        setState(() => isLoading = false);
+        if (mounted) {
+          setState(() => isLoading = false);
+        }
       }
     }
   }

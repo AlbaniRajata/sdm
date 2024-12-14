@@ -7,6 +7,7 @@ import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/widget/dosen/sort_option.dart';
 import 'package:sdm/widget/dosen/custom_filter.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DaftarKegiatanNonJTIPage extends StatefulWidget {
   const DaftarKegiatanNonJTIPage({super.key});
@@ -46,6 +47,8 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       setState(() {
         error = e.toString();
         isLoading = false;

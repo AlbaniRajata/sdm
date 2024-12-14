@@ -25,7 +25,7 @@ class ApiAgenda {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -46,10 +46,10 @@ class ApiAgenda {
         }
         return [];
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         throw Exception(json.decode(response.body)['message'] ?? 
-            'Failed to load agenda list');
+            'Gagal memuat daftar agenda');
       }
     } catch (e) {
       debugPrint('Error in getKegiatanPIC: $e');
@@ -61,7 +61,7 @@ class ApiAgenda {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -79,12 +79,12 @@ class ApiAgenda {
         if (jsonResponse['status'] == 'success') {
           return AgendaModel.fromJson(jsonResponse['data']);
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         throw Exception(json.decode(response.body)['message'] ?? 
-            'Failed to load agenda detail');
+            'Gagal memuat detail agenda');
       }
     } catch (e) {
       debugPrint('Error in getDetailKegiatan: $e');
@@ -95,7 +95,7 @@ class ApiAgenda {
   Future<List<KegiatanModel>> getKegiatanAgendaList() async {
     try {
       final token = await _getToken();
-      if (token == null) throw Exception('Token not found');
+      if (token == null) throw Exception('Token tidak tersedia. Silakan login kembali.');
 
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/anggota-agenda'),
@@ -113,7 +113,7 @@ class ApiAgenda {
         }
         throw Exception(responseData['message']);
       }
-      throw Exception('Failed to load agenda kegiatan');
+      throw Exception('Gagal memuat daftar kegiatan agenda');
     } catch (e) {
       rethrow;
     }
@@ -123,7 +123,7 @@ class ApiAgenda {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -141,12 +141,12 @@ class ApiAgenda {
         if (jsonResponse['status'] == 'success') {
           return AgendaModel.fromJson(jsonResponse['data']);
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         throw Exception(json.decode(response.body)['message'] ?? 
-            'Failed to load agenda detail');
+            'Gagal memuat detail agenda');
       }
     } catch (e) {
       debugPrint('Error in getDetailAgenda: $e');

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/page/admin/loginadmin_page.dart';
 import 'package:sdm/page/dosen/logindosen_page.dart';
 import 'package:sdm/page/pimpinan/loginpimpinan_page.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -83,45 +84,15 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
   }
 
   void _showErrorNotification() {
-    final overlay = Overlay.of(context);
-    final overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        child: Material(
-          color: Colors.transparent,
-          child: Container(
-            color: Colors.red,
-            padding: const EdgeInsets.all(12),
-            child: SafeArea(
-              child: Text(
-                'Anda harus memilih peran terlebih dahulu',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    overlay.insert(overlayEntry);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
+    CustomTopSnackBar.show(context, 'Anda harus memilih peran terlebih dahulu');
   }
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final horizontalPadding = size.width * 0.08; // 8% dari lebar layar
-    final verticalPadding = size.height * 0.05; // 5% dari tinggi layar
-    final imageHeight = size.height * 0.35; // 35% dari tinggi layar
+    final horizontalPadding = size.width * 0.08;
+    final verticalPadding = size.height * 0.05;
+    final imageHeight = size.height * 0.35;
 
     return Scaffold(
       body: Stack(

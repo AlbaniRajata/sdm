@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/anggota/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/page/anggota/daftarkegiatan_page.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
 import 'package:sdm/models/dosen/dokumen_model.dart';
@@ -42,6 +43,8 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       setState(() {
         error = e.toString();
         isLoading = false;
@@ -59,9 +62,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
       );
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal mengunduh dokumen: ${e.toString()}')),
-        );
+        CustomTopSnackBar.show(context, 'Gagal mengunduh dokumen: ${e.toString()}');
       }
     } finally {
       if (mounted) {

@@ -24,7 +24,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -48,17 +48,17 @@ class ApiDashboard {
 
           return DashboardModel.fromJson(dashboardData);
         }
-        throw Exception(jsonResponse['message'] ?? 'Failed to load dashboard data');
+        throw Exception(jsonResponse['message'] ?? 'Gagal memuat data dashboard');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load dashboard data';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat data dashboard';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getDashboardData: $e');
+      debugPrint('Error di getDashboardData: $e');
       rethrow;
     }
   }
@@ -67,7 +67,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -91,17 +91,17 @@ class ApiDashboard {
 
           return DashboardModel.fromJson(dashboardData);
         }
-        throw Exception(jsonResponse['message'] ?? 'Failed to load dashboard data');
+        throw Exception(jsonResponse['message'] ?? 'Gagal memuat data dashboard');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load dashboard data';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat data dashboard';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getDashboardPIC: $e');
+      debugPrint('Error di getDashboardPIC: $e');
       rethrow;
     }
   }
@@ -110,7 +110,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -134,17 +134,17 @@ class ApiDashboard {
 
           return DashboardModel.fromJson(dashboardData);
         }
-        throw Exception(jsonResponse['message'] ?? 'Failed to load dashboard data');
+        throw Exception(jsonResponse['message'] ?? 'Gagal memuat data dashboard');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load dashboard data';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat data dashboard';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getDashboardAnggota: $e');
+      debugPrint('Error di getDashboardAnggota: $e');
       rethrow;
     }
   }
@@ -153,7 +153,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -171,17 +171,17 @@ class ApiDashboard {
         if (jsonResponse['status'] == true) {
           return jsonResponse['data'];
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load total kegiatan';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat total kegiatan';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getTotalKegiatan: $e');
+      debugPrint('Error di getTotalKegiatan: $e');
       rethrow;
     }
   }

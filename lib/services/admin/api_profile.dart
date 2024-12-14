@@ -31,7 +31,7 @@ class ApiProfile {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final Map<String, dynamic> data = {
@@ -63,20 +63,20 @@ class ApiProfile {
         if (jsonResponse['status'] == 'success') {
           return UserModel.fromJson(jsonResponse['data']);
         }
-        throw Exception(jsonResponse['message'] ?? 'Failed to update profile');
+        throw Exception(jsonResponse['message'] ?? 'Gagal memperbarui profil');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else if (response.statusCode == 422) {
         final jsonResponse = json.decode(response.body);
-        throw Exception(jsonResponse['message'] ?? 'Validation error');
+        throw Exception(jsonResponse['message'] ?? 'Kesalahan validasi');
       } else {
         throw Exception(
           json.decode(response.body)['message'] ?? 
-          'Failed to update profile'
+          'Gagal memperbarui profil'
         );
       }
     } catch (e) {
-      debugPrint('Error in updateProfile: $e');
+      debugPrint('Error di updateProfile: $e');
       rethrow;
     }
   }

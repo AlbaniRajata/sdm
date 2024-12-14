@@ -6,6 +6,7 @@ import 'package:sdm/widget/pic/custom_bottomappbar.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/widget/pic/custom_filter.dart';
 import 'package:sdm/widget/pic/kegiatan_sortoption.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class ProgressKegiatanPage extends StatefulWidget {
   const ProgressKegiatanPage({super.key});
@@ -36,7 +37,7 @@ class ProgressKegiatanPageState extends State<ProgressKegiatanPage> {
         filteredKegiatanList = kegiatan;
       });
     } catch (e) {
-      print('Error mengambil daftar kegiatan: $e');
+      CustomTopSnackBar.show(context, 'Error mengambil daftar kegiatan: $e');
     }
   }
 

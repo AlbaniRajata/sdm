@@ -1,9 +1,9 @@
-// lib/page/pimpinan/detaildosen_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/pimpinan/user_model.dart';
 import 'package:sdm/services/pimpinan/api_user.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DetailDosenPage extends StatefulWidget {
   final int userId;
@@ -40,9 +40,7 @@ class _DetailDosenPageState extends State<DetailDosenPage> {
         isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       }
     }
   }

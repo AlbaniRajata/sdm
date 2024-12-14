@@ -20,7 +20,7 @@ class ApiUserAdmin {
   Future<UserResponse> getUsers() async {
     try {
       final token = await _getToken();
-      if (token == null) throw Exception('Token not available');
+      if (token == null) throw Exception('Token tidak tersedia. Silakan login kembali.');
 
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/user-admin/users'),
@@ -35,7 +35,7 @@ class ApiUserAdmin {
       if (response.statusCode == 200) {
         return UserResponse.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to load users: ${response.statusCode}');
+        throw Exception('Gagal memuat pengguna: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error in getUsers: $e');
@@ -46,7 +46,7 @@ class ApiUserAdmin {
   Future<UserResponse> getUserDetail(int userId) async {
     try {
       final token = await _getToken();
-      if (token == null) throw Exception('Token not available');
+      if (token == null) throw Exception('Token tidak tersedia. Silakan login kembali.');
 
       final response = await http.get(
         Uri.parse('${ApiConfig.baseUrl}/user-admin/users/$userId'),
@@ -59,7 +59,7 @@ class ApiUserAdmin {
       if (response.statusCode == 200) {
         return UserResponse.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to load user detail: ${response.statusCode}');
+        throw Exception('Gagal memuat detail pengguna: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error in getUserDetail: $e');
@@ -78,7 +78,7 @@ class ApiUserAdmin {
   }) async {
     try {
       final token = await _getToken();
-      if (token == null) throw Exception('Token not available');
+      if (token == null) throw Exception('Token tidak tersedia. Silakan login kembali.');
 
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/user-admin/users'),
@@ -101,7 +101,7 @@ class ApiUserAdmin {
       if (response.statusCode == 201) {
         return UserResponse.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to create user: ${response.statusCode}');
+        throw Exception('Gagal membuat pengguna: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error in createUser: $e');
@@ -120,7 +120,7 @@ class ApiUserAdmin {
   }) async {
     try {
       final token = await _getToken();
-      if (token == null) throw Exception('Token not available');
+      if (token == null) throw Exception('Token tidak tersedia. Silakan login kembali.');
 
       final response = await http.put(
         Uri.parse('${ApiConfig.baseUrl}/user-admin/users/$userId'),
@@ -142,7 +142,7 @@ class ApiUserAdmin {
       if (response.statusCode == 200) {
         return UserResponse.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to update user: ${response.statusCode}');
+        throw Exception('Gagal memperbarui pengguna: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error in updateUser: $e');
@@ -153,7 +153,7 @@ class ApiUserAdmin {
   Future<UserResponse> deleteUser(int userId) async {
     try {
       final token = await _getToken();
-      if (token == null) throw Exception('Token not available');
+      if (token == null) throw Exception('Token tidak tersedia. Silakan login kembali.');
 
       final response = await http.delete(
         Uri.parse('${ApiConfig.baseUrl}/user-admin/users/$userId'),
@@ -166,7 +166,7 @@ class ApiUserAdmin {
       if (response.statusCode == 200) {
         return UserResponse.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to delete user: ${response.statusCode}');
+        throw Exception('Gagal menghapus pengguna: ${response.statusCode}');
       }
     } catch (e) {
       debugPrint('Error in deleteUser: $e');

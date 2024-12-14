@@ -8,6 +8,7 @@ import 'package:sdm/services/admin/api_kegiatan.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/kegiatan_sortoption.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DaftarKegiatanPage extends StatefulWidget {
   const DaftarKegiatanPage({super.key});
@@ -38,9 +39,7 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
         filteredKegiatanList = kegiatan;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      CustomTopSnackBar.show(context, 'Error: $e');
     }
   }
 
@@ -107,15 +106,11 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           _searchKegiatan();
         });
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Kegiatan berhasil dihapus')),
-        );
+        CustomTopSnackBar.show(context, 'Kegiatan berhasil dihapus');
       }
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      CustomTopSnackBar.show(context, 'Error: $e');
     }
   }
 

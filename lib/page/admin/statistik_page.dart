@@ -6,6 +6,7 @@ import 'package:sdm/services/admin/api_statistik.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/dosen_sortoption.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class StatistikPage extends StatefulWidget {
   const StatistikPage({super.key});
@@ -36,9 +37,9 @@ class StatistikPageState extends State<StatistikPage> {
       });
     } catch (e) {
       if (e is StatistikAdminError) {
-        print('Error: ${e.message}');
+        CustomTopSnackBar.show(context, 'Error: ${e.message}');
       } else {
-        print('Error: $e');
+        CustomTopSnackBar.show(context, 'Error: $e');
       }
     }
   }

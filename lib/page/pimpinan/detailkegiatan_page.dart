@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/page/pimpinan/daftarkegiatan_page.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/models/pimpinan/kegiatan_model.dart';
@@ -21,7 +22,7 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
       final DateFormat formatter = DateFormat('dd MMMM yyyy');
       return formatter.format(date);
     } catch (e) {
-      print('Error formatting date: $e');
+      CustomTopSnackBar.show(context, 'Error Formatting Date: ${e.toString()}');
       return 'Invalid Date';
     }
   }

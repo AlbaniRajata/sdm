@@ -24,7 +24,7 @@ class ApiUser {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -43,7 +43,6 @@ class ApiUser {
           final List<dynamic> dosenList = jsonResponse['data'];
           return dosenList.map((item) {
             try {
-              // Ensure all required fields have default values
               item['username'] = item['username'] ?? '';
               item['nama'] = item['nama'] ?? '';
               item['email'] = item['email'] ?? '';
@@ -54,8 +53,8 @@ class ApiUser {
               return UserModel.fromJson(item);
             } catch (e) {
               debugPrint('Error parsing user data: $e');
-              debugPrint('Problematic JSON: $item');
-              // Return a default UserModel instead of throwing
+              debugPrint('JSON bermasalah: $item');
+
               return UserModel(
                 idUser: item['id_user'] ?? 0,
                 username: item['username'] ?? '',
@@ -74,9 +73,9 @@ class ApiUser {
         }
         return [];
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw Exception(json.decode(response.body)['message'] ?? 'Failed to load dosen list');
+        throw Exception(json.decode(response.body)['message'] ?? 'Gagal memuat daftar dosen');
       }
     } catch (e) {
       debugPrint('Error in getAllDosen: $e');
@@ -88,7 +87,7 @@ class ApiUser {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -107,13 +106,12 @@ class ApiUser {
           try {
             final data = jsonResponse['data'];
             
-            // Ensure all required fields have default values and proper types
             final processedData = {
               'id_user': data['id_user'] ?? 0,
               'username': data['username']?.toString() ?? '',
               'nama': data['nama']?.toString() ?? '',
               'email': data['email']?.toString() ?? '',
-              'NIP': data['NIP']?.toString().trim() ?? '',  // Add trim() to handle whitespace
+              'NIP': data['NIP']?.toString().trim() ?? '',
               'level': data['level']?.toString() ?? '',
               'tanggal_lahir': data['tanggal_lahir'] ?? DateTime.now().toIso8601String(),
               'total_kegiatan': data['total_kegiatan'] ?? 0,
@@ -145,9 +143,8 @@ class ApiUser {
             );
           } catch (e) {
             debugPrint('Error parsing user detail: $e');
-            debugPrint('Problematic JSON: ${jsonResponse['data']}');
+            debugPrint('JSON bermasalah: ${jsonResponse['data']}');
             
-            // Return a default UserModel with the minimal required data
             return UserModel(
               idUser: jsonResponse['data']['id_user'] ?? 0,
               username: jsonResponse['data']['username']?.toString() ?? '',
@@ -163,13 +160,13 @@ class ApiUser {
             );
           }
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Dosen not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load dosen detail';
+            ? 'Dosen tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat detail dosen';
         throw Exception(errorMessage);
       }
     } catch (e) {
@@ -182,7 +179,7 @@ class ApiUser {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.post(
@@ -206,18 +203,18 @@ class ApiUser {
               return UserModel.fromJson(item);
             } catch (e) {
               debugPrint('Error parsing search result: $e');
-              debugPrint('Problematic JSON: $item');
+              debugPrint('JSON bermasalah: $item');
               rethrow;
             }
           }).toList();
         }
         return [];
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'No results found'
-            : json.decode(response.body)['message'] ?? 'Failed to search dosen';
+            ? 'Tidak ada hasil yang ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal mencari dosen';
         throw Exception(errorMessage);
       }
     } catch (e) {

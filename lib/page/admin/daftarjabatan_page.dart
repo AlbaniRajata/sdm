@@ -5,6 +5,7 @@ import 'package:sdm/services/admin/api_jabatankegiatan.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
 import 'package:sdm/widget/admin/dosen_sortoption.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:sdm/page/admin/editjabatan_page.dart';
 import 'package:sdm/page/admin/tambahjabatan_page.dart';
 
@@ -41,9 +42,7 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
       });
     } catch (e) {
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
     }
   }
 
@@ -81,15 +80,11 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
     try {
       final success = await _apiJabatanKegiatan.deleteJabatanKegiatan(id);
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Jabatan berhasil dihapus')),
-        );
+        CustomTopSnackBar.show(context, 'Jabatan berhasil dihapus');
         _loadJabatan();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
     }
   }
 
@@ -341,11 +336,18 @@ class DaftarJabatanPageState extends State<DaftarJabatanPage> {
     return RichText(
       text: TextSpan(
         text: '$title\n',
-        style: GoogleFonts.poppins(fontSize: fontSize, fontWeight: FontWeight.bold, color: Colors.black),
+        style: GoogleFonts.poppins(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.black
+        ),
         children: [
           TextSpan(
             text: value,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.normal, color: Colors.black),
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.normal,
+              color: Colors.black
+            ),
           ),
         ],
       ),

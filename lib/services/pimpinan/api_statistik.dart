@@ -24,7 +24,7 @@ class ApiStatistikPimpinan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -38,12 +38,10 @@ class ApiStatistikPimpinan {
       debugPrint('Statistik Pimpinan response: ${response.body}');
 
       if (response.statusCode == 200) {
-        // Parse the response body directly as a list
         final List<dynamic> statistikList = json.decode(response.body);
         
         return statistikList.map((item) {
           try {
-            // Handle null values and type conversion
             return StatistikPimpinan(
               nama: item['nama']?.toString() ?? '',
               totalKegiatan: item['total_kegiatan'] is int 
@@ -57,7 +55,7 @@ class ApiStatistikPimpinan {
             );
           } catch (e) {
             debugPrint('Error parsing statistik item: $e');
-            debugPrint('Problematic JSON: $item');
+            debugPrint('JSON bermasalah: $item');
             return StatistikPimpinan(
               nama: item['nama']?.toString() ?? '-',
               totalKegiatan: 0,
@@ -66,9 +64,9 @@ class ApiStatistikPimpinan {
           }
         }).toList();
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw Exception('Failed to load statistik');
+        throw Exception('Gagal memuat statistik');
       }
     } catch (e) {
       debugPrint('Error in getStatistikPimpinan: $e');
@@ -80,7 +78,7 @@ class ApiStatistikPimpinan {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -94,7 +92,6 @@ class ApiStatistikPimpinan {
       debugPrint('Statistik Per Tahun response: ${response.body}');
 
       if (response.statusCode == 200) {
-        // Parse the response body directly as a list
         final List<dynamic> statistikList = json.decode(response.body);
         
         return statistikList.map((item) {
@@ -112,7 +109,7 @@ class ApiStatistikPimpinan {
             );
           } catch (e) {
             debugPrint('Error parsing statistik item: $e');
-            debugPrint('Problematic JSON: $item');
+            debugPrint('JSON bermasalah: $item');
             return StatistikPimpinan(
               nama: item['nama']?.toString() ?? 'Unknown',
               totalKegiatan: 0,
@@ -121,9 +118,9 @@ class ApiStatistikPimpinan {
           }
         }).toList();
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
-        throw Exception('Failed to load statistik');
+        throw Exception('Gagal memuat statistik');
       }
     } catch (e) {
       debugPrint('Error in getStatistikPerTahun: $e');

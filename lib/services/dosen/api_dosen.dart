@@ -1,4 +1,3 @@
-// api_dosen.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +24,7 @@ class ApiDosen {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.post(
@@ -47,13 +46,13 @@ class ApiDosen {
           final List<dynamic> jabatanKegiatanData = jsonResponse['jabatan_kegiatan'];
           return jabatanKegiatanData.map((json) => DosenModel.fromJson(json)).toList();
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load jabatan kegiatan';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat jabatan kegiatan';
         throw Exception(errorMessage);
       }
     } catch (e) {

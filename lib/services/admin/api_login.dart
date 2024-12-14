@@ -46,32 +46,30 @@ class ApiLogin {
 
       if (response.statusCode == 200 && responseData['token'] != null) {
         await _persistToken(responseData['token']);
-        
-        // Return user data along with token
         return {
           'status': true,
-          'message': 'Login successful',
+          'message': 'Login berhasil',
           'data': {
             'token': responseData['token'],
-            'user': responseData['user'],  // Assuming the API returns user data
+            'user': responseData['user'],
           }
         };
       } else if (response.statusCode == 401) {
         return {
           'status': false,
-          'message': responseData['error'] ?? 'Authentication failed',
+          'message': responseData['error'] ?? 'Autentikasi gagal',
         };
       } else {
         return {
           'status': false,
-          'message': responseData['error'] ?? 'Failed to login',
+          'message': responseData['error'] ?? 'Gagal login',
         };
       }
     } catch (e) {
-      debugPrint('Error in login: $e');
+      debugPrint('Error di login: $e');
       return {
         'status': false,
-        'message': 'An unexpected error occurred',
+        'message': 'Terjadi kesalahan yang tidak terduga',
       };
     }
   }
@@ -80,7 +78,7 @@ class ApiLogin {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        return true; // Already logged out
+        return true;
       }
 
       final response = await http.post(
@@ -100,7 +98,7 @@ class ApiLogin {
 
       return false;
     } catch (e) {
-      debugPrint('Error in logout: $e');
+      debugPrint('Error di logout: $e');
       return false;
     }
   }
@@ -109,7 +107,7 @@ class ApiLogin {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       return await http.get(
@@ -120,7 +118,7 @@ class ApiLogin {
         },
       );
     } catch (e) {
-      debugPrint('Error in getData: $e');
+      debugPrint('Error di getData: $e');
       rethrow;
     }
   }
@@ -129,7 +127,7 @@ class ApiLogin {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       return await http.post(
@@ -142,7 +140,7 @@ class ApiLogin {
         body: jsonEncode(data),
       );
     } catch (e) {
-      debugPrint('Error in postData: $e');
+      debugPrint('Error di postData: $e');
       rethrow;
     }
   }

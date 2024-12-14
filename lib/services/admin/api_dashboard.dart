@@ -24,7 +24,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -35,7 +35,7 @@ class ApiDashboard {
         },
       );
 
-      debugPrint('Dashboard data response: ${response.body}');
+      debugPrint('Dashboard data respon: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
@@ -49,17 +49,17 @@ class ApiDashboard {
 
           return DashboardModel.fromJson(dashboardData);
         }
-        throw Exception(jsonResponse['message'] ?? 'Failed to load dashboard data');
+        throw Exception(jsonResponse['message'] ?? 'Gagal memuat data dashboard');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load dashboard data';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat data dashboard';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getDashboardData: $e');
+      debugPrint('Error di getDashboardData: $e');
       rethrow;
     }
   }
@@ -68,7 +68,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -79,24 +79,24 @@ class ApiDashboard {
         },
       );
 
-      debugPrint('Total Dosen response: ${response.body}');
+      debugPrint('Total Dosen respon: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == true) {
           return jsonResponse['data'] as int;
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load total dosen';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat total dosen';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getTotalDosen: $e');
+      debugPrint('Error di getTotalDosen: $e');
       rethrow;
     }
   }
@@ -105,7 +105,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -116,24 +116,24 @@ class ApiDashboard {
         },
       );
 
-      debugPrint('Total Kegiatan JTI response: ${response.body}');
+      debugPrint('Total Kegiatan JTI respon: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == true) {
           return jsonResponse['data'] as int;
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load total kegiatan JTI';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat total kegiatan JTI';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getTotalKegiatanJTI: $e');
+      debugPrint('Error di getTotalKegiatanJTI: $e');
       rethrow;
     }
   }
@@ -142,7 +142,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -153,24 +153,24 @@ class ApiDashboard {
         },
       );
 
-      debugPrint('Total Kegiatan Non JTI response: ${response.body}');
+      debugPrint('Total Kegiatan Non JTI respon: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == true) {
           return jsonResponse['data'] as int;
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load total kegiatan non JTI';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat total kegiatan non JTI';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getTotalKegiatanNonJTI: $e');
+      debugPrint('Error di getTotalKegiatanNonJTI: $e');
       rethrow;
     }
   }
@@ -179,7 +179,7 @@ class ApiDashboard {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token not available. Please login again.');
+        throw Exception('Token tidak tersedia. Silakan login kembali.');
       }
 
       final response = await http.get(
@@ -190,24 +190,24 @@ class ApiDashboard {
         },
       );
 
-      debugPrint('Total Kegiatan response: ${response.body}');
+      debugPrint('Total Kegiatan respon: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == true) {
           return jsonResponse['data'];
         }
-        throw Exception(jsonResponse['message'] ?? 'Invalid response format');
+        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('Sesi telah berakhir. Silakan login kembali.');
       } else {
         final errorMessage = response.statusCode == 404
-            ? 'Data not found'
-            : json.decode(response.body)['message'] ?? 'Failed to load total kegiatan';
+            ? 'Data tidak ditemukan'
+            : json.decode(response.body)['message'] ?? 'Gagal memuat total kegiatan';
         throw Exception(errorMessage);
       }
     } catch (e) {
-      debugPrint('Error in getTotalKegiatan: $e');
+      debugPrint('Error di getTotalKegiatan: $e');
       rethrow;
     }
   }

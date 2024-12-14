@@ -1,4 +1,3 @@
-// lib/page/pimpinan/daftardosen_page.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/pimpinan/user_model.dart';
@@ -7,6 +6,7 @@ import 'package:sdm/page/pimpinan/detaildosen_page.dart';
 import 'package:sdm/widget/pimpinan/custom_bottomappbar.dart';
 import 'package:sdm/widget/pimpinan/dosen_sortoption.dart';
 import 'package:sdm/widget/pimpinan/custom_filter.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DaftarDosenPage extends StatefulWidget {
   const DaftarDosenPage({super.key});
@@ -44,9 +44,7 @@ class _DaftarDosenPageState extends State<DaftarDosenPage> {
         isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       }
     }
   }

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/dosen/agenda_model.dart';
 import 'package:sdm/services/dosen/api_agenda.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DetailKegiatanAgendaPage extends StatefulWidget {
   final int idKegiatan;
@@ -36,9 +37,7 @@ class DetailKegiatanAgendaPageState extends State<DetailKegiatanAgendaPage> {
       });
     } catch (e) {
       setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
-      );
+      CustomTopSnackBar.show(context, e.toString());
     }
   }
 

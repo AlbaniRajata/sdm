@@ -4,6 +4,7 @@ import 'package:sdm/models/dosen/kegiatan_model.dart';
 import 'package:sdm/page/dosen/daftarkegiatan_nonjti_page.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class DetailKegiatanNonJTIPage extends StatefulWidget {
   final int idKegiatan;
@@ -42,6 +43,8 @@ class _DetailKegiatanNonJTIPageState extends State<DetailKegiatanNonJTIPage> {
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
       setState(() {
         error = e.toString();
         isLoading = false;
