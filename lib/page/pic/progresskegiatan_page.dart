@@ -3,9 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
 import 'package:sdm/services/dosen/api_kegiatan.dart';
 import 'package:sdm/widget/pic/custom_bottomappbar.dart';
-import 'package:intl/intl.dart';
-import 'package:sdm/widget/pic/custom_filter.dart';
-import 'package:sdm/widget/pic/kegiatan_sortoption.dart';
 import 'package:sdm/widget/custom_top_snackbar.dart';
 
 class ProgressKegiatanPage extends StatefulWidget {
@@ -19,7 +16,6 @@ class ProgressKegiatanPageState extends State<ProgressKegiatanPage> {
   final TextEditingController _searchController = TextEditingController();
   List<KegiatanModel> kegiatanList = [];
   List<KegiatanModel> filteredKegiatanList = [];
-  KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
 
   @override
   void initState() {
@@ -48,33 +44,6 @@ class ProgressKegiatanPageState extends State<ProgressKegiatanPage> {
         final titleLower = kegiatan.namaKegiatan.toLowerCase();
         return titleLower.contains(searchLower);
       }).toList();
-    });
-  }
-
-  void _sortKegiatanList(KegiatanSortOption? option) {
-    setState(() {
-      selectedSortOption = option ?? selectedSortOption;
-      switch (selectedSortOption) {
-        case KegiatanSortOption.abjadAZ:
-          filteredKegiatanList.sort((a, b) => a.namaKegiatan.compareTo(b.namaKegiatan));
-          break;
-        case KegiatanSortOption.abjadZA:
-          filteredKegiatanList.sort((a, b) => b.namaKegiatan.compareTo(a.namaKegiatan));
-          break;
-        case KegiatanSortOption.tanggalTerdekat:
-          filteredKegiatanList.sort((a, b) => DateFormat('dd-MM-yyyy').parse(a.tanggalAcara).compareTo(DateFormat('dd-MM-yyyy').parse(b.tanggalAcara)));
-          break;
-        case KegiatanSortOption.tanggalTerjauh:
-          filteredKegiatanList.sort((a, b) => DateFormat('dd-MM-yyyy').parse(b.tanggalAcara).compareTo(DateFormat('dd-MM-yyyy').parse(a.tanggalAcara)));
-          break;
-        case KegiatanSortOption.jti:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan JTI').toList();
-          break;
-        case KegiatanSortOption.nonJTI:
-          filteredKegiatanList = kegiatanList.where((kegiatan) => kegiatan.jenisKegiatan == 'Kegiatan Non-JTI').toList();
-        default:
-          break;
-      }
     });
   }
 
@@ -107,15 +76,21 @@ class ProgressKegiatanPageState extends State<ProgressKegiatanPage> {
       body: Column(
         children: [
           const SizedBox(height: 20),
-          CustomFilter<KegiatanSortOption>(
-            controller: _searchController,
-            onChanged: (value) => _searchKegiatan(),
-            selectedSortOption: selectedSortOption,
-            onSortOptionChanged: (KegiatanSortOption? value) {
-              _sortKegiatanList(value);
-            },
-            sortOptions: KegiatanSortOption.values.toList(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: const BorderSide(color: Colors.grey),
+                ),
+                prefixIcon: const Icon(Icons.search),
+              ),
+            ),
           ),
+          const SizedBox(height: 16),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),

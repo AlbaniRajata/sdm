@@ -3,17 +3,46 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/models/dosen/statistik_model.dart';
+import 'package:sdm/services/dosen/api_statistik.dart';
 import 'package:sdm/widget/dosen/custom_bottomappbar.dart';
 
-class DetailprofilePage extends StatelessWidget {
+class DetailprofilePage extends StatefulWidget {
   final UserModel userData;
-  final StatistikModel? statistikData;
 
   const DetailprofilePage({
     super.key,
     required this.userData,
-    this.statistikData,
   });
+
+  @override
+  State<DetailprofilePage> createState() => _DetailprofilePageState();
+}
+
+class _DetailprofilePageState extends State<DetailprofilePage> {
+  final ApiStatistik _apiStatistik = ApiStatistik();
+  StatistikModel? _statistikData;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStatistik();
+  }
+
+  Future<void> _loadStatistik() async {
+    try {
+      final statistik = await _apiStatistik.getStatistikDosen();
+      setState(() {
+        _statistikData = statistik;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      debugPrint('Error loading statistik: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,14 +73,14 @@ class DetailprofilePage extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             Text(
-              userData.nama,
+              widget.userData.nama,
               style: GoogleFonts.poppins(
                 fontSize: screenWidth * 0.045,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              userData.email,
+              widget.userData.email,
               style: GoogleFonts.poppins(
                 color: Colors.grey[600],
                 fontSize: screenWidth * 0.035,
@@ -93,28 +122,30 @@ class DetailprofilePage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildDetailField('Nama', userData.nama),
+                          _buildDetailField('Nama', widget.userData.nama),
                           const SizedBox(height: 16),
-                          _buildDetailField('Email', userData.email),
+                          _buildDetailField('Email', widget.userData.email),
                           const SizedBox(height: 16),
-                          _buildDetailField('NIP', userData.nip),
+                          _buildDetailField('NIP', widget.userData.nip),
                           const SizedBox(height: 16),
-                          _buildDetailField('Level', userData.level),
+                          _buildDetailField('Level', widget.userData.level),
                           const SizedBox(height: 16),
                           _buildDetailField(
                             'Tanggal Lahir',
-                            DateFormat('dd MMMM yyyy').format(userData.tanggalLahir),
+                            DateFormat('dd MMMM yyyy').format(widget.userData.tanggalLahir),
                           ),
                           const SizedBox(height: 16),
                           _buildDetailField(
                             'Total Poin',
-                            (statistikData?.totalPoin ?? 0.0).toString(),
+                            _isLoading 
+                            ? 'Memuat...'
+                            : (_statistikData?.totalPoin ?? 0.0).toString(),
                           ),
-                          if (userData.jabatan.isNotEmpty) ...[
+                          if (widget.userData.jabatan.isNotEmpty) ...[
                             const SizedBox(height: 16),
                             _buildDetailField(
                               'Jabatan',
-                              userData.jabatan.join(', '),
+                              widget.userData.jabatan.join(', '),
                             ),
                           ],
                         ],

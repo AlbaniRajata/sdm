@@ -22,7 +22,6 @@ class EditProfilePage extends StatefulWidget {
 class _EditProfilePageState extends State<EditProfilePage> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
-  late TextEditingController _nipController;
   late TextEditingController _oldPasswordController;
   late TextEditingController _newPasswordController;
   late TextEditingController _confirmPasswordController;
@@ -38,7 +37,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     super.initState();
     _nameController = TextEditingController(text: widget.userData.nama);
     _emailController = TextEditingController(text: widget.userData.email);
-    _nipController = TextEditingController(text: widget.userData.nip);
     _oldPasswordController = TextEditingController();
     _newPasswordController = TextEditingController();
     _confirmPasswordController = TextEditingController();
@@ -48,7 +46,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
-    _nipController.dispose();
     _oldPasswordController.dispose();
     _newPasswordController.dispose();
     _confirmPasswordController.dispose();
@@ -159,7 +156,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   const SizedBox(height: 16),
                   _buildDetailField('Email', _emailController),
                   const SizedBox(height: 16),
-                  _buildDetailField('NIP', _nipController),
+                  _buildReadOnlyField('NIP', widget.userData.nip),
                   const SizedBox(height: 16),
                   _buildReadOnlyField('Jabatan', widget.userData.level),
                   const SizedBox(height: 16),
@@ -343,8 +340,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   bool _validateInputs() {
     if (_nameController.text.isEmpty ||
-        _emailController.text.isEmpty ||
-        _nipController.text.isEmpty) {
+        _emailController.text.isEmpty) {
       CustomTopSnackBar.show(context, 'Semua field harus diisi');
       return false;
     }
@@ -355,6 +351,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
         CustomTopSnackBar.show(
           context,
           'Password lama harus diisi untuk mengubah password'
+        );
+        return false;
+      }
+
+      if (_newPasswordController.text.length < 5) {
+        CustomTopSnackBar.show(
+          context,
+          'Password minimal 5 karakter'
         );
         return false;
       }
@@ -378,7 +382,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         widget.userData.idUser,
         nama: _nameController.text,
         email: _emailController.text,
-        nip: _nipController.text,
+        nip: widget.userData.nip,
         oldPassword: _newPasswordController.text.isNotEmpty ? _oldPasswordController.text : null,
         newPassword: _newPasswordController.text.isNotEmpty ? _newPasswordController.text : null,
         confirmPassword: _newPasswordController.text.isNotEmpty ? _confirmPasswordController.text : null,

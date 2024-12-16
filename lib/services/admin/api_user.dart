@@ -101,6 +101,13 @@ class ApiUserAdmin {
       if (response.statusCode == 201) {
         return UserResponse.fromJson(json.decode(response.body));
       } else {
+        final errorResponse = json.decode(response.body);
+        if (response.statusCode == 422) {
+          final errors = errorResponse['message'] as Map<String, dynamic>;
+          if (errors.containsKey('NIP')) {
+            throw Exception('Gagal membuat pengguna: NIP telah digunakan');
+          }
+        }
         throw Exception('Gagal membuat pengguna: ${response.statusCode}');
       }
     } catch (e) {

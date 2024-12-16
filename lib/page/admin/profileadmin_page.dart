@@ -136,14 +136,16 @@ class _ProfileAdminPageState extends State<ProfileAdminPage> {
 
   Widget _buildEditButton(BuildContext context, double screenWidth) {
     return ElevatedButton.icon(
-      onPressed: () {
+      onPressed: () async {
         if (userData != null) {
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => EditProfilePage(userData: userData!),
             ),
           );
+          setState(() => isLoading = true);
+          await _loadUserData();
         }
       },
       icon: const Icon(Icons.edit, size: 20, color: Colors.white),

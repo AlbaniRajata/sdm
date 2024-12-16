@@ -23,7 +23,7 @@ class ApiProfile {
   Future<UserModel> updateProfile(int id, {
     required String nama,
     required String email,
-    required String nip,
+    String? nip,
     String? oldPassword,
     String? newPassword,
     String? confirmPassword,

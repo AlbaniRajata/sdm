@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:sdm/models/admin/kegiatan_model.dart';
 import 'package:sdm/page/admin/detailkegiatan_page.dart';
 import 'package:sdm/page/admin/editkegiatan_page.dart';
+import 'package:sdm/page/admin/tambahkegiatan_page.dart';
 import 'package:sdm/services/admin/api_kegiatan.dart';
 import 'package:sdm/widget/admin/custom_bottomappbar.dart';
 import 'package:sdm/widget/admin/custom_filter.dart';
@@ -24,6 +25,21 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
   List<KegiatanModel> filteredKegiatanList = [];
   KegiatanSortOption selectedSortOption = KegiatanSortOption.abjadAZ;
 
+
+  Future<void> _navigateToAddKegiatan() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const TambahKegiatanPage(),
+      ),
+    );
+    
+    if (result != null) {
+      // Refresh daftar kegiatan ketika kembali dengan data baru
+      _getKegiatanList();
+    }
+  }
+  
   @override
   void initState() {
     super.initState();
@@ -185,7 +201,43 @@ class DaftarKegiatanPageState extends State<DaftarKegiatanPage> {
           ),
         ],
       ),
-      floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF00CBF1), Color(0xFF6777EF)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 2,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
+        ),
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const TambahKegiatanPage(),
+            ),
+          );
+          
+          if (result != null) {
+            _getKegiatanList();
+          }
+        },
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
     );
