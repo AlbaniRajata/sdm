@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/admin/user.dart';
+import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -60,16 +61,27 @@ class ApiLogin {
       final Map<String, dynamic> responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['token'] != null) {
-        await _persistToken(responseData['token']);
+      await _persistToken(responseData['token']);
+      
+      final userJson = responseData['user'];
+      final userModel = UserModel.fromJson(userJson);
+      
+      if (userModel.level.toLowerCase() != 'admin') {
         return {
-          'status': true,
-          'message': 'Login berhasil',
-          'data': {
-            'token': responseData['token'],
-            'user': responseData['user'],
-          }
+          'status': false,
+          'message': 'Username tidak terdaftar sebagai Admin',
         };
-      } else if (response.statusCode == 401) {
+      }
+      
+      return {
+        'status': true,
+        'message': 'Login berhasil',
+        'data': {
+          'token': responseData['token'],
+          'user': userModel,
+        }
+      };
+    } else if (response.statusCode == 401) {
         final errorMessage = responseData['error']?.toString().toLowerCase() ?? '';
         if (errorMessage.contains('username')) {
           return {
