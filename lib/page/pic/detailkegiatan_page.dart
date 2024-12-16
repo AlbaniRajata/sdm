@@ -41,19 +41,13 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
     }
   }
 
-  Future<void> _handleDownload(DokumenModel dokumen) async {
-    try {
-      setState(() => isLoading = true);
-      await _apiKegiatan.downloadDokumen(
-        dokumen.idDokumen,
-        dokumen.namaDokumen,
-        context,
-      );
-      setState(() => isLoading = false);
-    } catch (e) {
-      setState(() => isLoading = false);
-      CustomTopSnackBar.show(context, 'Gagal mengunduh dokumen: ${e.toString()}');
+  DokumenModel? _getLatestDokumen() {
+    if (kegiatan?.dokumen == null || kegiatan!.dokumen!.isEmpty) {
+      return null;
     }
+    final sortedDokumen = List<DokumenModel>.from(kegiatan!.dokumen!)
+      ..sort((a, b) => b.idDokumen.compareTo(a.idDokumen));
+    return sortedDokumen.first;
   }
 
   @override
@@ -94,60 +88,69 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                           _buildDetailField('Tanggal Selesai', kegiatan!.tanggalSelesai),
                           _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
                           _buildDetailField('Tanggal Kegiatan', kegiatan!.tanggalAcara),
+                          
+                          // Modified document section to show only latest document
                           if (kegiatan?.dokumen != null && kegiatan!.dokumen!.isNotEmpty) ...[
                             const SizedBox(height: 16),
                             Text(
-                              'Dokumen',
+                              'Dokumen Terbaru',
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
                             ),
                             const SizedBox(height: 8),
-                            ...kegiatan!.dokumen!.map((dokumen) => Container(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.grey.shade300),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          dokumen.namaDokumen,
-                                          style: GoogleFonts.poppins(fontSize: 12),
-                                        ),
-                                        Text(
-                                          dokumen.jenisDokumen,
-                                          style: GoogleFonts.poppins(
-                                            fontSize: 10,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                            Builder(
+                              builder: (context) {
+                                final latestDokumen = _getLatestDokumen();
+                                if (latestDokumen == null) return const SizedBox();
+                                
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey.shade300),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  ElevatedButton.icon(
-                                    icon: const Icon(Icons.download, size: 16),
-                                    label: const Text('Download'),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    ),
-                                    onPressed: () => _apiKegiatan.downloadDokumen(
-                                      dokumen.idDokumen,
-                                      dokumen.namaDokumen,
-                                      context,
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              latestDokumen.namaDokumen,
+                                              style: GoogleFonts.poppins(fontSize: 12),
+                                            ),
+                                            Text(
+                                              latestDokumen.jenisDokumen,
+                                              style: GoogleFonts.poppins(
+                                                fontSize: 10,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      ElevatedButton.icon(
+                                        icon: const Icon(Icons.download, size: 16),
+                                        label: const Text('Download'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
+                                          foregroundColor: Colors.white,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        ),
+                                        onPressed: () => _apiKegiatan.downloadDokumen(
+                                          latestDokumen.idDokumen,
+                                          latestDokumen.namaDokumen,
+                                          context,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            )).toList(),
+                                );
+                              },
+                            ),
                           ],
                         ],
                       ),
