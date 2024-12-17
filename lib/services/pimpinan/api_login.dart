@@ -3,14 +3,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/pimpinan/user.dart';
-import 'package:sdm/models/pimpinan/user_model.dart';
 import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiLogin {
   static const String baseUrl = ApiConfig.baseUrl;
   String? token;
+
   ApiLogin({this.token});
+
   bool get hasValidToken => token != null && token!.isNotEmpty;
 
   Future<void> _persistToken(String token) async {
@@ -30,6 +31,7 @@ class ApiLogin {
 
   Future<Map<String, dynamic>> login(User user) async {
     try {
+      // Validasi input kosong
       if (user.username.isEmpty) {
         return {
           'status': false,
@@ -59,28 +61,36 @@ class ApiLogin {
       final Map<String, dynamic> responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['token'] != null) {
-      await _persistToken(responseData['token']);
-      
-      final userJson = responseData['user'];
-      final userModel = UserModel.fromJson(userJson);
-      
-      if (userModel.level.toLowerCase() != 'pimpinan') {
-        return {
-          'status': false,
-          'message': 'Username tidak terdaftar sebagai Pimpinan',
-        };
-      }
-      
-      return {
-        'status': true,
-        'message': 'Login berhasil',
-        'data': {
-          'token': responseData['token'],
-          'user': userModel,
+        if (responseData['user'] != null) {
+          final userData = responseData['user'];
+          final String userLevel = userData['level']?.toString().toLowerCase() ?? '';
+
+          if (userLevel != 'pimpinan') {
+            return {
+              'status': false,
+              'message': 'Username tidak terdaftar sebagai Pimpinan',
+            };
+          }
+
+          await _persistToken(responseData['token']);
+          
+          return {
+            'status': true,
+            'message': 'Login berhasil',
+            'data': {
+              'token': responseData['token'],
+              'user': userData,
+            }
+          };
+        } else {
+          return {
+            'status': false,
+            'message': 'Data pengguna tidak valid',
+          };
         }
-      };
-    } else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         final errorMessage = responseData['error']?.toString().toLowerCase() ?? '';
+        
         if (errorMessage.contains('username')) {
           return {
             'status': false,
@@ -92,6 +102,7 @@ class ApiLogin {
             'message': 'Password yang Anda masukkan salah',
           };
         }
+
         return {
           'status': false,
           'message': 'Username atau password salah',
@@ -108,7 +119,7 @@ class ApiLogin {
         'message': 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda',
       };
     } catch (e) {
-      debugPrint('Error di login: $e');
+      debugPrint('Error dalam login: $e');
       return {
         'status': false,
         'message': 'Terjadi kesalahan yang tidak terduga',
@@ -116,11 +127,40 @@ class ApiLogin {
     }
   }
 
+  Future<bool> logout() async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        return true; // Already logged out
+      }
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/logout'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('token');
+        this.token = null;
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      debugPrint('Error in logout: $e');
+      return false;
+    }
+  }
+
   Future<http.Response> getData(String endpoint) async {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token tidak tersedia. Silakan login kembali.');
+        throw Exception('Token not available. Please login again.');
       }
 
       return await http.get(
@@ -140,7 +180,7 @@ class ApiLogin {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token tidak tersedia. Silakan login kembali.');
+        throw Exception('Token not available. Please login again.');
       }
 
       return await http.post(

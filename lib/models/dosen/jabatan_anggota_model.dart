@@ -1,14 +1,19 @@
 class JabatanAnggota {
   final int idJabatanKegiatan;
-  final String namaJabatan;
+  final String jabatanNama;
+  final String poin;
 
   JabatanAnggota({
     required this.idJabatanKegiatan,
-    required this.namaJabatan,
+    required this.jabatanNama,
+    required this.poin,
   });
 
-  factory JabatanAnggota.fromJson(Map<String, dynamic> json) => JabatanAnggota(
-    idJabatanKegiatan: json["id_jabatan_kegiatan"] ?? 0,
-    namaJabatan: json["nama_jabatan"] ?? '',
-  );
+  factory JabatanAnggota.fromJson(Map<String, dynamic> json) {
+    return JabatanAnggota(
+      idJabatanKegiatan: json['id_jabatan_kegiatan'] ?? 0,
+      jabatanNama: json['jabatan_nama'] ?? '',
+      poin: json['poin']?.toString() ?? '0',
+    );
+  }
 }

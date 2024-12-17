@@ -76,149 +76,9 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Card Header Detail Kegiatan
-                        Container(
-                          height: 40,
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 5, 167, 170),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'Detail Kegiatan',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        // Card Body Detail Kegiatan
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(12),
-                              bottomRight: Radius.circular(12),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 8),
-                              _buildDetailField('Nama Kegiatan', kegiatan!.namaKegiatan),
-                              _buildDetailField('Deskripsi Kegiatan', 
-                                  kegiatan!.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia',
-                                  isDescription: true),
-                              _buildDetailField('Tanggal Mulai', (kegiatan!.tanggalMulai)),
-                              _buildDetailField('Tanggal Selesai', (kegiatan!.tanggalSelesai)),
-                              _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
-                              _buildDetailField('Tanggal Kegiatan', (kegiatan!.tanggalAcara)),
-                            ],
-                          ),
-                        ),
+                        _buildDetailCard(),
                         const SizedBox(height: 16.0),
-                        // Card Header Daftar Anggota
-                        Container(
-                          height: 40,
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(255, 5, 167, 170),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(12),
-                              topRight: Radius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'Daftar Anggota',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16.0,
-                            ),
-                          ),
-                        ),
-                        // Card Body Daftar Anggota
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: const BorderRadius.only(
-                              bottomLeft: Radius.circular(12),
-                              bottomRight: Radius.circular(12),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 8.0),
-                              if (kegiatan!.anggota != null)
-                                ...kegiatan!.anggota!.map((anggota) {
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      _buildDetailField('Nama Anggota', anggota.nama),
-                                      _buildDetailField('Jabatan', anggota.jabatanNama),
-                                      _buildDetailField('Poin', anggota.poin.toString()),
-                                      const SizedBox(height: 8.0),
-                                    ],
-                                  );
-                                }).toList(),
-                              const SizedBox(height: 16.0),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const DaftarKegiatanPage(),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.orange,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4.0),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Kembali',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                        _buildAnggotaCard(),
                       ],
                     ),
                   ),
@@ -226,6 +86,189 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
+    );
+  }
+
+  Widget _buildDetailCard() {
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 5, 167, 170),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Detail Kegiatan',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDetailField('Nama Kegiatan', kegiatan!.namaKegiatan),
+                _buildDetailField('Deskripsi Kegiatan', 
+                    kegiatan!.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia',
+                    isDescription: true),
+                _buildDetailField('Tanggal Mulai', kegiatan!.tanggalMulai),
+                _buildDetailField('Tanggal Selesai', kegiatan!.tanggalSelesai),
+                _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
+                _buildDetailField('Tanggal Kegiatan', kegiatan!.tanggalAcara),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnggotaCard() {
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 5, 167, 170),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Daftar Anggota',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                if (kegiatan?.anggota == null || kegiatan!.anggota!.isEmpty)
+                  Center(
+                    child: Text(
+                      'Tidak ada anggota terdaftar',
+                      style: GoogleFonts.poppins(
+                        color: Colors.black54,
+                        fontSize: 14,
+                      ),
+                    ),
+                  )
+                else
+                  ...kegiatan!.anggota!.map((anggota) => Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                anggota.nama,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Jabatan: ${anggota.jabatanNama}',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color.fromARGB(255, 5, 167, 170).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            'Poin: ${anggota.poin}',
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              color: const Color.fromARGB(255, 5, 167, 170),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )).toList(),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DaftarKegiatanPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Kembali',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

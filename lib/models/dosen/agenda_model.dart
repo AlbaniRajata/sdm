@@ -23,37 +23,21 @@ class AgendaModel {
     required this.agenda,
   });
 
-  factory AgendaModel.fromJson(Map<String, dynamic> json) => AgendaModel(
-    idKegiatan: json["id_kegiatan"] ?? 0,
-    namaKegiatan: json["nama_kegiatan"] ?? '',
-    tempatKegiatan: json["tempat_kegiatan"],
-    deskripsiKegiatan: json["deskripsi_kegiatan"],
-    tanggalMulai: json["tanggal_mulai"] ?? '',
-    tanggalSelesai: json["tanggal_selesai"] ?? '',
-    tanggalAcara: json["tanggal_acara"] ?? '',
-    anggota: List<AnggotaAgenda>.from(
-      (json["anggota"] ?? []).map((x) => AnggotaAgenda.fromJson(x))
-    ),
-    agenda: List<AgendaItem>.from(
-      (json["agenda"] ?? []).map((x) => AgendaItem.fromJson(x))
-    ),
-  );
-}
-
-class AgendaItem {
-  final int idAgendaAnggota;
-  final int idAgenda;
-  final String namaAgenda;
-
-  AgendaItem({
-    required this.idAgendaAnggota,
-    required this.idAgenda,
-    required this.namaAgenda,
-  });
-
-  factory AgendaItem.fromJson(Map<String, dynamic> json) => AgendaItem(
-    idAgendaAnggota: json["id_agenda_anggota"] ?? 0,
-    idAgenda: json["id_agenda"] ?? 0,
-    namaAgenda: json["nama_agenda"] ?? '',
-  );
+  factory AgendaModel.fromJson(Map<String, dynamic> json) {
+    return AgendaModel(
+      idKegiatan: json["id_kegiatan"]?.toInt() ?? 0,
+      namaKegiatan: json["nama_kegiatan"]?.toString() ?? '',
+      tempatKegiatan: json["tempat_kegiatan"]?.toString(),
+      deskripsiKegiatan: json["deskripsi_kegiatan"]?.toString(),
+      tanggalMulai: json["tanggal_mulai"]?.toString() ?? '',
+      tanggalSelesai: json["tanggal_selesai"]?.toString() ?? '',
+      tanggalAcara: json["tanggal_acara"]?.toString() ?? '',
+      anggota: json["anggota"] != null 
+          ? List<AnggotaAgenda>.from(json["anggota"].map((x) => AnggotaAgenda.fromJson(x)))
+          : [],
+      agenda: json["agenda"] != null
+          ? List<AgendaItem>.from(json["agenda"].map((x) => AgendaItem.fromJson(x)))
+          : [],
+    );
+  }
 }

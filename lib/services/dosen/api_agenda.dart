@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/dosen/agenda_model.dart';
+import 'package:sdm/models/dosen/detail_agenda_model.dart';
 import 'package:sdm/models/dosen/kegiatan_model.dart';
 import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,7 +58,7 @@ class ApiAgenda {
     }
   }
 
-  Future<AgendaModel> getDetailKegiatan(int idKegiatan) async {
+  Future<DetailAgendaModel> getDetailKegiatan(int idKegiatan) async {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
@@ -77,7 +78,7 @@ class ApiAgenda {
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
         if (jsonResponse['status'] == 'success') {
-          return AgendaModel.fromJson(jsonResponse['data']);
+          return DetailAgendaModel.fromJson(jsonResponse['data']);
         }
         throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
       } else if (response.statusCode == 401) {

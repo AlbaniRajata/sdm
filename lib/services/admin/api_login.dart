@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/admin/user.dart';
-import 'package:sdm/models/admin/user_model.dart';
 import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,6 +31,7 @@ class ApiLogin {
 
   Future<Map<String, dynamic>> login(User user) async {
     try {
+      // Validasi input kosong
       if (user.username.isEmpty) {
         return {
           'status': false,
@@ -61,28 +61,36 @@ class ApiLogin {
       final Map<String, dynamic> responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['token'] != null) {
-      await _persistToken(responseData['token']);
-      
-      final userJson = responseData['user'];
-      final userModel = UserModel.fromJson(userJson);
-      
-      if (userModel.level.toLowerCase() != 'admin') {
-        return {
-          'status': false,
-          'message': 'Username tidak terdaftar sebagai Admin',
-        };
-      }
-      
-      return {
-        'status': true,
-        'message': 'Login berhasil',
-        'data': {
-          'token': responseData['token'],
-          'user': userModel,
+        if (responseData['user'] != null) {
+          final userData = responseData['user'];
+          final String userLevel = userData['level']?.toString().toLowerCase() ?? '';
+
+          if (userLevel != 'admin') {
+            return {
+              'status': false,
+              'message': 'Username tidak terdaftar sebagai Admin',
+            };
+          }
+
+          await _persistToken(responseData['token']);
+          
+          return {
+            'status': true,
+            'message': 'Login berhasil',
+            'data': {
+              'token': responseData['token'],
+              'user': userData,
+            }
+          };
+        } else {
+          return {
+            'status': false,
+            'message': 'Data pengguna tidak valid',
+          };
         }
-      };
-    } else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         final errorMessage = responseData['error']?.toString().toLowerCase() ?? '';
+        
         if (errorMessage.contains('username')) {
           return {
             'status': false,
@@ -94,6 +102,7 @@ class ApiLogin {
             'message': 'Password yang Anda masukkan salah',
           };
         }
+
         return {
           'status': false,
           'message': 'Username atau password salah',
@@ -110,7 +119,7 @@ class ApiLogin {
         'message': 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda',
       };
     } catch (e) {
-      debugPrint('Error di login: $e');
+      debugPrint('Error dalam login: $e');
       return {
         'status': false,
         'message': 'Terjadi kesalahan yang tidak terduga',
@@ -142,7 +151,7 @@ class ApiLogin {
 
       return false;
     } catch (e) {
-      debugPrint('Error di logout: $e');
+      debugPrint('Error in logout: $e');
       return false;
     }
   }
@@ -151,7 +160,7 @@ class ApiLogin {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token tidak tersedia. Silakan login kembali.');
+        throw Exception('Token not available. Please login again.');
       }
 
       return await http.get(
@@ -162,7 +171,7 @@ class ApiLogin {
         },
       );
     } catch (e) {
-      debugPrint('Error di getData: $e');
+      debugPrint('Error in getData: $e');
       rethrow;
     }
   }
@@ -171,7 +180,7 @@ class ApiLogin {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        throw Exception('Token tidak tersedia. Silakan login kembali.');
+        throw Exception('Token not available. Please login again.');
       }
 
       return await http.post(
@@ -184,7 +193,7 @@ class ApiLogin {
         body: jsonEncode(data),
       );
     } catch (e) {
-      debugPrint('Error di postData: $e');
+      debugPrint('Error in postData: $e');
       rethrow;
     }
   }

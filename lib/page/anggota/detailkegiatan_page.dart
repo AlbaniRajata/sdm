@@ -89,6 +89,246 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
     }
   }
 
+  Widget _buildDetailCard() {
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 5, 167, 170),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Detail Kegiatan',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDetailField('Nama Kegiatan', kegiatan!.namaKegiatan),
+                _buildDetailField('Deskripsi Kegiatan', 
+                    kegiatan!.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia',
+                    isDescription: true),
+                _buildDetailField('Tanggal Mulai', _formatDate(kegiatan!.tanggalMulai)),
+                _buildDetailField('Tanggal Selesai', _formatDate(kegiatan!.tanggalSelesai)),
+                _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
+                _buildDetailField('Tanggal Kegiatan', _formatDate(kegiatan!.tanggalAcara)),
+                
+                if (kegiatan?.dokumen != null && kegiatan!.dokumen!.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    'Dokumen Terbaru',
+                    style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Builder(
+                    builder: (context) {
+                      final latestDokumen = _getLatestDokumen();
+                      if (latestDokumen == null) return const SizedBox();
+                      
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    latestDokumen.namaDokumen,
+                                    style: GoogleFonts.poppins(fontSize: 12),
+                                  ),
+                                  Text(
+                                    latestDokumen.jenisDokumen,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.download, size: 16),
+                              label: const Text('Download'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                              ),
+                              onPressed: isDownloading 
+                                  ? null 
+                                  : () => _handleDownload(latestDokumen),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnggotaCard() {
+    if (kegiatan?.anggota == null || kegiatan!.anggota!.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 5, 167, 170),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Daftar Anggota',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                ...kegiatan!.anggota!.map((anggota) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              anggota.nama,
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Jabatan: ${anggota.jabatanNama}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 5, 167, 170).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'Poin: ${anggota.poin}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: const Color.fromARGB(255, 5, 167, 170),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )).toList(),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DaftarKegiatanPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Kembali',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,131 +359,9 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionCard(
-                      'Detail Kegiatan',
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildDetailField('Nama Kegiatan', kegiatan!.namaKegiatan),
-                          _buildDetailField('Deskripsi Kegiatan', kegiatan!.deskripsiKegiatan ?? 'Deskripsi kegiatan belum tersedia', isDescription: true),
-                          _buildDetailField('Tanggal Mulai', _formatDate(kegiatan!.tanggalMulai)),
-                          _buildDetailField('Tanggal Selesai', _formatDate(kegiatan!.tanggalSelesai)),
-                          _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
-                          _buildDetailField('Tanggal Kegiatan', _formatDate(kegiatan!.tanggalAcara)),
-                          if (kegiatan?.dokumen != null && kegiatan!.dokumen!.isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            Text(
-                              'Dokumen Terbaru',
-                              style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Builder(
-                              builder: (context) {
-                                final latestDokumen = _getLatestDokumen();
-                                if (latestDokumen == null) return const SizedBox();
-                                
-                                return Container(
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade300),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              latestDokumen.namaDokumen,
-                                              style: GoogleFonts.poppins(fontSize: 12),
-                                            ),
-                                            Text(
-                                              latestDokumen.jenisDokumen,
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 10,
-                                                color: Colors.grey,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      ElevatedButton.icon(
-                                        icon: const Icon(Icons.download, size: 16),
-                                        label: const Text('Download'),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color.fromRGBO(255, 174, 3, 1),
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 8,
-                                          ),
-                                        ),
-                                        onPressed: isDownloading 
-                                            ? null 
-                                            : () => _handleDownload(latestDokumen),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    _buildSectionCard(
-                      'Daftar Anggota',
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (kegiatan!.anggota != null)
-                            ...kegiatan!.anggota!.map((anggota) => Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildDetailField('Nama Anggota', anggota.nama),
-                                _buildDetailField('Jabatan', anggota.jabatanNama),
-                                _buildDetailField('Poin', anggota.poin.toString()),
-                                const SizedBox(height: 8.0),
-                              ],
-                            )).toList(),
-                          const SizedBox(height: 16.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const DaftarKegiatanPage(),
-                                    ),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.orange,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Kembali',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                    _buildDetailCard(),
+                    const SizedBox(height: 16),
+                    _buildAnggotaCard(),
                   ],
                 ),
               ),

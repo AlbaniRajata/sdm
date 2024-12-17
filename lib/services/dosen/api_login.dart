@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sdm/models/dosen/user.dart';
-import 'package:sdm/models/dosen/user_model.dart';
 import 'package:sdm/services/api_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,6 +31,7 @@ class ApiLogin {
 
   Future<Map<String, dynamic>> login(User user) async {
     try {
+      // Validasi input kosong
       if (user.username.isEmpty) {
         return {
           'status': false,
@@ -61,28 +61,36 @@ class ApiLogin {
       final Map<String, dynamic> responseData = json.decode(response.body);
 
       if (response.statusCode == 200 && responseData['token'] != null) {
-      await _persistToken(responseData['token']);
-      
-      final userJson = responseData['user'];
-      final userModel = UserModel.fromJson(userJson);
-      
-      if (userModel.level.toLowerCase() != 'dosen') {
-        return {
-          'status': false,
-          'message': 'Username tidak terdaftar sebagai Dosen',
-        };
-      }
-      
-      return {
-        'status': true,
-        'message': 'Login berhasil',
-        'data': {
-          'token': responseData['token'],
-          'user': userModel,
+        if (responseData['user'] != null) {
+          final userData = responseData['user'];
+          final String userLevel = userData['level']?.toString().toLowerCase() ?? '';
+
+          if (userLevel != 'dosen') {
+            return {
+              'status': false,
+              'message': 'Username tidak terdaftar sebagai Dosen',
+            };
+          }
+
+          await _persistToken(responseData['token']);
+          
+          return {
+            'status': true,
+            'message': 'Login berhasil',
+            'data': {
+              'token': responseData['token'],
+              'user': userData,
+            }
+          };
+        } else {
+          return {
+            'status': false,
+            'message': 'Data pengguna tidak valid',
+          };
         }
-      };
-    } else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         final errorMessage = responseData['error']?.toString().toLowerCase() ?? '';
+        
         if (errorMessage.contains('username')) {
           return {
             'status': false,
@@ -94,6 +102,7 @@ class ApiLogin {
             'message': 'Password yang Anda masukkan salah',
           };
         }
+
         return {
           'status': false,
           'message': 'Username atau password salah',
@@ -110,19 +119,19 @@ class ApiLogin {
         'message': 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda',
       };
     } catch (e) {
-      debugPrint('Error di login: $e');
+      debugPrint('Error dalam login: $e');
       return {
         'status': false,
         'message': 'Terjadi kesalahan yang tidak terduga',
       };
     }
-  }
+    }
 
   Future<bool> logout() async {
     try {
       final token = await _getToken();
       if (token == null || token.isEmpty) {
-        return true; // Already logged out
+        return true;
       }
 
       final response = await http.post(

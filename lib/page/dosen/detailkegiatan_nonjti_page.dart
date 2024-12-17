@@ -79,9 +79,9 @@ class _DetailKegiatanNonJTIPageState extends State<DetailKegiatanNonJTIPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildDetailSection(),
+                        _buildDetailCard(),
                         const SizedBox(height: 16),
-                        _buildAnggotaSection(),
+                        _buildAnggotaCard(),
                       ],
                     ),
                   ),
@@ -92,159 +92,185 @@ class _DetailKegiatanNonJTIPageState extends State<DetailKegiatanNonJTIPage> {
     );
   }
 
-  Widget _buildDetailSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: 40,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 5, 167, 170),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
-            ),
-          ),
-          child: Text(
-            'Detail Kegiatan',
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0,
-            ),
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(12),
-              bottomRight: Radius.circular(12),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
+  Widget _buildDetailCard() {
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 5, 167, 170),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
               ),
-            ],
+            ),
+            child: Text(
+              'Detail Kegiatan',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-              _buildDetailField('Nama Kegiatan', kegiatan?.namaKegiatan ?? ''),
-              _buildDetailField('Deskripsi Kegiatan', kegiatan?.deskripsiKegiatan ?? 'Tidak ada deskripsi'),
-              _buildDetailField('Tanggal Mulai', kegiatan?.tanggalMulai ?? ''),
-              _buildDetailField('Tanggal Selesai', kegiatan?.tanggalSelesai ?? ''),
-              _buildDetailField('Tempat Acara', kegiatan?.tempatKegiatan ?? ''),
-              _buildDetailField('Tanggal Acara', kegiatan?.tanggalAcara ?? ''),
-              _buildDetailField('Jenis Kegiatan', kegiatan?.jenisKegiatan ?? ''),
-              _buildDetailField('Jabatan', kegiatan?.jabatanNama ?? '-'),
-            ],
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDetailField('Nama Kegiatan', kegiatan?.namaKegiatan ?? ''),
+                _buildDetailField('Deskripsi Kegiatan', 
+                    kegiatan?.deskripsiKegiatan ?? 'Tidak ada deskripsi',
+                    isDescription: true),
+                _buildDetailField('Tanggal Mulai', kegiatan?.tanggalMulai ?? ''),
+                _buildDetailField('Tanggal Selesai', kegiatan?.tanggalSelesai ?? ''),
+                _buildDetailField('Tempat Acara', kegiatan?.tempatKegiatan ?? ''),
+                _buildDetailField('Tanggal Acara', kegiatan?.tanggalAcara ?? ''),
+                _buildDetailField('Jenis Kegiatan', kegiatan?.jenisKegiatan ?? ''),
+                _buildDetailField('Jabatan', kegiatan?.jabatanNama ?? '-'),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildAnggotaSection() {
+  Widget _buildAnggotaCard() {
     if (kegiatan?.anggota == null || kegiatan!.anggota!.isEmpty) {
-      return Container();
+      return const SizedBox();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: 40,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 5, 167, 170),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
+    return Card(
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color.fromARGB(255, 5, 167, 170),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Data Anggota',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
             ),
           ),
-          child: Text(
-            'Data Anggota',
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0,
-            ),
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
+          Container(
             color: Colors.white,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(12),
-              bottomRight: Radius.circular(12),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-              ...kegiatan!.anggota!.asMap().entries.map((entry) {
-                final index = entry.key + 1;
-                final anggota = entry.value;
-                return _buildMemberField(
-                  'Nama Anggota $index',
-                  anggota.nama,
-                  anggota.jabatanNama,
-                  anggota.poin.toString(),
-                );
-              }).toList(),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerRight,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const DaftarKegiatanNonJTIPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                ...kegiatan!.anggota!.map((anggota) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                    'Kembali',
-                    style: GoogleFonts.poppins(
-                      color: Colors.white,
-                    ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              anggota.nama,
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Jabatan: ${anggota.jabatanNama}',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 5, 167, 170).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          'Poin: ${anggota.poin}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: const Color.fromARGB(255, 5, 167, 170),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
+                )).toList(),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const DaftarKegiatanNonJTIPage(),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Kembali',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildDetailField(String title, String content) {
+  Widget _buildDetailField(String title, String content, {bool isDescription = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -262,56 +288,7 @@ class _DetailKegiatanNonJTIPageState extends State<DetailKegiatanNonJTIPage> {
           TextFormField(
             initialValue: content,
             readOnly: true,
-            maxLines: title == 'Deskripsi Kegiatan' ? 3 : 1,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMemberField(String title, String name, String position, String points) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 4),
-          TextFormField(
-            initialValue: name,
-            readOnly: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            initialValue: position,
-            readOnly: true,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
-            initialValue: points,
-            readOnly: true,
+            maxLines: isDescription ? 3 : 1,
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               isDense: true,
