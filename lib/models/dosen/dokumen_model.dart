@@ -12,11 +12,17 @@ class DokumenModel {
   });
 
   factory DokumenModel.fromJson(Map<String, dynamic> json) {
+    final jenisDokumen = json['jenis_dokumen'] as String;
+    
     return DokumenModel(
       idDokumen: json['id_dokumen'],
       namaDokumen: json['nama_dokumen'],
-      jenisDokumen: json['jenis_dokumen'],
+      jenisDokumen: jenisDokumen,
       filePath: json['file_path'],
     );
+  }
+
+  bool isSuratTugas() {
+    return jenisDokumen.toLowerCase() == 'surat tugas';
   }
 }

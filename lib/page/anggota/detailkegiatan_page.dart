@@ -56,9 +56,19 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
     if (kegiatan?.dokumen == null || kegiatan!.dokumen!.isEmpty) {
       return null;
     }
-    final sortedDokumen = List<DokumenModel>.from(kegiatan!.dokumen!)
-      ..sort((a, b) => b.idDokumen.compareTo(a.idDokumen));
-    return sortedDokumen.first;
+
+    // Filter untuk surat tugas
+    final suratTugasDokumen = kegiatan!.dokumen!
+        .where((doc) => doc.jenisDokumen.toLowerCase() == 'surat tugas')
+        .toList();
+    
+    if (suratTugasDokumen.isEmpty) {
+      return null;
+    }
+
+    // Sort berdasarkan ID untuk mendapatkan yang terbaru
+    suratTugasDokumen.sort((a, b) => b.idDokumen.compareTo(a.idDokumen));
+    return suratTugasDokumen.first;
   }
 
   Future<void> _handleDownload(DokumenModel dokumen) async {
@@ -132,10 +142,11 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                 _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
                 _buildDetailField('Tanggal Kegiatan', _formatDate(kegiatan!.tanggalAcara)),
                 
-                if (kegiatan?.dokumen != null && kegiatan!.dokumen!.isNotEmpty) ...[
+                // Section Surat Tugas
+                if (kegiatan?.dokumen != null) ...[
                   const SizedBox(height: 16),
                   Text(
-                    'Dokumen Terbaru',
+                    'Surat Tugas',
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
@@ -145,7 +156,15 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                   Builder(
                     builder: (context) {
                       final latestDokumen = _getLatestDokumen();
-                      if (latestDokumen == null) return const SizedBox();
+                      if (latestDokumen == null) {
+                        return Text(
+                          'Tidak ada surat tugas tersedia',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        );
+                      }
                       
                       return Container(
                         margin: const EdgeInsets.only(bottom: 8),
@@ -378,53 +397,6 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
       floatingActionButton: const CustomBottomAppBar().buildFloatingActionButton(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: const CustomBottomAppBar(),
-    );
-  }
-
-  Widget _buildSectionCard(String title, Widget content) {
-    return Column(
-      children: [
-        Container(
-          height: 40,
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 5, 167, 170),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(12),
-              topRight: Radius.circular(12),
-            ),
-          ),
-          child: Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16.0,
-            ),
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(12),
-              bottomRight: Radius.circular(12),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: content,
-        ),
-      ],
     );
   }
 

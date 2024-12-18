@@ -233,14 +233,14 @@ class DaftarKegiatanJTIPageState extends State<DaftarKegiatanJTIPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tanggal Selesai',
+                          'Tanggal Acara',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             color: Colors.black,
                           ),
                         ),
                         Text(
-                          (kegiatan.tanggalSelesai),
+                          (kegiatan.tanggalAcara),
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontStyle: FontStyle.italic,

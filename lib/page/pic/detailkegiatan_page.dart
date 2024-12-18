@@ -45,9 +45,19 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
     if (kegiatan?.dokumen == null || kegiatan!.dokumen!.isEmpty) {
       return null;
     }
-    final sortedDokumen = List<DokumenModel>.from(kegiatan!.dokumen!)
-      ..sort((a, b) => b.idDokumen.compareTo(a.idDokumen));
-    return sortedDokumen.first;
+    
+    // Filter untuk surat tugas
+    final suratTugasDokumen = kegiatan!.dokumen!
+        .where((doc) => doc.jenisDokumen.toLowerCase() == 'surat tugas')
+        .toList();
+    
+    if (suratTugasDokumen.isEmpty) {
+      return null;
+    }
+
+    // Sort berdasarkan ID untuk mendapatkan yang terbaru
+    suratTugasDokumen.sort((a, b) => b.idDokumen.compareTo(a.idDokumen));
+    return suratTugasDokumen.first;
   }
 
   @override
@@ -89,11 +99,11 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                           _buildDetailField('Tempat Kegiatan', kegiatan!.tempatKegiatan),
                           _buildDetailField('Tanggal Kegiatan', kegiatan!.tanggalAcara),
                           
-                          // Modified document section to show only latest document
-                          if (kegiatan?.dokumen != null && kegiatan!.dokumen!.isNotEmpty) ...[
+                          // Modified document section untuk surat tugas
+                          if (kegiatan?.dokumen != null) ...[
                             const SizedBox(height: 16),
                             Text(
-                              'Dokumen Terbaru',
+                              'Surat Tugas',
                               style: GoogleFonts.poppins(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
@@ -103,7 +113,15 @@ class DetailKegiatanPageState extends State<DetailKegiatanPage> {
                             Builder(
                               builder: (context) {
                                 final latestDokumen = _getLatestDokumen();
-                                if (latestDokumen == null) return const SizedBox();
+                                if (latestDokumen == null) {
+                                  return Text(
+                                    'Tidak ada surat tugas tersedia',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                    ),
+                                  );
+                                }
                                 
                                 return Container(
                                   margin: const EdgeInsets.only(bottom: 8),

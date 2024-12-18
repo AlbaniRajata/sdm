@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sdm/models/pimpinan/kegiatan_model.dart';
 import 'package:sdm/services/api_config.dart';
+import 'package:sdm/widget/custom_top_snackbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiKegiatan {
@@ -183,113 +187,6 @@ class ApiKegiatan {
     }
   }
 
-  // Menyetujui kegiatan
-  Future<bool> approveKegiatan(int idKegiatan) async {
-    try {
-      final token = await _getToken();
-      if (token == null || token.isEmpty) {
-        throw Exception('Token tidak tersedia. Silakan login kembali.');
-      }
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/kegiatan-pimpinan/$idKegiatan/approve'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
-
-      debugPrint('Response approve kegiatan: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        return jsonResponse['status'] == true;
-      } else if (response.statusCode == 401) {
-        throw Exception('Sesi telah berakhir. Silakan login kembali.');
-      } else {
-        throw Exception(json.decode(response.body)['message'] ?? 
-            'Gagal menyetujui kegiatan');
-      }
-    } catch (e) {
-      debugPrint('Error dalam approveKegiatan: $e');
-      rethrow;
-    }
-  }
-
-  // Menolak kegiatan
-  Future<bool> rejectKegiatan(int idKegiatan, String reason) async {
-    try {
-      final token = await _getToken();
-      if (token == null || token.isEmpty) {
-        throw Exception('Token tidak tersedia. Silakan login kembali.');
-      }
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/kegiatan-pimpinan/$idKegiatan/reject'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({'reason': reason}),
-      );
-
-      debugPrint('Response reject kegiatan: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        return jsonResponse['status'] == true;
-      } else if (response.statusCode == 401) {
-        throw Exception('Sesi telah berakhir. Silakan login kembali.');
-      } else {
-        throw Exception(json.decode(response.body)['message'] ?? 
-            'Gagal menolak kegiatan');
-      }
-    } catch (e) {
-      debugPrint('Error dalam rejectKegiatan: $e');
-      rethrow;
-    }
-  }
-
-  // Mendapatkan daftar kegiatan yang pending
-  Future<List<KegiatanModel>> getPendingKegiatan() async {
-    try {
-      final token = await _getToken();
-      if (token == null || token.isEmpty) {
-        throw Exception('Token tidak tersedia. Silakan login kembali.');
-      }
-
-      final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/kegiatan-pimpinan/pending'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        },
-      );
-
-      debugPrint('Response daftar kegiatan pending: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        if (jsonResponse['status'] == true) {
-          final List<dynamic> kegiatanList = jsonResponse['data'] ?? [];
-          return kegiatanList
-              .map((json) => KegiatanModel.fromJson(json))
-              .toList();
-        }
-        throw Exception(jsonResponse['message'] ?? 'Format respons tidak valid');
-      } else if (response.statusCode == 401) {
-        throw Exception('Sesi telah berakhir. Silakan login kembali.');
-      } else {
-        throw Exception(json.decode(response.body)['message'] ?? 
-            'Gagal memuat daftar kegiatan pending');
-      }
-    } catch (e) {
-      debugPrint('Error dalam getPendingKegiatan: $e');
-      rethrow;
-    }
-  }
-
   // Mendapatkan kalender kegiatan
   Future<Map<DateTime, String>> getKalenderKegiatan() async {
     try {
@@ -343,6 +240,47 @@ class ApiKegiatan {
       }
     } catch (e) {
       debugPrint('Error dalam getKalenderKegiatan: $e');
+      rethrow;
+    }
+  }
+
+  // Download dokumen
+  Future<void> downloadDokumen(int idDokumen, String namaDokumen, BuildContext context) async {
+    try {
+      final token = await _getToken();
+      if (token == null || token.isEmpty) {
+        throw Exception('Token tidak tersedia');
+      }
+
+      CustomTopSnackBar.show(context, 'Mengunduh $namaDokumen...', isError: false);
+
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/download-dokumen/$idDokumen'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final directory = await getApplicationDocumentsDirectory();
+        final filePath = '${directory.path}/$namaDokumen';
+        
+        File file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        
+        if (context.mounted) {
+          CustomTopSnackBar.show(context, '$namaDokumen berhasil diunduh', isError: false);
+        }
+        
+        await OpenFile.open(filePath);
+      } else {
+        throw Exception('Gagal mengunduh file');
+      }
+    } catch (e) {
+      if (context.mounted) {
+        CustomTopSnackBar.show(context, 'Error: ${e.toString()}');
+      }
       rethrow;
     }
   }

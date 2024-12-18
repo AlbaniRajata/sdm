@@ -241,26 +241,6 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tanggal Mulai',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          kegiatan.tanggalMulai,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
                           'Tanggal Acara',
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
@@ -269,26 +249,6 @@ class DaftarKegiatanNonJTIPageState extends State<DaftarKegiatanNonJTIPage> {
                         ),
                         Text(
                           kegiatan.tanggalAcara,
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Tanggal Selesai',
-                          style: GoogleFonts.poppins(
-                            fontSize: fontSize,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          kegiatan.tanggalSelesai,
                           style: GoogleFonts.poppins(
                             fontSize: fontSize,
                             fontStyle: FontStyle.italic,
